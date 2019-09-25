@@ -1,0 +1,29 @@
+<div class="container" fxLayout="column" fxLayoutAlign="end" fxLayoutJustify="stretch">
+
+  <div class="message-buffer"
+       fxLayout="column"
+       fxLayoutJustify="stretch"
+       #chatBuffer>
+
+    <div *ngFor="let msg of boundChat">
+      <strong>{{msg.sender}}</strong>
+      <div>{{msg.message}}</div>
+    </div>
+
+  </div>
+
+  <!--div>
+    <emoji-mart (emojiClick)="onAddEmoji($event.emoji)"
+                title="Pick your emoji…" emoji="point_up"
+                set="google"
+                hideObsolete="true"
+                skin="3"></emoji-mart>
+  </div-->
+
+  <mat-form-field class="message-input">
+    <input matInput placeholder="Enter message"
+           [(ngModel)]="userMessage"
+           (keydown.enter)="onEnterKey($event)">
+  </mat-form-field>
+
+</div>

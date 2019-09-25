@@ -6,5 +6,11 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  chatList: string[] = [];
   title = 'ng-web-irc';
+
+  onChatOpen(sender) {
+    this.chatList.push(sender);
+  }
+
 }
