@@ -19,7 +19,7 @@ import { MessagesWindowComponent } from './chat/messages-window/messages-window.
 import { IrcClient } from './irc-client/irc-client';
 import { ChatHostDirective } from './chat/chat-host.directive';
 import { ChatManagerComponent } from './chat/chat-manager/chat-manager.component';
-import {MatSidenavModule} from '@angular/material';
+import {MatBadgeModule, MatSidenavModule, MatToolbarModule} from '@angular/material';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 
 @NgModule({
@@ -42,6 +42,8 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
     MatCheckboxModule,
     MatInputModule,
     MatSidenavModule,
+    MatToolbarModule,
+    MatBadgeModule,
     ScrollingModule,
     PickerModule
   ],

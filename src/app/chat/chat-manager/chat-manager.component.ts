@@ -40,6 +40,10 @@ export class ChatManagerComponent implements OnInit {
   ) {
     this.ircClient.messageReceive.subscribe((msg) => {
       console.log('ChatMangerComponent', msg);
+      const ni = msg.sender.indexOf('!');
+      if (ni > 0 ) {
+        msg.sender = msg.sender.substring(0, ni - 1);
+      }
       if (this.chatMessages[msg.target] == null) {
         this.chatMessages[msg.target] = [];
         this.chatOpen.emit(msg.target);

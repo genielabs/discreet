@@ -1,13 +1,24 @@
 <mat-sidenav-container hasBackdrop="false" class="container">
 
-  <mat-sidenav #sidenav mode="side" opened="true">
-    Channels<br>
+  <mat-sidenav #sidenav mode="push" opened="true">
+    <div class="drawer-title">Conversations</div>
     <div *ngFor="let c of chatList">
-      <button mat-flat-button (click)="chatManager.show(c)">{{c}}</button>
+      <div class="chat-button">
+        <button (click)="chatManager.show(c)"
+                mat-flat-button color="primary"
+                matBadge="8" matBadgePosition="after" matBadgeColor="accent">
+          {{c}}
+        </button>
+      </div>
     </div>
   </mat-sidenav>
 
   <mat-sidenav-content>
+
+    <mat-toolbar color="primary">
+      <button mat-fab color="accent" (click)="sidenav.toggle()">Accent</button>
+      <span>My Application</span>
+    </mat-toolbar>
 
     <app-chat-manager
       (chatOpen)="onChatOpen($event)" #chatManager></app-chat-manager>

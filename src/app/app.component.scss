@@ -10,3 +10,16 @@ mat-sidenav {
 mat-drawer-content {
   margin-left: 200px;
 }
+
+.drawer-title {
+  background: darkblue;
+  height: 64px;
+}
+
+button[mat-flat-button] {
+  width: 100%;
+  text-align: start;
+}
+.chat-button {
+  padding: 14px;
+}

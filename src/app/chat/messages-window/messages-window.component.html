@@ -6,7 +6,7 @@
        #chatBuffer>
 
     <div *ngFor="let msg of boundChat">
-      <strong>{{msg.sender}}</strong>
+      <div class="message-sender">{{msg.sender}}</div>
       <div>{{msg.message}}</div>
     </div>
 

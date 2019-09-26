@@ -13,4 +13,7 @@ export class AppComponent {
     this.chatList.push(sender);
   }
 
+  toggleToolBar(t) {
+    console.log(t)
+  }
 }
