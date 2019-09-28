@@ -43,7 +43,6 @@ export class MessagesWindowComponent implements OnInit {
 
   private scrollLast(force?: boolean) {
     const el: HTMLElement = this.chatBuffer.nativeElement;
-    console.log(el.scrollHeight, el.scrollTop, el.offsetHeight);
     if (force || Math.round(el.scrollTop + el.offsetHeight) === el.scrollHeight) {
       setTimeout(() => {
         el.scrollTo(0, el.scrollHeight);

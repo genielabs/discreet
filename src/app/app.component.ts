@@ -1,6 +1,9 @@
 import {Component, Input, ViewChild} from '@angular/core';
+
 import {MatMenu} from '@angular/material';
+
 import {ChatManagerComponent} from './chat/chat-manager/chat-manager.component';
+import {ChatData} from './chat/chat-data';
 
 @Component({
   selector: 'app-root',
@@ -8,7 +11,7 @@ import {ChatManagerComponent} from './chat/chat-manager/chat-manager.component';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  chatList: string[] = [];
+  chatList: ChatData[] = [];
   title = 'ng-web-irc';
   currentUser: string;
   @ViewChild('chatManager', {static: true}) chatManager: ChatManagerComponent;
@@ -16,17 +19,17 @@ export class AppComponent {
   // state variables
   showUserList = false;
 
-  onChatOpen(chatName) {
-    const chat = this.chatManager.show(chatName);
+  onChatOpen(chat) {
+    this.chatManager.show(chat.target());
     this.showUserList = true;
-    this.chatList.push(chatName);
+    this.chatList.push(chat);
   }
 
   onChannelButtonClick(sidenav, c) {
     if (sidenav.mode !== 'side') {
       sidenav.close();
     }
-    const chat = this.chatManager.show(c);
+    const chat = this.chatManager.show(c.target());
     this.showUserList = chat.hasUsers();
   }
 

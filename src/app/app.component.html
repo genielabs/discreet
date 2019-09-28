@@ -6,7 +6,7 @@
       <button mat-flat-button color="primary" class="menu-button" (click)="sidenav.toggle()">
         <mat-icon>menu</mat-icon>
       </button>
-      <span>{{ chatManager && chatManager.chat().name || 'NgWebIRC' }}</span>
+      <span>{{ chatManager && chatManager.chat().target().name || 'NgWebIRC' }}</span>
     </mat-toolbar>
 <!--
     <mat-tab-group animationDuration="0ms" (selectedTabChange)="chatManager.show(chatList[$event.index])">
@@ -33,14 +33,23 @@
     </div>
 
     <div class="conversations-list" *ngIf="!showUserList" fxAlign="stretch">
-      <div *ngFor="let c of chatList">
+      <div *ngFor="let chat of chatList">
         <div class="chat-button">
-          <button (click)="onChannelButtonClick(sidenav, c)"
+          <button *ngIf="chat.stats.messages.new === 0; else button_indicator"
+                  (click)="onChannelButtonClick(sidenav, chat)"
                   mat-stroked-button
-                  [color]="c === chatManager.chat().name ? 'accent': ''"
-                  matBadge="8" matBadgePosition="after" matBadgeColor="accent">
-            {{c}}
+                  [color]="chat === chatManager.chat() ? 'accent': ''">
+            {{chat.target().name}}
           </button>
+          <ng-template #button_indicator>
+            <button (click)="onChannelButtonClick(sidenav, chat)"
+                    mat-stroked-button
+                    [color]="chat === chatManager.chat() ? 'accent': ''"
+                    [matBadge]="chat.stats.messages.new"
+                    matBadgePosition="after" matBadgeColor="accent">
+              {{chat.target().name}}
+            </button>
+          </ng-template>
         </div>
       </div>
     </div>

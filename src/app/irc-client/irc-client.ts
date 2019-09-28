@@ -20,7 +20,7 @@ export class IrcClient {
   messageReceive = new EventEmitter<any>();
   usersList = new EventEmitter<any>();
 
-  testChannelName = '#chatover40';
+  testChannelName = '##over40';
 
   config = {
     nick: 'kiwi-iwik',
@@ -38,7 +38,7 @@ export class IrcClient {
     const webIrcUrl = 'ws://localhost:8080/webirc/kiwiirc/304/0zze4wtr/websocket';
     const webIrcInfo = 'http://localhost:8080/webirc/kiwiirc/info?t=1569095871028';
 
-    const joinChannels = [ this.testChannelName, '##truth' ];
+    const joinChannels = [ this.testChannelName ];
 
     this.httpClient.get(webIrcInfo).subscribe((res) => {
       console.log(res);
@@ -96,7 +96,8 @@ console.log(msg.data)
                       subject.next([ ':1 CAP REQ :account-notify away-notify extended-join multi-prefix message-tags' ]);
                       subject.next([ ':1 CAP END' ]);
                     } else if (payload.params[1] === 'ACK') {
-                      joinChannels.forEach((c) => subject.next([ `:1 JOIN ${c}` ]));
+                      // CAP REPLY (ACK)
+                      // TODO: ..
                     }
                     break;
                   case '396': // DISPLAYED USER NAME+ADDRESS
@@ -153,7 +154,10 @@ console.log(msg.data)
                       });
                     }
                     break;
-                  case '372': // MOTD
+                  case '376': // MOTD END
+                    joinChannels.forEach((c) => subject.next([ `:1 JOIN ${c}` ]));
+                    break;
+                  case '372': // MOTD TEXT
                   case 'PRIVMSG':
                     const c = this.config;
                     if (payload.command === 'PRIVMSG' && message === '\u0001VERSION\u0001') {
