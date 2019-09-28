@@ -125,10 +125,11 @@ console.log(msg.data)
                     // payload.params[2]  Reasong
                     break;
                   case 'JOIN':
-                    // if message === '*' then this is a local user action
-                    if (message === '*') {
-                      const ch = payload.target;
-                      console.log(`################### JOIN ${ch} ###################`)
+                    // check if it's' the local user
+                    const userInfo = this.parseUserAddress(payload.prefix);
+                    if (userInfo.nick === this.config.nick) {
+                      const ch = payload.params[0];
+                      console.log(`################### JOIN ${ch} ###################`, payload)
                       // TODO: user succeed in joining the channel
                       break;
                     }
