@@ -9,9 +9,9 @@
 
       <div *ngFor="let msg of boundChat.messages; let i = index; let count = count;">
         <div class="message-sender" *ngIf="i == 0 || boundChat.messages[i - 1].sender !== msg.sender">
-          <span>{{msg.sender}}</span>
+          <span [innerHTML]="msg.sender"></span>
         </div>
-        <span class="message-body">{{msg.message}}</span>
+        <span class="message-body" [innerHTML]="msg.message | enrichMessage | async"></span>
       </div>
 
     </ng-container>

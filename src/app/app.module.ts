@@ -27,13 +27,15 @@ import { MessagesWindowComponent } from './chat/messages-window/messages-window.
 import { IrcClient } from './irc-client/irc-client';
 import { ChatHostDirective } from './chat/chat-host.directive';
 import { ChatManagerComponent } from './chat/chat-manager/chat-manager.component';
+import { EnrichMessage } from './chat/pipes/enrich-message.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
     MessagesWindowComponent,
     ChatManagerComponent,
-    ChatHostDirective
+    ChatHostDirective,
+    EnrichMessage
   ],
   imports: [
     BrowserModule,

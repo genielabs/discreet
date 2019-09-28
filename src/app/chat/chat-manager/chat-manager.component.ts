@@ -14,6 +14,7 @@ import {MessagesWindowComponent} from '../messages-window/messages-window.compon
 import {ChatHostDirective} from '../chat-host.directive';
 import {ChatInfo} from '../chat-info';
 import {ChatData} from '../chat-data';
+import {HttpClient} from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -41,8 +42,10 @@ export class ChatManagerComponent implements OnInit {
     private ircClient: IrcClient
   ) {
     this.ircClient.messageReceive.subscribe((msg) => {
+      //msg.message = this.createTextLinks_(msg.message);
+      console.log(msg.message);
       const ni = msg.sender.indexOf('!');
-      if (ni > 0 ) {
+      if (ni > 0) {
         msg.sender = msg.sender.substring(0, ni);
       }
       if (this.ircClient.config.nick === msg.target) {
@@ -52,7 +55,7 @@ export class ChatManagerComponent implements OnInit {
       this.messageWindow.onNewMessage(msg);
     });
     this.ircClient.usersList.subscribe((msg) => {
-console.log('####', this.chat(msg.target))
+      console.log('####', this.chat(msg.target));
       const userList = this.chat(msg.target).users;
       switch (msg.action) {
         case 'LIST':
@@ -110,4 +113,5 @@ console.log('####', this.chat(msg.target))
     }
     return chat;
   }
+
 }

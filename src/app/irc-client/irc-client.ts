@@ -38,7 +38,7 @@ export class IrcClient {
     const webIrcUrl = 'ws://localhost:8080/webirc/kiwiirc/304/0zze4wtr/websocket';
     const webIrcInfo = 'http://localhost:8080/webirc/kiwiirc/info?t=1569095871028';
 
-    const joinChannels = [ this.testChannelName ];
+    const joinChannels = [ this.testChannelName, '##truth' ];
 
     this.httpClient.get(webIrcInfo).subscribe((res) => {
       console.log(res);
@@ -71,7 +71,8 @@ console.log(msg.data)
               break;
             default:
 
-
+// TODO: things to implement and handle:
+//       - a[":1 control closed err_unknown_host"]
 
               let payload;
               if (msg.data.toString().startsWith('a[')) {
