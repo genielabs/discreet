@@ -1,29 +1,73 @@
-<mat-sidenav-container hasBackdrop="false" class="container">
-
-  <mat-sidenav #sidenav mode="push" opened="true">
-    <div class="drawer-title">Conversations</div>
-    <div *ngFor="let c of chatList">
-      <div class="chat-button">
-        <button (click)="chatManager.show(c)"
-                mat-flat-button color="primary"
-                matBadge="8" matBadgePosition="after" matBadgeColor="accent">
-          {{c}}
-        </button>
-      </div>
-    </div>
-  </mat-sidenav>
+<mat-sidenav-container [hasBackdrop]="false" class="container">
 
   <mat-sidenav-content>
 
     <mat-toolbar color="primary">
-      <button mat-fab color="accent" (click)="sidenav.toggle()">Accent</button>
-      <span>My Application</span>
+      <button mat-flat-button color="primary" class="menu-button" (click)="sidenav.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span>{{ chatManager && chatManager.chat().name || 'NgWebIRC' }}</span>
     </mat-toolbar>
-
+<!--
+    <mat-tab-group animationDuration="0ms" (selectedTabChange)="chatManager.show(chatList[$event.index])">
+      <mat-tab *ngFor="let c of chatList" label="{{c}}"
+               matBadge="8" matBadgePosition="after" matBadgeColor="accent"></mat-tab>
+    </mat-tab-group>
+-->
     <app-chat-manager
       (chatOpen)="onChatOpen($event)" #chatManager></app-chat-manager>
 
   </mat-sidenav-content>
+
+  <mat-sidenav #sidenav mode="side" opened="true || sidenav.mode == 'side'" position="end">
+
+    <div class="toolbar-buttons" fxLayout="row" fxLayoutAlign="end center">
+      <!--
+      <button *ngIf="chatManager && chatManager.chat().hasUsers()" mat-icon-button (click)="showUserList = true">
+        <mat-icon aria-label="Conversation List">group</mat-icon>
+      </button>
+      -->
+      <button mat-icon-button (click)="showChatList()" [disabled]="!showUserList">
+        <mat-icon aria-label="Conversation List">people_alt</mat-icon>
+      </button>
+    </div>
+
+    <div class="conversations-list" *ngIf="!showUserList" fxAlign="stretch">
+      <div *ngFor="let c of chatList">
+        <div class="chat-button">
+          <button (click)="onChannelButtonClick(sidenav, c)"
+                  mat-stroked-button
+                  [color]="c === chatManager.chat().name ? 'accent': ''"
+                  matBadge="8" matBadgePosition="after" matBadgeColor="accent">
+            {{c}}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="users-list" *ngIf="showUserList" fxAlign="stretch">
+      <div *ngFor="let u of chatManager.chat().users"
+           fxLayout="column" fxAlignColumn="stretch">
+        <button mat-button (click)="onUserClick(userMenu, u)" [matMenuTriggerFor]="userMenu">{{u}}</button>
+      </div>
+      <mat-menu #userMenu="matMenu" xPosition="after">
+        <div class="user-menu-title">{{currentUser}}</div>
+        <button mat-menu-item (click)="onUserMenuChat()">
+          <mat-icon>message</mat-icon>
+          <span>Chat</span>
+        </button>
+        <button mat-menu-item disabled>
+          <mat-icon>voicemail</mat-icon>
+          <span>Check voicemail</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>notifications_off</mat-icon>
+          <span>Disable alerts</span>
+        </button>
+      </mat-menu>
+    </div>
+
+  </mat-sidenav>
 
 </mat-sidenav-container>
 

@@ -4,9 +4,11 @@
   height: calc(100vh - 64px);
   padding: 8px;
 }
+
 .message-input {
   padding-top: 8px;
 }
+
 .message-buffer {
   display: block;
   overflow-y: scroll;
@@ -20,12 +22,19 @@
   display: block;
   margin-top: auto;
 }
+
 .message {
   display: block;
 }
 .message-sender {
-  padding-top: 4px;
-  margin-bottom: 2px;
-  opacity: 0.5;
-  font-weight: 400;
+  padding-top: 16px;
+  padding-bottom: 4px;
+  color: lime;
+  font-weight: 800;
+  opacity: 0.65;
+}
+.message-body {
+  line-height: 150%;
+  vertical-align: middle;
+  word-break: break-word;
 }

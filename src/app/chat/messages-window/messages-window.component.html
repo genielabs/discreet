@@ -5,10 +5,16 @@
        fxLayoutJustify="stretch"
        #chatBuffer>
 
-    <div *ngFor="let msg of boundChat">
-      <div class="message-sender">{{msg.sender}}</div>
-      <div>{{msg.message}}</div>
-    </div>
+    <ng-container *ngIf="boundChat">
+
+      <div *ngFor="let msg of boundChat.messages; let i = index; let count = count;">
+        <div class="message-sender" *ngIf="i == 0 || boundChat.messages[i - 1].sender !== msg.sender">
+          <span>{{msg.sender}}</span>
+        </div>
+        <span class="message-body">{{msg.message}}</span>
+      </div>
+
+    </ng-container>
 
   </div>
 

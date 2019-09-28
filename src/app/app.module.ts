@@ -10,22 +10,27 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import {
+  MatIconModule,
+  MatBadgeModule,
+  MatSidenavModule,
+  MatToolbarModule,
+  MatTabsModule,
+  MatMenuModule
+} from '@angular/material';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
 
 import { AppComponent } from './app.component';
-import { IrcClientComponent } from './irc-client/irc-client.component';
 import { MessagesWindowComponent } from './chat/messages-window/messages-window.component';
 import { IrcClient } from './irc-client/irc-client';
 import { ChatHostDirective } from './chat/chat-host.directive';
 import { ChatManagerComponent } from './chat/chat-manager/chat-manager.component';
-import {MatBadgeModule, MatSidenavModule, MatToolbarModule} from '@angular/material';
-import {ScrollingModule} from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [
     AppComponent,
-    IrcClientComponent,
     MessagesWindowComponent,
     ChatManagerComponent,
     ChatHostDirective
@@ -44,6 +49,9 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
     MatSidenavModule,
     MatToolbarModule,
     MatBadgeModule,
+    MatIconModule,
+    MatTabsModule,
+    MatMenuModule,
     ScrollingModule,
     PickerModule
   ],

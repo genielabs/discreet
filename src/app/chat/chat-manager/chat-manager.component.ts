@@ -13,6 +13,19 @@ import {IrcClient} from '../../irc-client/irc-client';
 import {MessagesWindowComponent} from '../messages-window/messages-window.component';
 import {ChatHostDirective} from '../chat-host.directive';
 
+class ChatData {
+  name = '';
+  topic = '';
+  flags: any;
+  users: string[] = [];
+  messages: {type, sender, target, message}[] = [];
+  status: any;
+
+  hasUsers(): boolean {
+    return this.users.length > 0;
+  }
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -28,7 +41,7 @@ export class ChatManagerComponent implements OnInit {
   @ViewChild(MessagesWindowComponent, {static: true})
   private messageWindow: MessagesWindowComponent;
 
-  chatMessages = [];
+  chatList: ChatData[] = [];
   currentChat;
 
   @Output() chatClosed = new EventEmitter<any>();
@@ -39,18 +52,36 @@ export class ChatManagerComponent implements OnInit {
     private ircClient: IrcClient
   ) {
     this.ircClient.messageReceive.subscribe((msg) => {
-      console.log('ChatMangerComponent', msg);
       const ni = msg.sender.indexOf('!');
       if (ni > 0 ) {
-        msg.sender = msg.sender.substring(0, ni - 1);
+        msg.sender = msg.sender.substring(0, ni);
       }
-      if (this.chatMessages[msg.target] == null) {
-        this.chatMessages[msg.target] = [];
-        this.chatOpen.emit(msg.target);
-        this.show(msg.target);
+      if (this.ircClient.config.nick === msg.target) {
+        msg.target = msg.sender;
       }
-      this.chatMessages[msg.target].push(msg);
+      const chat = this.chat(msg.target);
+      chat.messages.push(msg);
       this.messageWindow.onNewMessage(msg);
+    });
+    this.ircClient.usersList.subscribe((msg) => {
+      console.log('####', this.chat(msg.target))
+      const userList = this.chat(msg.target).users;
+      switch (msg.action) {
+        case 'LIST':
+          userList.push(...msg.users);
+          break;
+        case 'JOIN':
+          userList.push(msg.user);
+          break;
+        case 'PART':
+        case 'QUIT':
+          const ui = userList.indexOf(msg.user);
+          if (ui !== -1) {
+            userList.splice(ui);
+          }
+          break;
+      }
+      userList.sort();
     });
   }
 
@@ -60,8 +91,9 @@ export class ChatManagerComponent implements OnInit {
 
   onSendMessage(message) {
     const target = this.currentChat;
+    console.log(target, message)
     this.ircClient.send(target, message);
-    this.chatMessages[target].push({
+    this.chatList[target].messages.push({
       type: 'PRIVMSG',
       sender: '@localuser',
       target,
@@ -71,7 +103,25 @@ export class ChatManagerComponent implements OnInit {
 
   show(chatName) {
     this.currentChat = chatName;
-    this.messageWindow.bind(this.chatMessages[chatName]);
+    const chat = this.chat(chatName);
+    this.messageWindow.bind(chat);
+    return chat;
+  }
+
+  chat(chatName?: string): ChatData {
+    if (chatName == null && this.currentChat) {
+      return this.chat(this.currentChat);
+    }
+    let chat = this.chatList[chatName];
+    if (chat == null) {
+      chat = this.chatList[chatName] = new ChatData();
+      if (chatName) {
+        chat.name = chatName;
+        this.chatOpen.emit(chatName);
+        this.show(chatName);
+      }
+    }
+    return chat;
   }
 
 }

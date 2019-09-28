@@ -18,8 +18,17 @@ export class IrcClient {
   private ircClientSubject: Subject<any>;
 
   messageReceive = new EventEmitter<any>();
+  usersList = new EventEmitter<any>();
 
-  testChannelName = '##truth';
+  testChannelName = '#chatover40';
+
+  config = {
+    nick: 'kiwi-iwik',
+    host: 'localhost',
+    user: 'Mibbit',
+    info: 'https://ng-web-irc.com/',
+    version: 'Ng-Web-IRC 1.0 by Zen46 - https://ng-web-irc.com/'
+  };
 
   constructor(
     private httpClient: HttpClient
@@ -29,8 +38,7 @@ export class IrcClient {
     const webIrcUrl = 'ws://localhost:8080/webirc/kiwiirc/304/0zze4wtr/websocket';
     const webIrcInfo = 'http://localhost:8080/webirc/kiwiirc/info?t=1569095871028';
 
-    const userNick = 'kiwi-iwik';
-    const joinChannels = [ '##over40', this.testChannelName ];
+    const joinChannels = [ this.testChannelName, '##truth' ];
 
     this.httpClient.get(webIrcInfo).subscribe((res) => {
       console.log(res);
@@ -42,7 +50,7 @@ export class IrcClient {
       });
       subject.subscribe(
         msg => {
-
+console.log(msg.data)
           // control command codes
           switch (msg.data) {
             // Just connected
@@ -58,8 +66,8 @@ export class IrcClient {
               subject.next([ ':1 HOST default:6667' ]);
               subject.next([ ':1 ENCODING utf8' ]);
               subject.next([ ':1 CAP LS 302' ]);
-              subject.next([ `:1 NICK ${userNick}` ]);
-              subject.next([ `:1 USER Mibit 0 * https://ng-web-irc.com/` ]);
+              subject.next([ `:1 NICK ${this.config.nick}` ]);
+              subject.next([ `:1 USER ${this.config.user} 0 * ${this.config.info}` ]);
               break;
             default:
 
@@ -78,19 +86,88 @@ export class IrcClient {
                 const target = payload.params[0];
                 const message = payload.params[1];
                 // irc message payload
-                console.log('message received: ', payload.command, payload);
+                //console.log('message received: ', payload.command, payload);
                 switch (payload.command) {
+                  case 'PING':
+                    subject.next([ `:1 PONG ${payload.params[0]}` ]);
+                    break;
                   case 'CAP':
                     if (payload.params[1] === 'LS') {
                       subject.next([ ':1 CAP REQ :account-notify away-notify extended-join multi-prefix message-tags' ]);
                       subject.next([ ':1 CAP END' ]);
+                    } else if (payload.params[1] === 'ACK') {
                       joinChannels.forEach((c) => subject.next([ `:1 JOIN ${c}` ]));
                     }
                     break;
-                  case '372': // MOTD
+                  case '396': // DISPLAYED USER NAME+ADDRESS
+                    this.config.nick = payload.params[0];
+                    this.config.host = payload.params[1];
+                    break;
+                  case '353': // START USERS LIST
+                    this.usersList.emit({
+                      action: 'LIST',
+                      target: payload.params[2],
+                      users: payload.params[3].split(' ')
+                    });
+                    break;
+                  case '366': // END USERS LIST
+                    /*
+                    this.usersList.emit({
+                      target: payload.params[2],
+                      users: []
+                    });*/
+                    break;
+                  case '474': // BANNED
+                    console.log('\\\\\\\\\\\\\\\\\\\\\\', 'CANNOT JOIN', payload.params[1], payload.params[2]);
+                    // payload.params[0]  NICK
+                    // payload.params[1]  Channel
+                    // payload.params[2]  Reasong
+                    break;
                   case 'JOIN':
+                    // if message === '*' then this is a local user action
+                    if (message === '*') {
+                      const ch = payload.target;
+                      console.log(`################### JOIN ${ch} ###################`)
+                      // TODO: user succeed in joining the channel
+                      break;
+                    }
                   case 'PART':
+                    // other users actions
+                    if (message !== '*') {
+                      this.usersList.emit({
+                        action: payload.command,
+                        target: payload.params[0],
+                        user: this.parseUserAddress(payload.prefix).nick
+                      });
+                    }
+                    break;
+                  case 'NICK':
+                    break;
+                  case 'AWAY':
+                  case 'QUIT':
+                    // other users actions
+                    if (message !== '*') {
+                      this.usersList.emit({
+                        action: payload.command,
+                        user: this.parseUserAddress(payload.prefix).nick
+                      });
+                    }
+                    break;
+                  case '372': // MOTD
                   case 'PRIVMSG':
+                    const c = this.config;
+                    if (payload.command === 'PRIVMSG' && message === '\u0001VERSION\u0001') {
+                      // :bob!b@localhost NOTICE alice :\x01VERSION Snak for Mac 4.13\x01
+                      const replyTo = this.parseUserAddress(payload.prefix).nick;
+                      const versionReply = `:1 :${c.nick}!${c.user}@localhost NOTICE ${replyTo} :\x01VERSION ${c.version}\x01`;
+                      subject.next([ versionReply ]);
+                      break;
+                    } else if (payload.command === 'PRIVMSG' && message.match(/\x01PING(.*?)\x01/) != null) {
+                      const replyTo = this.parseUserAddress(payload.prefix).nick;
+                      const pingReply = `:1 :${c.nick}!${c.user}@localhost NOTICE ${replyTo} :${message}`;
+                      subject.next([ pingReply ]);
+                      break;
+                    }
                     this.messageReceive.emit({
                       type: payload.command,
                       sender: payload.prefix,
@@ -121,6 +198,14 @@ export class IrcClient {
 
   send(target: string, message: string) {
     this.ircClientSubject.next([ `:1 PRIVMSG ${target} :${message}` ]);
+  }
+
+  private parseUserAddress(prefix) {
+    const ni = prefix.split('!');
+    return {
+      nick: ni[0],
+      host: ni[1]
+    };
   }
 
   private parse(data) {
