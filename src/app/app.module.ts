@@ -16,7 +16,8 @@ import {
   MatSidenavModule,
   MatToolbarModule,
   MatTabsModule,
-  MatMenuModule
+  MatMenuModule,
+  MatProgressSpinnerModule
 } from '@angular/material';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
@@ -54,6 +55,7 @@ import { EnrichMessage } from './chat/pipes/enrich-message.pipe';
     MatIconModule,
     MatTabsModule,
     MatMenuModule,
+    MatProgressSpinnerModule,
     ScrollingModule,
     PickerModule
   ],

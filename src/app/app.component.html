@@ -2,11 +2,24 @@
 
   <mat-sidenav-content>
 
-    <mat-toolbar color="primary">
+    <mat-toolbar color="primary" fxLayout="row" fxLayoutAlign="start center">
       <button mat-flat-button color="primary" class="menu-button" (click)="sidenav.toggle()">
         <mat-icon>menu</mat-icon>
       </button>
-      <span>{{ chatManager && chatManager.chat().target().name || 'NgWebIRC' }}</span>
+      <div fxLayout="row" fxLayoutAlign="center center">
+        <span>{{ chatManager && chatManager.chat().target().name || 'NgWebIRC' }}</span>
+      </div>
+      <span class="flex-fill"></span>
+      <div class="right-toolbar">
+        <button mat-icon-button
+                (click)="chatManager.showChatList()"
+                [disabled]="!chatManager.showUserList"
+                [matBadge]="chatManager.newMessageCount()"
+                [matBadgeHidden]="chatManager.newMessageCount() === 0 || !chatManager.showUserList"
+                matBadgePosition="after" matBadgeColor="accent">
+          <mat-icon>message</mat-icon>
+        </button>
+      </div>
     </mat-toolbar>
 <!--
     <mat-tab-group animationDuration="0ms" (selectedTabChange)="chatManager.show(chatList[$event.index])">
@@ -14,14 +27,13 @@
                matBadge="8" matBadgePosition="after" matBadgeColor="accent"></mat-tab>
     </mat-tab-group>
 -->
-    <app-chat-manager
-      (chatOpen)="onChatOpen($event)" #chatManager></app-chat-manager>
+    <app-chat-manager (chatOpen)="onChatOpen($event)" #chatManager></app-chat-manager>
 
   </mat-sidenav-content>
 
-  <mat-sidenav #sidenav mode="side" opened="true || sidenav.mode == 'side'" position="end">
+  <mat-sidenav #sidenav mode="side" opened="false" position="start">
 
-    <div class="toolbar-buttons" fxLayout="row" fxLayoutAlign="end center">
+    <div style="display: none" class="toolbar-buttons" fxLayout="row" fxLayoutAlign="end center">
       <!--
       <button *ngIf="chatManager && chatManager.chat().hasUsers()" mat-icon-button (click)="showUserList = true">
         <mat-icon aria-label="Conversation List">group</mat-icon>
@@ -30,50 +42,6 @@
       <button mat-icon-button (click)="showChatList()" [disabled]="!showUserList">
         <mat-icon aria-label="Conversation List">people_alt</mat-icon>
       </button>
-    </div>
-
-    <div class="conversations-list" *ngIf="!showUserList" fxAlign="stretch">
-      <div *ngFor="let chat of chatList">
-        <div class="chat-button">
-          <button *ngIf="chat.stats.messages.new === 0; else button_indicator"
-                  (click)="onChannelButtonClick(sidenav, chat)"
-                  mat-stroked-button
-                  [color]="chat === chatManager.chat() ? 'accent': ''">
-            {{chat.target().name}}
-          </button>
-          <ng-template #button_indicator>
-            <button (click)="onChannelButtonClick(sidenav, chat)"
-                    mat-stroked-button
-                    [color]="chat === chatManager.chat() ? 'accent': ''"
-                    [matBadge]="chat.stats.messages.new"
-                    matBadgePosition="after" matBadgeColor="accent">
-              {{chat.target().name}}
-            </button>
-          </ng-template>
-        </div>
-      </div>
-    </div>
-
-    <div class="users-list" *ngIf="showUserList" fxAlign="stretch">
-      <div *ngFor="let u of chatManager.chat().users"
-           fxLayout="column" fxAlignColumn="stretch">
-        <button mat-button (click)="onUserClick(userMenu, u)" [matMenuTriggerFor]="userMenu">{{u}}</button>
-      </div>
-      <mat-menu #userMenu="matMenu" xPosition="after">
-        <div class="user-menu-title">{{currentUser}}</div>
-        <button mat-menu-item (click)="onUserMenuChat()">
-          <mat-icon>message</mat-icon>
-          <span>Chat</span>
-        </button>
-        <button mat-menu-item disabled>
-          <mat-icon>voicemail</mat-icon>
-          <span>Check voicemail</span>
-        </button>
-        <button mat-menu-item>
-          <mat-icon>notifications_off</mat-icon>
-          <span>Disable alerts</span>
-        </button>
-      </mat-menu>
     </div>
 
   </mat-sidenav>

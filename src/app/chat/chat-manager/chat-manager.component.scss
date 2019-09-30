@@ -1,10 +1,69 @@
 :host {
-  z-index: -1;
-  position: absolute;
-  left: 0; top: 0; right: 0; bottom: 0;
-  background: whitesmoke;
-}
-.chat-host {
+  display: flex;
+  flex-direction: column;
+  align-content: stretch;
+  justify-content: stretch;
   width: 100%;
-  height: 100%;
+  height: calc(100vh - 145px);
+  max-height: calc(100vh - 145px);
+}
+
+.container {
+  position: relative;
+}
+.loading-message {
+  position: fixed;
+  left: 0; top: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+app-messages-window {
+  width: 100%;
+}
+
+.input-bar {
+  max-width: 100vw;
+  padding: 16px 16px 0;
+  height: 72px;
+}
+.input-bar mat-form-field {
+  width: 100%;
+}
+.action-buttons {
+  width: 200px;
+  min-width: 200px;
+  max-width: 200px;
+}
+
+.user-menu-title {
+  font-weight: 700;
+  font-size: 14px;
+  padding: 8px;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.users-list button, .conversations-list button {
+  margin-top: 2px;
+  margin-bottom: 2px;
+  width: 100%;
+  text-align: start;
+}
+.users-list {
+  width: 200px;
+  min-width: 200px;
+  padding: 12px;
+  overflow: hidden;
+  overflow-y: auto;
+}
+.conversations-list {
+  width: 200px;
+  min-width: 200px;
+  padding: 12px;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.hidden {
+  display: none;
 }

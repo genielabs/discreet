@@ -1,3 +1,83 @@
-<app-messages-window
-  #messageWindow
-  (sendMessage)="onSendMessage($event)"></app-messages-window>
+<div class="container" fxFlexFill fxLayout="row" fxLayoutAlign="stretch stretch">
+
+  <app-messages-window
+    #messageWindow
+    (sendMessage)="onSendMessage($event)"></app-messages-window>
+
+  <div class="conversations-list" *ngIf="!showUserList">
+    <div *ngFor="let c of chatList" fxLayout="column" fxLayoutAlign="stretch stretch">
+      <button mat-stroked-button (click)="onChannelButtonClick(c)"
+              [color]="c === chat() ? 'accent': ''"
+              [matBadge]="c.stats.messages.new"
+              [matBadgeHidden]="c.stats.messages.new === 0"
+              matBadgePosition="after" matBadgeColor="accent"
+              fxLayout="row" fxLayoutAlign="start center">
+        <mat-icon [color]="getColor(c)" [innerText]="getIcon(c)"></mat-icon>
+        <span>{{c.target().name}}</span>
+      </button>
+    </div>
+    <!--
+    <div *ngFor="let media of mediaUrlsCache">{{ media.title }}</div>
+    -->
+  </div>
+
+  <div class="users-list" *ngIf="showUserList">
+    <div *ngFor="let u of chat().users"
+         fxLayout="column" fxLayoutAlign="stretch stretch">
+      <button mat-button
+              (click)="onUserClick(userMenu, u)"
+              [matMenuTriggerFor]="userMenu"
+              fxLayout="row" fxLayoutAlign="start center">
+        <mat-icon [color]="getColor(u)" [innerText]="getIcon(u)"></mat-icon>
+        <span [innerText]="removeUserNameFlags(u)"></span>
+      </button>
+    </div>
+    <mat-menu #userMenu="matMenu" xPosition="after">
+      <div class="user-menu-title">{{currentUser}}</div>
+      <button mat-menu-item (click)="onUserMenuChat()">
+        <mat-icon>message</mat-icon>
+        <span>Chat</span>
+      </button>
+      <button mat-menu-item disabled>
+        <mat-icon>voicemail</mat-icon>
+        <span>Check voicemail</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon>notifications_off</mat-icon>
+        <span>Disable alerts</span>
+      </button>
+    </mat-menu>
+  </div>
+
+</div>
+
+<div class="input-bar" fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="8px">
+
+  <mat-form-field fxFlexAlign="stretch">
+    <input matInput placeholder="Enter message" class="message-input"
+           [(ngModel)]="userMessage"
+           (keydown.enter)="onEnterKey($event)">
+  </mat-form-field>
+
+  <!--div>
+    <emoji-mart (emojiClick)="onAddEmoji($event.emoji)"
+                title="Pick your emoji…" emoji="point_up"
+                set="google"
+                hideObsolete="true"
+                skin="3"></emoji-mart>
+  </div-->
+
+  <div class="action-buttons">
+    <button mat-fab>
+      <mat-icon>group</mat-icon>
+    </button>
+    <button mat-fab>
+      <mat-icon>send_message</mat-icon>
+    </button>
+  </div>
+
+</div>
+
+<div class="loading-message" *ngIf="isLoadingChat" fxLayout="column" fxLayoutAlign="center center">
+  <mat-spinner>Loading</mat-spinner>
+</div>

@@ -20,10 +20,10 @@ export class IrcClient {
   messageReceive = new EventEmitter<any>();
   usersList = new EventEmitter<any>();
 
-  testChannelName = '##over40';
+  testChannelName = '#chatover40';
 
   config = {
-    nick: 'kiwi-iwik',
+    nick: 'Wall`e',
     host: 'localhost',
     user: 'Mibbit',
     info: 'https://ng-web-irc.com/',
@@ -35,13 +35,13 @@ export class IrcClient {
   ) { }
 
   connect() {
-    const webIrcUrl = 'ws://localhost:8080/webirc/kiwiirc/304/0zze4wtr/websocket';
-    const webIrcInfo = 'http://localhost:8080/webirc/kiwiirc/info?t=1569095871028';
+    const webIrcUrl = 'wss://webchat.chattaora.it:7779/webirc/kiwiirc/963/bft5iqad/websocket'; // 'ws://localhost:8080/webirc/kiwiirc/304/0zze4wtr/websocket';
+//    const webIrcInfo = 'http://localhost:8080/webirc/kiwiirc/info?t=1569095871028';
+//wss://webchat.chattaora.it:7779/webirc/kiwiirc/963/bft5iqad/websocket
+    const joinChannels = [ this.testChannelName ];
 
-    const joinChannels = [ this.testChannelName, '##truth' ];
-
-    this.httpClient.get(webIrcInfo).subscribe((res) => {
-      console.log(res);
+ //   this.httpClient.get(webIrcInfo).subscribe((res) => {
+ //     console.log(res);
 
       const subject = this.ircClientSubject = webSocket<any>({
         url: webIrcUrl,
@@ -157,6 +157,7 @@ console.log(msg.data)
                     }
                     break;
                   case '376': // MOTD END
+                  case '422': // MOTD MISSING
                     joinChannels.forEach((c) => subject.next([ `:1 JOIN ${c}` ]));
                     break;
                   case '372': // MOTD TEXT
@@ -197,9 +198,9 @@ console.log(msg.data)
       );
 
 
-    }, error => {
-      // TODO: ...
-    });
+//    }, error => {
+//      // TODO: ...
+//    });
   }
 
   send(target: string, message: string) {

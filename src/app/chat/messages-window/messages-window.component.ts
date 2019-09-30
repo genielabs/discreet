@@ -15,8 +15,6 @@ export class MessagesWindowComponent implements OnInit {
   @Output()
   sendMessage = new EventEmitter<any>();
 
-  userMessage = '';
-
   constructor() {}
 
   ngOnInit() {
@@ -27,26 +25,20 @@ export class MessagesWindowComponent implements OnInit {
     this.scrollLast(true);
   }
 
-  onAddEmoji(emoji) {
-    console.log(emoji);
-    this.userMessage += emoji.native + ' ';
-  }
-  onEnterKey(e) {
-    this.sendMessage.emit(this.userMessage);
-    this.userMessage = '';
-    this.scrollLast(true);
-  }
-
   onNewMessage(msg: any) {
     this.scrollLast();
   }
 
   private scrollLast(force?: boolean) {
     const el: HTMLElement = this.chatBuffer.nativeElement;
-    if (force || Math.round(el.scrollTop + el.offsetHeight) === el.scrollHeight) {
+    if (force) {
+      el.style['scroll-behavior'] = 'initial';
       setTimeout(() => {
         el.scrollTo(0, el.scrollHeight);
-      }, 10);
+        el.style['scroll-behavior'] = 'smooth';
+      });
+    } else /* if (Math.round(el.scrollTop + el.offsetHeight) === el.scrollHeight) */ {
+        setTimeout(() => { el.scrollTo(0, el.scrollHeight); });
     }
   }
 }

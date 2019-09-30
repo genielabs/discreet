@@ -27,7 +27,7 @@ export interface MediaInfo {
   name: 'enrichMessage'
 })
 export class EnrichMessage implements PipeTransform {
-  private mediaUrlsCache: MediaInfo[] = [];
+  static mediaUrlsCache: MediaInfo[] = [];
   constructor(private httpClient: HttpClient) {}
 
   transform(value: string, ...args: any[]): any {
@@ -36,7 +36,7 @@ export class EnrichMessage implements PipeTransform {
         observer.next(text.replaced);
         const pending: Observable<any>[] = [];
         text.urls.forEach((url) => {
-          const cached = this.mediaUrlsCache.find((v) => v.originalUrl === url || v.url === url);
+          const cached = EnrichMessage.mediaUrlsCache.find((v) => v.originalUrl === url || v.url === url);
           if (cached != null) {
             observer.next(text.replaced.replace(`[${url}]`, `${cached.title} (${cached.provider_name})`));
             return;
@@ -47,12 +47,15 @@ export class EnrichMessage implements PipeTransform {
             console.log(res);
             if (res && res.title) {
               res.originalUrl = url;
-              this.mediaUrlsCache.push(res);
+              EnrichMessage.mediaUrlsCache.push(res);
               observer.next(text.replaced.replace(`[${url}]`, `${res.title} (${res.provider_name})`));
               console.log(res);
+            } else {
+              observer.next(text.replaced.replace(`[${url}]`, url));
             }
           }, (err) => {
             // TODO: ...
+            observer.next(text.replaced.replace(`[${url}]`, url));
           });
         });
         zip(...pending).subscribe((res) => {
