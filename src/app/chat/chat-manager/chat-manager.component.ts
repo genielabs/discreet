@@ -76,6 +76,7 @@ export class ChatManagerComponent implements OnInit {
         case 'NICK':
           this.renChatUser(msg.user, msg.nick);
           break;
+        case 'KICK':
         case 'PART':
         case 'QUIT':
           this.delChatUser(msg.target, msg.user);

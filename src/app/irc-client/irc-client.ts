@@ -125,6 +125,13 @@ console.log(msg.data)
                     // payload.params[1]  Channel
                     // payload.params[2]  Reasong
                     break;
+                  case 'KICK':
+                    this.usersList.emit({
+                      action: payload.command,
+                      target: payload.params[0],
+                      user: payload.params[1]
+                    });
+                    break;
                   case 'JOIN':
                     // check if it's' the local user
                     const userInfo = this.parseUserAddress(payload.prefix);
@@ -135,7 +142,6 @@ console.log(msg.data)
                       break;
                     }
                   case 'PART':
-                    // other users actions
                     this.usersList.emit({
                       action: payload.command,
                       target: payload.params[0],
