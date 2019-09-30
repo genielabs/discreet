@@ -11,6 +11,12 @@
       </div>
       <span class="flex-fill"></span>
       <div class="right-toolbar">
+        <button mat-icon-button *ngIf="chatManager.chat().hasUsers()"
+                (click)="chatManager.showChatUsers()"
+                [matBadge]="chatManager.chat().users.length"
+                matBadgePosition="after" matBadgeColor="primary">
+          <mat-icon>people_alt</mat-icon>
+        </button>
         <button mat-icon-button
                 (click)="chatManager.showChatList()"
                 [disabled]="!chatManager.showUserList"

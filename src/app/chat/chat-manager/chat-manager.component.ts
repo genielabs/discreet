@@ -71,19 +71,11 @@ export class ChatManagerComponent implements OnInit {
           }));
           break;
         case 'JOIN':
-          if (msg.user == null) {
-            console.log('######################################################', msg);
-            break;
-          }
           this.addChatUser(msg.target, msg.user);
           break;
         case 'PART':
         case 'QUIT':
-          try {
-            this.delChatUser(msg.target, msg.user);
-          } catch (e) {
-            console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@', msg);
-          }
+          this.delChatUser(msg.target, msg.user);
           break;
       }
     });
@@ -127,8 +119,10 @@ export class ChatManagerComponent implements OnInit {
   }
 
   showChatList() {
-    // TODO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     this.showUserList = false;
+  }
+  showChatUsers() {
+    this.showUserList = true;
   }
 
   newMessageCount() {
@@ -279,12 +273,23 @@ export class ChatManagerComponent implements OnInit {
     this.sortUsersList(target);
   }
   private delChatUser(target: string, user: string) {
-    const userList = this.getUsersList(target);
-    const ui = userList.indexOf(user);
-    if (ui !== -1) {
-      userList.splice(ui, 1);
+    if (target == null) {
+      this.chatList.forEach((c) => {
+        if (c.hasUsers()) {
+          const userList = c.users;
+          const ui = userList.indexOf(user);
+          if (ui !== -1) {
+            userList.splice(ui, 1);
+          }
+        }
+      });
+    } else {
+      const userList = this.getUsersList(target);
+      const ui = userList.indexOf(user);
+      if (ui !== -1) {
+        userList.splice(ui, 1);
+      }
     }
-    this.sortUsersList(target);
   }
   private sortUsersList(target: string) {
     this.getUsersList(target).sort((a, b) => {

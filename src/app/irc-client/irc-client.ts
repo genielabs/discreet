@@ -136,13 +136,11 @@ console.log(msg.data)
                     }
                   case 'PART':
                     // other users actions
-                    if (message !== '*') {
-                      this.usersList.emit({
-                        action: payload.command,
-                        target: payload.params[0],
-                        user: this.parseUserAddress(payload.prefix).nick
-                      });
-                    }
+                    this.usersList.emit({
+                      action: payload.command,
+                      target: payload.params[0],
+                      user: this.parseUserAddress(payload.prefix).nick
+                    });
                     break;
                   case 'NICK':
                     break;
