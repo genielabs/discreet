@@ -73,6 +73,9 @@ export class ChatManagerComponent implements OnInit {
         case 'JOIN':
           this.addChatUser(msg.target, msg.user);
           break;
+        case 'NICK':
+          this.renChatUser(msg.user, msg.nick);
+          break;
         case 'PART':
         case 'QUIT':
           this.delChatUser(msg.target, msg.user);
@@ -272,12 +275,26 @@ export class ChatManagerComponent implements OnInit {
     this.getUsersList(target).push(...users);
     this.sortUsersList(target);
   }
+  private renChatUser(user: string, nick: string) {
+    this.chatList.forEach((c) => {
+      if (c.hasUsers()) {
+        const userList = c.users;
+        const u = userList.find((n) => this.removeUserNameFlags(n) === user);
+        const ui = userList.indexOf(u);
+        if (ui !== -1) {
+          userList[ui] = u.replace(this.removeUserNameFlags(u), nick);
+          this.sortUsersList(c.info.name);
+        }
+      }
+    });
+  }
   private delChatUser(target: string, user: string) {
     if (target == null) {
       this.chatList.forEach((c) => {
         if (c.hasUsers()) {
           const userList = c.users;
-          const ui = userList.indexOf(user);
+          const u = userList.find((n) => this.removeUserNameFlags(n) === user);
+          const ui = userList.indexOf(u);
           if (ui !== -1) {
             userList.splice(ui, 1);
           }
@@ -285,7 +302,8 @@ export class ChatManagerComponent implements OnInit {
       });
     } else {
       const userList = this.getUsersList(target);
-      const ui = userList.indexOf(user);
+      const u = userList.find((n) => this.removeUserNameFlags(n) === user);
+      const ui = userList.indexOf(u);
       if (ui !== -1) {
         userList.splice(ui, 1);
       }

@@ -47,7 +47,7 @@ export class ChatData {
     this.messages.push(message);
     // if this is not the current chat, then increase
     // the number of unread messages
-    if (this.target().name !== this.chatManager.currentChat.name) {
+    if (this.chatManager.currentChat == null || this.target().name !== this.chatManager.currentChat.name) {
       this.stats.messages.new++;
     }
   }

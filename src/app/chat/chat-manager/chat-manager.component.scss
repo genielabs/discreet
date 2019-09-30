@@ -46,8 +46,13 @@ app-messages-window {
 .users-list button, .conversations-list button {
   margin-top: 2px;
   margin-bottom: 2px;
+  padding-left: 2px;
+  padding-right: 2px;
   width: 100%;
   text-align: start;
+  mat-icon {
+    opacity: 0.65;
+  }
 }
 .users-list {
   width: 200px;

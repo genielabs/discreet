@@ -143,6 +143,11 @@ console.log(msg.data)
                     });
                     break;
                   case 'NICK':
+                    this.usersList.emit({
+                      action: payload.command,
+                      user: this.parseUserAddress(payload.prefix).nick,
+                      nick: payload.params[0]
+                    });
                     break;
                   case 'AWAY':
                   case 'QUIT':
