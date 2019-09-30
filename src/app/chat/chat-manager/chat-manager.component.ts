@@ -66,7 +66,9 @@ export class ChatManagerComponent implements OnInit {
       console.log('####', this.chat(msg.target));
       switch (msg.action) {
         case 'LIST':
-          this.addChatUser(msg.target, ...msg.users);
+          this.addChatUser(msg.target, ...msg.users.filter((u) => {
+            return u !== '';
+          }));
           break;
         case 'JOIN':
           if (msg.user == null) {
@@ -77,7 +79,11 @@ export class ChatManagerComponent implements OnInit {
           break;
         case 'PART':
         case 'QUIT':
-          this.delChatUser(msg.target, msg.user);
+          try {
+            this.delChatUser(msg.target, msg.user);
+          } catch (e) {
+            console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@', msg);
+          }
           break;
       }
     });

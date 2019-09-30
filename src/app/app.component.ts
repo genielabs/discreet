@@ -17,11 +17,4 @@ export class AppComponent {
 
   mediaUrlsCache = EnrichMessage.mediaUrlsCache;
 
-  onChatOpen(chat) {
-  }
-
-  toggleToolBar(t) {
-    console.log(t);
-  }
-
 }

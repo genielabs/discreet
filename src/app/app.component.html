@@ -27,22 +27,13 @@
                matBadge="8" matBadgePosition="after" matBadgeColor="accent"></mat-tab>
     </mat-tab-group>
 -->
-    <app-chat-manager (chatOpen)="onChatOpen($event)" #chatManager></app-chat-manager>
+    <app-chat-manager #chatManager></app-chat-manager>
 
   </mat-sidenav-content>
 
   <mat-sidenav #sidenav mode="side" opened="false" position="start">
 
-    <div style="display: none" class="toolbar-buttons" fxLayout="row" fxLayoutAlign="end center">
-      <!--
-      <button *ngIf="chatManager && chatManager.chat().hasUsers()" mat-icon-button (click)="showUserList = true">
-        <mat-icon aria-label="Conversation List">group</mat-icon>
-      </button>
-      -->
-      <button mat-icon-button (click)="showChatList()" [disabled]="!showUserList">
-        <mat-icon aria-label="Conversation List">people_alt</mat-icon>
-      </button>
-    </div>
+      ...
 
   </mat-sidenav>
 
