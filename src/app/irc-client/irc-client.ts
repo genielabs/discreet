@@ -3,13 +3,8 @@ import {HttpClient} from '@angular/common/http';
 import { webSocket } from 'rxjs/webSocket';
 import {Subject} from 'rxjs';
 
-export class Message {
-  constructor(
-    public sender: string,
-    public content: string,
-    public isBroadcast = false,
-  ) { }
-}
+import { StringDecoder } from 'string_decoder';
+import { Buffer } from 'buffer';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +14,10 @@ export class IrcClient {
 
   messageReceive = new EventEmitter<any>();
   usersList = new EventEmitter<any>();
+  joinChannel = new EventEmitter<any>();
+  chanMode = new EventEmitter<any>();
+  userMode = new EventEmitter<any>();
+  userChannelMode = new EventEmitter<any>();
 
   testChannelName = '#chatover40';
 
@@ -45,12 +44,13 @@ export class IrcClient {
 
       const subject = this.ircClientSubject = webSocket<any>({
         url: webIrcUrl,
+        binaryType: 'arraybuffer',
         // just let the message raw, unparsed
-        deserializer: msg => msg
+        deserializer: (msg) => msg
       });
       subject.subscribe(
         msg => {
-console.log(msg.data)
+//console.log(msg.data)
           // control command codes
           switch (msg.data) {
             // Just connected
@@ -85,7 +85,14 @@ console.log(msg.data)
 
               if (payload) {
                 const target = payload.params[0];
-                const message = payload.params[1];
+
+                let message = payload.params[1];
+                // // TODO: decoding
+                // if (message) {
+                //   const decoder = new StringDecoder('utf8');
+                //   message = decoder.write(Buffer.from(message.split(''), 'utf8'));
+                // }
+
                 // irc message payload
                 //console.log('message received: ', payload.command, payload);
                 switch (payload.command) {
@@ -137,8 +144,7 @@ console.log(msg.data)
                     const userInfo = this.parseUserAddress(payload.prefix);
                     if (userInfo.nick === this.config.nick) {
                       const ch = payload.params[0];
-                      console.log(`################### JOIN ${ch} ###################`, payload)
-                      // TODO: user succeed in joining the channel
+                      this.joinChannel.emit(ch);
                       break;
                     }
                   case 'PART':
@@ -155,6 +161,35 @@ console.log(msg.data)
                       nick: payload.params[0]
                     });
                     break;
+                  case 'MODE':
+                    console.log('####################### MODE ###########à', payload);
+                    if (payload.params.length === 3) {
+                      // user modes on channel
+                      const channel = payload.params[0];
+                      const mode = payload.params[1];
+                      const user = payload.params[2]; // eg. "+o"
+                      this.userChannelMode.emit({
+                        channel,
+                        mode,
+                        user
+                      });
+                    } else {
+                      // channel or local user modes
+                      const modeTarget = payload.params[0];
+                      const mode = payload.params[1]; // eg. "+iwxz"
+                      if (modeTarget[0] === '#') {
+                        this.chanMode.emit({
+                          channel: modeTarget,
+                          mode
+                        });
+                      } else {
+                        this.userMode.emit({
+                          user: modeTarget,
+                          mode
+                        });
+                      }
+                    }
+                    break;
                   case 'AWAY':
                   case 'QUIT':
                     // other users actions
@@ -167,13 +202,12 @@ console.log(msg.data)
                     break;
                   case '376': // MOTD END
                   case '422': // MOTD MISSING
-                    joinChannels.forEach((c) => subject.next([ `:1 JOIN ${c}` ]));
+                    joinChannels.forEach((ch) => subject.next([ `:1 JOIN ${ch}` ]));
                     break;
                   case '372': // MOTD TEXT
                   case 'PRIVMSG':
                     const c = this.config;
                     if (payload.command === 'PRIVMSG' && message === '\u0001VERSION\u0001') {
-                      // :bob!b@localhost NOTICE alice :\x01VERSION Snak for Mac 4.13\x01
                       const replyTo = this.parseUserAddress(payload.prefix).nick;
                       const versionReply = `:1 :${c.nick}!${c.user}@localhost NOTICE ${replyTo} :\x01VERSION ${c.version}\x01`;
                       subject.next([ versionReply ]);
@@ -192,8 +226,6 @@ console.log(msg.data)
                     });
                     break;
                 }
-
-
               } else {
                 console.log('UNABLE TO PARSE MESSAGE: ', msg.data);
               }

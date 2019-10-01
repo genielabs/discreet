@@ -21,19 +21,32 @@
     -->
   </div>
 
-  <div class="users-list" *ngIf="showUserList">
+  <div class="users-list" *ngIf="showUserList && chat().hasUsers()"
+       fxLayout="column" fxLayoutAlign="stretch stretch">
+    <cdk-virtual-scroll-viewport class="v-scroll" itemSize="36" minBufferPx="200" maxBufferPx="400">
+      <button mat-button
+              *cdkVirtualFor="let u of chat().users"
+              (click)="onUserClick(userMenu, u)"
+              [matMenuTriggerFor]="userMenu"
+              fxLayout="row" fxLayoutAlign="start center">
+        <mat-icon [color]="u.color" [innerText]="u.icon"></mat-icon>
+        <span [innerText]="u.name"></span>
+      </button>
+    </cdk-virtual-scroll-viewport>
+    <!--
     <div *ngFor="let u of chat().users"
          fxLayout="column" fxLayoutAlign="stretch stretch">
       <button mat-button
               (click)="onUserClick(userMenu, u)"
               [matMenuTriggerFor]="userMenu"
               fxLayout="row" fxLayoutAlign="start center">
-        <mat-icon [color]="getColor(u)" [innerText]="getIcon(u)"></mat-icon>
-        <span [innerText]="removeUserNameFlags(u)"></span>
+        <mat-icon [color]="u.color" [innerText]="u.icon"></mat-icon>
+        <span [innerText]="u.name"></span>
       </button>
     </div>
+    -->
     <mat-menu #userMenu="matMenu" xPosition="after">
-      <div class="user-menu-title">{{currentUser}}</div>
+      <div class="user-menu-title" *ngIf="currentUser">{{currentUser.name}}</div>
       <button mat-menu-item (click)="onUserMenuChat()">
         <mat-icon>message</mat-icon>
         <span>Chat</span>

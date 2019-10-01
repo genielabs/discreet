@@ -55,15 +55,23 @@ app-messages-window {
   }
 }
 .users-list {
-  width: 200px;
-  min-width: 200px;
+  position: relative;
+  height: 100%;
+  width: 240px;
+  min-width: 240px;
   padding: 12px;
   overflow: hidden;
   overflow-y: auto;
 }
+.v-scroll {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 .conversations-list {
-  width: 200px;
-  min-width: 200px;
+  width: 240px;
+  min-width: 240px;
   padding: 12px;
   overflow: hidden;
   overflow-y: auto;

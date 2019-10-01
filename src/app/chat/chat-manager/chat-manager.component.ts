@@ -14,8 +14,8 @@ import {MessagesWindowComponent} from '../messages-window/messages-window.compon
 import {ChatHostDirective} from '../chat-host.directive';
 import {ChatInfo} from '../chat-info';
 import {ChatData} from '../chat-data';
-import {HttpClient} from '@angular/common/http';
 import {MatMenu} from '@angular/material';
+import {ChatUser} from '../chat-user';
 
 @Injectable({
   providedIn: 'root',
@@ -34,7 +34,7 @@ export class ChatManagerComponent implements OnInit {
 
   private chatList: ChatData[] = [];
   currentChat: ChatInfo;
-  currentUser: string;
+  currentUser: ChatUser;
 
   userMessage = '';
 
@@ -52,6 +52,8 @@ export class ChatManagerComponent implements OnInit {
     this.ircClient.messageReceive.subscribe((msg) => {
       //msg.message = this.createTextLinks_(msg.message);
       console.log(msg.message);
+      const res = /(\u0002+)|(\u0003+)(\d{1,2})?(,(\d{1,2}))?(\w+)?/g.exec(msg.message);
+      console.log('!!!!!!!!!!', res);
       const ni = msg.sender.indexOf('!');
       if (ni > 0) {
         msg.sender = msg.sender.substring(0, ni);
@@ -63,7 +65,6 @@ export class ChatManagerComponent implements OnInit {
       this.messageWindow.onNewMessage(msg);
     });
     this.ircClient.usersList.subscribe((msg) => {
-      console.log('####', this.chat(msg.target));
       switch (msg.action) {
         case 'LIST':
           this.addChatUser(msg.target, ...msg.users.filter((u) => {
@@ -83,6 +84,46 @@ export class ChatManagerComponent implements OnInit {
           break;
       }
     });
+    this.ircClient.joinChannel.subscribe(this.show.bind(this));
+    this.ircClient.userMode.subscribe((m) => {
+      // TODO: .... (for better perfs, this should be implemented
+      //    via keeping a global list of users instead of instances
+      //    for each channel)
+      console.log('SERVER MODE', m.user, m.mode);
+    });
+    this.ircClient.chanMode.subscribe((m) => {
+      // TODO: ...
+    });
+    this.ircClient.userChannelMode.subscribe((m) => {
+      const chat = this.chatList.find((c) => c.target().name === m.channel || c.target().prefix === m.channel);
+      if (chat) {
+        const user = chat.users.find((u) => u.name === m.user);
+        let flag: string;
+        switch (m.mode[1]) {
+          case 'q':
+            flag = '~';
+            break;
+          case 'a':
+            flag = '&';
+            break;
+          case 'o':
+            flag = '@';
+            break;
+          case 'h':
+            flag = '%';
+            break;
+          case 'v':
+            flag = '+';
+            break;
+        }
+        user.flags.replace(flag, '');
+        if (m.mode[0] === '+') {
+          user.flags += flag;
+        }
+        user.icon = this.getIcon(user.flags);
+        user.color = this.getColor(user.flags);
+      }
+    });
   }
 
   ngOnInit() {
@@ -98,16 +139,12 @@ export class ChatManagerComponent implements OnInit {
     this.showUserList = chat.hasUsers();
   }
 
-  onUserClick(menu: MatMenu, user: string) {
-    const chars = ['@', '&', '~', '+'];
-    while (chars.indexOf(user[0]) !== -1) {
-      user = user.substring(1);
-    }
+  onUserClick(menu: MatMenu, user: ChatUser) {
     this.currentUser = user;
   }
 
   onUserMenuChat() {
-    const chat = this.show(this.currentUser);
+    const chat = this.show(this.currentUser.name);
     this.showUserList = chat.hasUsers();
   }
 
@@ -273,17 +310,23 @@ export class ChatManagerComponent implements OnInit {
   }
 
   private addChatUser(target: string, ...users: string[]) {
-    this.getUsersList(target).push(...users);
+    this.getUsersList(target).push(...users.map((u) => {
+      const user = new ChatUser();
+      user.name = this.removeUserNameFlags(u);
+      user.color = this.getColor(u);
+      user.icon = this.getIcon(u);
+      user.flags = this.getUserNameFlags(u);
+      return user;
+    }));
     this.sortUsersList(target);
   }
   private renChatUser(user: string, nick: string) {
     this.chatList.forEach((c) => {
       if (c.hasUsers()) {
         const userList = c.users;
-        const u = userList.find((n) => this.removeUserNameFlags(n) === user);
-        const ui = userList.indexOf(u);
-        if (ui !== -1) {
-          userList[ui] = u.replace(this.removeUserNameFlags(u), nick);
+        const u = userList.find((n) => n.name === user);
+        if (u != null) {
+          u.name = nick;
           this.sortUsersList(c.info.name);
         }
       }
@@ -291,10 +334,13 @@ export class ChatManagerComponent implements OnInit {
   }
   private delChatUser(target: string, user: string) {
     if (target == null) {
+      // TODO: .... (for better perfs, this should be implemented
+      //    via keeping a global list of users instead of instances
+      //    for each channel)
       this.chatList.forEach((c) => {
         if (c.hasUsers()) {
           const userList = c.users;
-          const u = userList.find((n) => this.removeUserNameFlags(n) === user);
+          const u = userList.find((n) => n.name === user);
           const ui = userList.indexOf(u);
           if (ui !== -1) {
             userList.splice(ui, 1);
@@ -303,7 +349,7 @@ export class ChatManagerComponent implements OnInit {
       });
     } else {
       const userList = this.getUsersList(target);
-      const u = userList.find((n) => this.removeUserNameFlags(n) === user);
+      const u = userList.find((n) => n.name === user);
       const ui = userList.indexOf(u);
       if (ui !== -1) {
         userList.splice(ui, 1);
@@ -321,7 +367,8 @@ export class ChatManagerComponent implements OnInit {
       return 0;
     });
   }
-  private getUsersSortValue(user: string) {
+  private getUsersSortValue(u) {
+    let user = u.flags + u.name;
     if (this.isOwner(user)) {
       user = user.replace('~', '0:');
     } else if (this.isAdministrator(user)) {
@@ -339,4 +386,13 @@ export class ChatManagerComponent implements OnInit {
     return user;
   }
 
+  private getUserNameFlags(user: string): string {
+    let flags = '';
+    const chars = ['~', '&', '@', '%', '+'];
+    while (chars.indexOf(user[0]) !== -1) {
+      flags += user[0];
+      user = user.substring(1);
+    }
+    return flags;
+  }
 }

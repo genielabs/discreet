@@ -1,16 +1,19 @@
 import {ChatInfo} from './chat-info';
 import {ChatManagerComponent} from './chat-manager/chat-manager.component';
+import {ChatUser} from './chat-user';
 
 export class ChatData {
   topic = '';
-  flags: any;
-  users: string[] = [];
+  flags: string;
+  mode: string;
+  users: ChatUser[] = [] as ChatUser[];
   messages: ChatMessage[] = [];
   input: ChatInput = new ChatInput(this);
   stats = new ChatStats();
   status: any;
 
   readonly info: ChatInfo;
+  private bufferMaxLines = 100;
 
   constructor(
     target: string | ChatInfo,
@@ -45,6 +48,9 @@ export class ChatData {
   receive(message: ChatMessage) {
     // add incoming messages to the message buffer
     this.messages.push(message);
+    if (this.messages.length > this.bufferMaxLines) {
+      this.messages.pop();
+    }
     // if this is not the current chat, then increase
     // the number of unread messages
     if (this.chatManager.currentChat == null || this.target().name !== this.chatManager.currentChat.name) {
