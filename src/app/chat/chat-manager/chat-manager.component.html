@@ -5,8 +5,8 @@
     (sendMessage)="onSendMessage($event)"></app-messages-window>
 
   <div class="conversations-list" *ngIf="!showUserList">
-    <div *ngFor="let c of chatList" fxLayout="column" fxLayoutAlign="stretch stretch">
-      <button mat-stroked-button (click)="onChannelButtonClick(c)"
+    <div class="chat-button" *ngFor="let c of boundChatList | sortBy:'desc':'timestamp'">
+      <button mat-raised-button (click)="onChannelButtonClick(c)"
               [color]="c === chat() ? 'accent': ''"
               [matBadge]="c.stats.messages.new"
               [matBadgeHidden]="c.stats.messages.new === 0"
@@ -21,9 +21,9 @@
     -->
   </div>
 
-  <div class="users-list" *ngIf="showUserList && chat().hasUsers()"
+  <div class="users-list" *ngIf="showUserList"
        fxLayout="column" fxLayoutAlign="stretch stretch">
-    <cdk-virtual-scroll-viewport class="v-scroll" itemSize="36" minBufferPx="200" maxBufferPx="400">
+    <cdk-virtual-scroll-viewport *ngIf="chat().hasUsers()" class="v-scroll" itemSize="40" minBufferPx="200" maxBufferPx="400">
       <button mat-button
               *cdkVirtualFor="let u of chat().users"
               (click)="onUserClick(userMenu, u)"
@@ -91,6 +91,6 @@
 
 </div>
 
-<div class="loading-message" *ngIf="isLoadingChat" fxLayout="column" fxLayoutAlign="center center">
+<div class="loading-message" *ngIf="false && isLoadingChat" fxLayout="column" fxLayoutAlign="center center">
   <mat-spinner>Loading</mat-spinner>
 </div>

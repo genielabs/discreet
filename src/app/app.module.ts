@@ -17,7 +17,7 @@ import {
   MatToolbarModule,
   MatTabsModule,
   MatMenuModule,
-  MatProgressSpinnerModule
+  MatProgressSpinnerModule, MatSnackBarModule
 } from '@angular/material';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
@@ -29,6 +29,7 @@ import { IrcClient } from './irc-client/irc-client';
 import { ChatHostDirective } from './chat/chat-host.directive';
 import { ChatManagerComponent } from './chat/chat-manager/chat-manager.component';
 import { EnrichMessage } from './chat/pipes/enrich-message.pipe';
+import { SortByPipe } from './chat/pipes/sort-by.pipe';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { EnrichMessage } from './chat/pipes/enrich-message.pipe';
     MessagesWindowComponent,
     ChatManagerComponent,
     ChatHostDirective,
-    EnrichMessage
+    EnrichMessage,
+    SortByPipe
   ],
   imports: [
     BrowserModule,
@@ -56,6 +58,7 @@ import { EnrichMessage } from './chat/pipes/enrich-message.pipe';
     MatTabsModule,
     MatMenuModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
     ScrollingModule,
     PickerModule
   ],

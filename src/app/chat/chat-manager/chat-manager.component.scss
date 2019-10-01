@@ -51,7 +51,7 @@ app-messages-window {
   width: 100%;
   text-align: start;
   mat-icon {
-    opacity: 0.65;
+    opacity: 1;
   }
 }
 .users-list {
@@ -59,7 +59,6 @@ app-messages-window {
   height: 100%;
   width: 240px;
   min-width: 240px;
-  max-width: 240px;
   overflow: hidden;
   overflow-y: auto;
 }
@@ -82,10 +81,14 @@ app-messages-window {
   position: relative;
   width: 216px;
   min-width: 216px;
-  max-width: 216px;
   padding: 12px;
   overflow: hidden;
   overflow-y: auto;
+}
+
+.chat-button {
+  margin-top: 18px;
+  margin-bottom: 18px;
 }
 
 .hidden {

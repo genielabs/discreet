@@ -11,6 +11,7 @@ export class ChatData {
   input: ChatInput = new ChatInput(this);
   stats = new ChatStats();
   status: any;
+  timestamp = Date.now();
 
   readonly info: ChatInfo;
   private bufferMaxLines = 100;
@@ -56,6 +57,7 @@ export class ChatData {
     if (this.chatManager.currentChat == null || this.target().name !== this.chatManager.currentChat.name) {
       this.stats.messages.new++;
     }
+    this.timestamp = Date.now();
   }
   hasUsers(): boolean {
     return this.users.length > 0;
