@@ -59,7 +59,7 @@ app-messages-window {
   height: 100%;
   width: 240px;
   min-width: 240px;
-  padding: 12px;
+  max-width: 240px;
   overflow: hidden;
   overflow-y: auto;
 }
@@ -68,10 +68,21 @@ app-messages-window {
   overflow-x: hidden;
   overflow-y: auto;
 }
+.v-scroll button {
+  padding-left: 12px;
+}
+.v-scroll:first-child {
+  margin-top: 12px;
+}
+.v-scroll:last-child {
+  margin-bottom: 12px;
+}
 
 .conversations-list {
-  width: 240px;
-  min-width: 240px;
+  position: relative;
+  width: 216px;
+  min-width: 216px;
+  max-width: 216px;
   padding: 12px;
   overflow: hidden;
   overflow-y: auto;
