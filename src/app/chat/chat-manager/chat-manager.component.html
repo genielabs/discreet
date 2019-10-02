@@ -1,29 +1,35 @@
 <div class="container" fxFlexFill fxLayout="row" fxLayoutAlign="stretch stretch">
 
   <app-messages-window
-    #messageWindow
+    #messageWindow [ngClass]="{'full-message-window': !showRightPanel}"
     (sendMessage)="onSendMessage($event)"></app-messages-window>
 
-  <div class="conversations-list" *ngIf="!showUserList">
-    <div class="chat-button" *ngFor="let c of boundChatList | sortBy:'desc':'timestamp'">
-      <button mat-raised-button (click)="onChannelButtonClick(c)"
-              [color]="c === chat() ? 'accent': ''"
-              [matBadge]="c.stats.messages.new"
-              [matBadgeHidden]="c.stats.messages.new === 0"
-              matBadgePosition="after" matBadgeColor="accent"
-              fxLayout="row" fxLayoutAlign="start center">
-        <mat-icon [color]="getColor(c)" [innerText]="getIcon(c)"></mat-icon>
-        <span>{{c.target().name}}</span>
-      </button>
+  <button mat-icon-button *ngIf="showRightPanel" class="close-panel" color="primary"
+          (click)="showRightPanel = false">
+    <mat-icon>arrow_forward</mat-icon>
+  </button>
+
+  <div class="conversations-list" *ngIf="!showUserList || !showRightPanel" [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}">
+    <div style="padding-left: 12px; padding-right: 12px;">
+
+      <div class="chat-button" *ngFor="let c of boundChatList | sortBy:'desc':'timestamp'">
+        <button mat-raised-button (click)="onChannelButtonClick(c)"
+                [color]="c === chat() ? 'accent': ''"
+                [matBadge]="c.stats.messages.new"
+                [matBadgeHidden]="c.stats.messages.new === 0"
+                matBadgePosition="after" matBadgeColor="accent"
+                fxLayout="row" fxLayoutAlign="start center">
+          <mat-icon [color]="getColor(c)" [innerText]="getIcon(c)"></mat-icon>
+          <span>{{c.target().name}}</span>
+        </button>
+      </div>
+
     </div>
-    <!--
-    <div *ngFor="let media of mediaUrlsCache">{{ media.title }}</div>
-    -->
   </div>
 
-  <div class="users-list" *ngIf="showUserList"
+  <div class="users-list" *ngIf="showUserList || !showRightPanel" [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
-    <cdk-virtual-scroll-viewport *ngIf="chat().hasUsers()" class="v-scroll" itemSize="40" minBufferPx="200" maxBufferPx="400">
+    <cdk-virtual-scroll-viewport *ngIf="chat().hasUsers()" class="v-scroll" itemSize="38" minBufferPx="200" maxBufferPx="400">
       <button mat-button
               *cdkVirtualFor="let u of chat().users"
               (click)="onUserClick(userMenu, u)"
@@ -33,31 +39,22 @@
         <span [innerText]="u.name"></span>
       </button>
     </cdk-virtual-scroll-viewport>
-    <!--
-    <div *ngFor="let u of chat().users"
-         fxLayout="column" fxLayoutAlign="stretch stretch">
-      <button mat-button
-              (click)="onUserClick(userMenu, u)"
-              [matMenuTriggerFor]="userMenu"
-              fxLayout="row" fxLayoutAlign="start center">
-        <mat-icon [color]="u.color" [innerText]="u.icon"></mat-icon>
-        <span [innerText]="u.name"></span>
-      </button>
-    </div>
-    -->
     <mat-menu #userMenu="matMenu" xPosition="after">
       <div class="user-menu-title" *ngIf="currentUser">{{currentUser.name}}</div>
+      <!-- open a chat with this user -->
       <button mat-menu-item (click)="onUserMenuChat()">
         <mat-icon>message</mat-icon>
         <span>Chat</span>
       </button>
+      <!-- collection of media links shared by the user -->
       <button mat-menu-item disabled>
-        <mat-icon>voicemail</mat-icon>
-        <span>Check voicemail</span>
+        <mat-icon>library_music</mat-icon>
+        <span>Playlist</span>
       </button>
+      <!-- turn on/off notifications for messages from this user -->
       <button mat-menu-item disabled>
-        <mat-icon>notifications_on</mat-icon>
-        <span>Enable alerts</span>
+        <mat-icon>notifications_off</mat-icon>
+        <span>Disable alerts</span>
       </button>
     </mat-menu>
   </div>
@@ -66,10 +63,17 @@
 
 <div class="input-bar" fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="8px">
 
-  <mat-form-field fxFlexAlign="stretch">
-    <input matInput placeholder="Enter message" class="message-input"
-           [(ngModel)]="userMessage"
-           (keydown.enter)="onEnterKey($event)">
+  <mat-form-field style="width: 100%">
+    <textarea matInput placeholder="Enter message" class="message-input"
+          fxFlex="1 1 100%"
+          [(ngModel)]="userMessage"
+          (keydown.enter)="onEnterKey($event)"></textarea>
+    <button mat-icon-button fxAlign="end">
+      <mat-icon color="primary">send</mat-icon>
+    </button>
+    <button mat-icon-button>
+      <mat-icon color="primary">sentiment_satisfied_alt</mat-icon>
+    </button>
   </mat-form-field>
 
   <!--div>
@@ -79,18 +83,13 @@
                 hideObsolete="true"
                 skin="3"></emoji-mart>
   </div-->
-
-  <div class="action-buttons">
-    <button mat-fab>
-      <mat-icon>group</mat-icon>
-    </button>
-    <button mat-fab>
-      <mat-icon>send_message</mat-icon>
-    </button>
+  <!--
+  <div fxLayout="row" fxLayoutAlign="center center" style="margin: auto">
   </div>
+  -->
 
 </div>
 
-<div class="loading-message" *ngIf="false && isLoadingChat" fxLayout="column" fxLayoutAlign="center center">
+<div class="loading-message" *ngIf="isLoadingChat" fxLayout="column" fxLayoutAlign="center center">
   <mat-spinner>Loading</mat-spinner>
 </div>

@@ -18,8 +18,9 @@ export class IrcClient {
   chanMode = new EventEmitter<any>();
   userMode = new EventEmitter<any>();
   userChannelMode = new EventEmitter<any>();
+  connectionStatus = new EventEmitter<boolean>();
 
-  testChannelName = '#chatover40';
+  testChannelName = '#over40';
 
   config = {
     nick: 'Wall`e',
@@ -33,7 +34,7 @@ export class IrcClient {
     private httpClient: HttpClient
   ) { }
 
-  connect() {
+  connect(): Subject<any> {
     const webIrcUrl = 'wss://webchat.chattaora.it:7779/webirc/kiwiirc/963/bft5iqad/websocket'; // 'ws://localhost:8080/webirc/kiwiirc/304/0zze4wtr/websocket';
 //    const webIrcInfo = 'http://localhost:8080/webirc/kiwiirc/info?t=1569095871028';
 //wss://webchat.chattaora.it:7779/webirc/kiwiirc/963/bft5iqad/websocket
@@ -46,8 +47,17 @@ export class IrcClient {
         url: webIrcUrl,
         binaryType: 'arraybuffer',
         // just let the message raw, unparsed
-        deserializer: (msg) => msg
-      });
+        deserializer: (msg) => msg,
+        closeObserver: {
+          next: (e: CloseEvent) => {
+            this.connectionStatus.next(false);
+          }
+        },
+        openObserver: {
+          next: (e: Event) => {
+            this.connectionStatus.next(true);
+          }
+        }      });
       subject.subscribe(
         msg => {
 //console.log(msg.data)
@@ -166,12 +176,17 @@ export class IrcClient {
                     if (payload.params.length === 3) {
                       // user modes on channel
                       const channel = payload.params[0];
-                      const mode = payload.params[1];
-                      const user = payload.params[2]; // eg. "+o"
+                      const mode = payload.params[1]; // eg. "+ooo", "+b", "-bb"
+                      const users = [];
+                      let u = 2;
+                      while (payload.params[u]) {
+                        users.push(payload.params[u]);
+                        u++;
+                      }
                       this.userChannelMode.emit({
                         channel,
                         mode,
-                        user
+                        users
                       });
                     } else {
                       // channel or local user modes
@@ -232,16 +247,14 @@ export class IrcClient {
 
           }
         },
-        err => console.log(err),
+        err => {
+          console.log(err);
+        },
         () => {
           console.log('complete');
         }
       );
-
-
-//    }, error => {
-//      // TODO: ...
-//    });
+      return subject;
   }
 
   send(target: string, message: string) {

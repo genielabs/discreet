@@ -10,26 +10,36 @@
   flex: 1 1 auto;
 }
 
+.content {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow: hidden;
+}
+
 .right-toolbar {
   padding-right: 8px;
 
-  .mat-icon-button {
+  .icon-big.mat-icon-button {
     height:48px !important;
     width:48px !important;
-    margin-left: 72px;
+    margin-left: 24px;
   }
-  .mat-icon {
+  .icon-big .mat-icon {
     height: 36px;
     width: 36px;
     font-size: 36px;
   }
-  .mat-icon-button .mat-icon, .mat-icon-button i {
+  .icon-big.mat-icon-button .mat-icon, .icon-big.mat-icon-button i {
     line-height: 36px;
   }
   .mat-badge-medium.mat-badge-above .mat-badge-content {
-    top: -3px !important;
+    top: 0 !important;
   }
 
+}
+
+mat-toolbar {
+  position: relative;
 }
 
 mat-sidenav {

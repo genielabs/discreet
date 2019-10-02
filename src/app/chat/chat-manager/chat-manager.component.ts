@@ -40,6 +40,7 @@ export class ChatManagerComponent implements OnInit {
   userMessage = '';
 
   // state variables
+  showRightPanel = true;
   showUserList = false;
   isLoadingChat = true;
 
@@ -51,6 +52,9 @@ export class ChatManagerComponent implements OnInit {
     private componentFactoryResolver: ComponentFactoryResolver,
     private ircClient: IrcClient
   ) {
+    this.ircClient.connectionStatus.subscribe((connected) => {
+      this.isLoadingChat = false;
+    });
     this.ircClient.messageReceive.subscribe((msg) => {
 
 
@@ -129,20 +133,22 @@ export class ChatManagerComponent implements OnInit {
             break;
         }
         if (flag) {
-          const user = chat.users.find((u) => u.name === m.user);
-          user.flags.replace(flag, '');
-          if (m.mode[0] === '+') {
-            user.flags += flag;
-          }
-          user.icon = this.getIcon(user.flags);
-          user.color = this.getColor(user.flags);
+          m.users.forEach((userName) => {
+            const user = chat.users.find((u) => u.name === userName);
+            user.flags.replace(flag, '');
+            if (m.mode[0] === '+') {
+              user.flags += flag;
+            }
+            user.icon = this.getIcon(user.flags);
+            user.color = this.getColor(user.flags);
+          });
         }
       }
     });
   }
 
   ngOnInit() {
-    this.ircClient.connect();
+    this.connect();
   }
 
   onSendMessage(message) {
@@ -174,9 +180,11 @@ export class ChatManagerComponent implements OnInit {
   }
 
   showChatList() {
+    this.showRightPanel = true;
     this.showUserList = false;
   }
   showChatUsers() {
+    this.showRightPanel = true;
     this.showUserList = true;
   }
 
@@ -188,18 +196,29 @@ export class ChatManagerComponent implements OnInit {
     return newMessages;
   }
 
+  connect() {
+    this.isLoadingChat = true;
+    this.ircClient.connect().subscribe(null, (error) => {
+      this.snackBar.open(error.toString(),'', {
+        verticalPosition: 'top'
+      });
+    }, () => {
+      this.snackBar.open('Connection terminated.','', {
+        verticalPosition: 'top'
+      });
+      console.log('===');
+    });
+  }
   client() {
     return this.ircClient;
   }
 
   show(target: string | ChatInfo) {
-    this.isLoadingChat = true;
     const chat = this.chat(target);
     setTimeout(() => {
       this.currentChat = chat.target();
       chat.stats.messages.new = 0;
       this.messageWindow.bind(chat);
-      this.isLoadingChat = false;
     });
     return chat;
   }
@@ -222,6 +241,8 @@ export class ChatManagerComponent implements OnInit {
           this.showUserList = true;
           this.chatOpen.emit(chat);
           this.show(target);
+        } else {
+          this.showRightPanel = false;
         }
       }
     }
@@ -249,7 +270,7 @@ export class ChatManagerComponent implements OnInit {
       prefix = c;
     } else {
       if (c.hasUsers()) {
-        return 'people_alt';
+        return 'primary';
       }
       prefix = c.info.name;
     }

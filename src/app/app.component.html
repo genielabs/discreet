@@ -2,44 +2,44 @@
 
   <mat-sidenav-content>
 
-    <mat-toolbar color="primary" fxLayout="row" fxLayoutAlign="start center">
-      <button mat-flat-button color="primary" class="menu-button" (click)="sidenav.toggle()">
-        <mat-icon>menu</mat-icon>
-      </button>
-      <div fxLayout="row" fxLayoutAlign="center center">
-        <span>{{ chatManager && chatManager.chat().target().name || 'NgWebIRC' }}</span>
-      </div>
-      <span class="flex-fill"></span>
-      <div class="right-toolbar">
-        <button mat-icon-button *ngIf="chatManager.chat().hasUsers()"
-                (click)="chatManager.showChatUsers()"
-                [matBadge]="chatManager.chat().users.length"
-                matBadgePosition="after" matBadgeColor="primary">
-          <mat-icon>people_alt</mat-icon>
+    <div class="content" fxLayout="column" fxLayoutAlign="start stretch">
+
+      <mat-toolbar color="primary" fxLayout="row" fxLayoutAlign="start center">
+        <button mat-flat-button color="primary" class="menu-button" (click)="sidenav.toggle()">
+          <mat-icon>menu</mat-icon>
         </button>
-        <button mat-icon-button
-                (click)="chatManager.showChatList()"
-                [disabled]="!chatManager.showUserList"
-                [matBadge]="chatManager.newMessageCount()"
-                [matBadgeHidden]="chatManager.newMessageCount() === 0 || !chatManager.showUserList"
-                matBadgePosition="after" matBadgeColor="accent">
-          <mat-icon>message</mat-icon>
-        </button>
-      </div>
-    </mat-toolbar>
-<!--
-    <mat-tab-group animationDuration="0ms" (selectedTabChange)="chatManager.show(chatList[$event.index])">
-      <mat-tab *ngFor="let c of chatList" label="{{c}}"
-               matBadge="8" matBadgePosition="after" matBadgeColor="accent"></mat-tab>
-    </mat-tab-group>
--->
-    <app-chat-manager #chatManager></app-chat-manager>
+        <div fxLayout="row" fxLayoutAlign="center center">
+          <span>{{ chatManager && chatManager.chat().target().name || 'NgWebIRC' }}</span>
+        </div>
+        <span class="flex-fill"></span>
+        <div class="right-toolbar">
+          <button mat-icon-button *ngIf="chatManager.chat().hasUsers()" class="icon-big"
+                  (click)="chatManager.showChatUsers()"
+                  [matBadge]="chatManager.chat().users.length"
+                  matBadgePosition="after" matBadgeColor="primary">
+            <mat-icon>people_alt</mat-icon>
+          </button>
+          <button mat-icon-button class="icon-big"
+                  (click)="chatManager.showChatList()"
+                  [matBadge]="chatManager.newMessageCount()"
+                  [matBadgeHidden]="chatManager.newMessageCount() === 0"
+                  matBadgePosition="after" matBadgeColor="accent">
+            <mat-icon>message</mat-icon>
+          </button>
+        </div>
+      </mat-toolbar>
+
+      <app-chat-manager #chatManager></app-chat-manager>
+
+    </div>
 
   </mat-sidenav-content>
 
   <mat-sidenav #sidenav mode="side" opened="false" position="start">
 
-      ...
+    This panel will host the media player for displaying the selected user playlist
+
+    <div *ngFor="let media of mediaUrlsCache">{{ media.title }}</div>
 
   </mat-sidenav>
 

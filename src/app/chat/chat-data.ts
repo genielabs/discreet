@@ -14,7 +14,7 @@ export class ChatData {
   timestamp = Date.now();
 
   readonly info: ChatInfo;
-  private bufferMaxLines = 100;
+  private bufferMaxLines = 500;
 
   constructor(
     target: string | ChatInfo,
@@ -50,7 +50,7 @@ export class ChatData {
     // add incoming messages to the message buffer
     this.messages.push(message);
     if (this.messages.length > this.bufferMaxLines) {
-      this.messages.pop();
+      this.messages.shift();
     }
     // if this is not the current chat, then increase
     // the number of unread messages
