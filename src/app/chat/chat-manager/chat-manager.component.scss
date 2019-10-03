@@ -78,6 +78,8 @@ app-messages-window {
   overflow-y: auto;
 }
 .v-scroll {
+  margin-top: 8px;
+  border-top: 1px solid gray;
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -116,6 +118,11 @@ app-messages-window {
   mat-icon {
     opacity: 0.9;
   }
+}
+
+.users-list .title {
+  text-align: center;
+  margin-top: 8px;
 }
 
 .full-message-window {

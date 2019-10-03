@@ -11,7 +11,6 @@
 
   <div class="conversations-list" *ngIf="!showUserList || !showRightPanel" [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}">
     <div style="padding-left: 12px; padding-right: 12px;">
-
       <div class="chat-button" *ngFor="let c of boundChatList | sortBy:'desc':'timestamp'">
         <button mat-raised-button (click)="onChannelButtonClick(c)"
                 [color]="c === chat() ? 'accent': ''"
@@ -29,6 +28,7 @@
 
   <div class="users-list" *ngIf="showUserList || !showRightPanel" [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
+    <strong *ngIf="currentChat && currentChat.name" class="title">{{currentChat.name}}</strong>
     <cdk-virtual-scroll-viewport *ngIf="chat().hasUsers()" class="v-scroll" itemSize="38" minBufferPx="200" maxBufferPx="400">
       <button mat-button
               *cdkVirtualFor="let u of chat().users"

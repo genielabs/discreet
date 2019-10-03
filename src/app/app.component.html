@@ -22,7 +22,7 @@
           <button mat-icon-button class="icon-big"
                   (click)="chatManager.showChatList()"
                   [matBadge]="chatManager.newMessageCount()"
-                  [matBadgeHidden]="chatManager.newMessageCount() === 0"
+                  [matBadgeHidden]="chatManager.newMessageCount() === 0 || (!chatManager.showUserList && chatManager.showRightPanel)"
                   matBadgePosition="after" matBadgeColor="accent">
             <mat-icon>message</mat-icon>
           </button>

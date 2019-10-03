@@ -157,7 +157,7 @@ export class ChatManagerComponent implements OnInit {
 
   onChannelButtonClick(c) {
     const chat = this.show(c.target());
-    this.showUserList = chat.hasUsers();
+    this.showRightPanel = this.showUserList = chat.hasUsers();
   }
 
   onUserClick(menu: MatMenu, user: ChatUser) {

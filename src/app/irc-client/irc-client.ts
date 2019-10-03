@@ -20,7 +20,7 @@ export class IrcClient {
   userChannelMode = new EventEmitter<any>();
   connectionStatus = new EventEmitter<boolean>();
 
-  testChannelName = '#over40';
+  testChannelName = '#chatover40';
 
   config = {
     nick: 'Wall`e',
