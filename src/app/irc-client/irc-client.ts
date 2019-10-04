@@ -20,7 +20,7 @@ export class IrcClient {
   userChannelMode = new EventEmitter<any>();
   connectionStatus = new EventEmitter<boolean>();
 
-  testChannelName = '#chatover40';
+  testChannelName = '#webirc-test';
 
   config = {
     nick: 'Wall`e',
@@ -60,7 +60,7 @@ export class IrcClient {
         }      });
       subject.subscribe(
         msg => {
-//console.log(msg.data)
+console.log('>> ' + msg.data)
           // control command codes
           switch (msg.data) {
             // Just connected
@@ -262,10 +262,16 @@ export class IrcClient {
       return subject;
   }
 
-  nick() {
+  nick(nick) {
+    if (nick) {
+      this.raw(`:1 NICK ${nick} `);
+    }
     return this.config.nick;
   }
 
+  raw(message: string) {
+    this.ircClientSubject.next([ message ]);
+  }
   send(target: string, message: string) {
     this.ircClientSubject.next([ `:1 PRIVMSG ${target} :${message}` ]);
   }

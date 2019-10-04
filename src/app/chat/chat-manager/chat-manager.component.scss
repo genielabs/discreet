@@ -37,6 +37,9 @@ app-messages-window {
   width: 100%;
   margin-right: 240px;
 }
+.message-input {
+  resize: none !important;
+}
 
 .input-bar {
   max-width: 100vw;

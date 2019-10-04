@@ -19,8 +19,10 @@ import {
   MatProgressSpinnerModule, MatSnackBarModule
 } from '@angular/material';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatRippleModule } from '@angular/material/core';
 
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
+import { ScrollEventModule } from 'ngx-scroll-event';
 
 import { AppComponent } from './app.component';
 import { MessagesWindowComponent } from './chat/messages-window/messages-window.component';
@@ -28,6 +30,7 @@ import { IrcClient } from './irc-client/irc-client';
 import { ChatManagerComponent } from './chat/chat-manager/chat-manager.component';
 import { EnrichMessage } from './chat/pipes/enrich-message.pipe';
 import { SortByPipe } from './chat/pipes/sort-by.pipe';
+import { YoutubeVideoComponent } from './socialmedia/youtube-video/youtube-video.component';
 
 @NgModule({
   declarations: [
@@ -35,15 +38,18 @@ import { SortByPipe } from './chat/pipes/sort-by.pipe';
     MessagesWindowComponent,
     ChatManagerComponent,
     EnrichMessage,
-    SortByPipe
+    SortByPipe,
+    YoutubeVideoComponent
   ],
   imports: [
+    // angular
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
     FlexLayoutModule,
     FormsModule,
+    // material
     MatFormFieldModule,
     MatButtonModule,
     MatCheckboxModule,
@@ -57,6 +63,9 @@ import { SortByPipe } from './chat/pipes/sort-by.pipe';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     ScrollingModule,
+    MatRippleModule,
+    // third party
+    ScrollEventModule,
     PickerModule
   ],
   entryComponents: [MessagesWindowComponent],

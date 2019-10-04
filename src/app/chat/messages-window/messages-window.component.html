@@ -1,6 +1,7 @@
 <div class="container" fxLayout="column" fxLayoutAlign="end" fxLayoutJustify="stretch">
 
   <div class="message-buffer"
+       detect-scroll (onScroll)="handleScroll($event)" [bottomOffset]="24" [topOffset]="24"
        fxLayout="column"
        fxLayoutJustify="stretch"
        #chatBuffer>
@@ -11,9 +12,13 @@
         <!-- message sender -->
         <div class="message-sender"
               *ngIf="i == 0 || boundChat.messages[i - 1].sender !== msg.sender"
-              fxLayout="row" fxLayoutAlign="start center">
+              fxLayout="row" fxLayoutAlign="start center"
+              (click)="boundChat.manager().onUserClick(boundChat.manager().userMenu, boundChat.getUser(msg.sender))"
+              [matMenuTriggerFor]="boundChat.manager().userMenu">
 
-          <mat-icon *ngIf="boundChat.getUser(msg.sender)" [color]="boundChat.getUserColor(msg.sender)" [innerText]="boundChat.getUserIcon(msg.sender)"></mat-icon>
+          <mat-icon *ngIf="boundChat.getUser(msg.sender)"
+                    [color]="boundChat.getUserColor(msg.sender)"
+                    [innerText]="boundChat.getUserIcon(msg.sender)"></mat-icon>
           <span [innerHTML]="msg.sender"></span>
 
         </div>

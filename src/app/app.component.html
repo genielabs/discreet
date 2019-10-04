@@ -4,12 +4,13 @@
 
     <div class="content" fxLayout="column" fxLayoutAlign="start stretch">
 
-      <mat-toolbar color="primary" fxLayout="row" fxLayoutAlign="start center">
+      <mat-toolbar color="primary" fxLayout="row" fxLayoutAlign="start center" class="mat-elevation-z4">
         <button mat-flat-button color="primary" class="menu-button" (click)="sidenav.toggle()">
           <mat-icon>menu</mat-icon>
         </button>
         <div fxLayout="row" fxLayoutAlign="center center">
           <span>{{ chatManager && chatManager.chat().target().name || 'NgWebIRC' }}</span>
+          <span *ngIf="chatManager && chatManager.chat().stats.messages.new > 0">{{ chatManager.chat().stats.messages.new }}</span>
         </div>
         <span class="flex-fill"></span>
         <div class="right-toolbar">

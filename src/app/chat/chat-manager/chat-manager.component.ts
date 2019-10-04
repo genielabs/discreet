@@ -1,6 +1,6 @@
 import {
   Component,
-  ComponentFactoryResolver,
+  ComponentFactoryResolver, ElementRef,
   EventEmitter, HostListener,
   OnInit,
   Output,
@@ -28,10 +28,11 @@ import {ChatUser} from '../chat-user';
 export class ChatManagerComponent implements OnInit {
   @ViewChild(MessagesWindowComponent, {static: true})
   private messageWindow: MessagesWindowComponent;
+  @ViewChild('userMenu', {static: true}) public userMenu: MatMenu;
 
   private chatList: ChatData[] = [];
   boundChatList: ChatData[] = [];
-  currentChat: ChatInfo;
+  currentChatInfo: ChatInfo;
   currentUser: ChatUser;
 
   userMessage = '';
@@ -72,7 +73,7 @@ export class ChatManagerComponent implements OnInit {
       }
       const chat = this.chat(msg.target);
       chat.receive(msg);
-      if (chat.info === this.currentChat) {
+      if (chat.info === this.currentChatInfo) {
         this.messageWindow.onNewMessage(msg);
       } else if (!chat.hasUsers()) {
         this.snackBar.open(`${msg.sender}: ${msg.message}`, 'Show', {
@@ -163,6 +164,9 @@ export class ChatManagerComponent implements OnInit {
         const target = message.substring(0, spaceIndex);
         message = message.substring(spaceIndex + 1);
         switch (command) {
+        case 'NICK':
+          this.ircClient.nick(target);
+          break;
         case 'QUERY':
         case 'MSG':
           this.chat(target).send(message);
@@ -186,6 +190,7 @@ export class ChatManagerComponent implements OnInit {
   }
 
   onUserClick(menu: MatMenu, user: ChatUser) {
+    console.log('currentUser', user)
     this.currentUser = user;
   }
 
@@ -205,7 +210,7 @@ export class ChatManagerComponent implements OnInit {
 
   onEnterKey(e) {
     e.preventDefault();
-    this.messageWindow.sendMessage.emit(this.userMessage);
+    this.messageWindow.send(this.userMessage);
     this.userMessage = '';
   }
 
@@ -221,7 +226,9 @@ export class ChatManagerComponent implements OnInit {
   newMessageCount() {
     let newMessages = 0;
     this.chatList.forEach((c) => {
-      newMessages += c.stats.messages.new;
+      if (c.info !== this.currentChatInfo) {
+        newMessages += c.stats.messages.new;
+      }
     });
     return newMessages;
   }
@@ -246,7 +253,7 @@ export class ChatManagerComponent implements OnInit {
   show(target: string | ChatInfo) {
     const chat = this.chat(target);
     setTimeout(() => {
-      this.currentChat = chat.target();
+      this.currentChatInfo = chat.target();
       chat.stats.messages.new = 0;
       this.messageWindow.bind(chat);
     });
@@ -254,10 +261,10 @@ export class ChatManagerComponent implements OnInit {
   }
 
   chat(target?: string | ChatInfo): ChatData {
-    if (target == null && this.currentChat) {
-      return this.chat(this.currentChat);
+    if (target == null && this.currentChatInfo) {
+      return this.chat(this.currentChatInfo);
     } else if (target == null) {
-      return new ChatData('loopback', this);
+      return new ChatData('server', this);
     }
     let chat = this.chatList.find((c) => c.target() === target || c.target().name === target || c.target().prefix === target);
     if (chat == null) {
@@ -441,7 +448,7 @@ export class ChatManagerComponent implements OnInit {
     });
   }
   private getUsersSortValue(u: ChatUser) {
-    let user = u.flags + u.name;
+    let user = u.flags + u.name.toLowerCase();
     if (this.isOwner(user)) {
       user = user.replace('~', '0:');
     } else if (this.isAdministrator(user)) {
@@ -469,5 +476,9 @@ export class ChatManagerComponent implements OnInit {
       user = user.substring(1);
     }
     return flags;
+  }
+
+  isLastMessageVisible() {
+    return this.messageWindow.isLastMessageVisible;
   }
 }

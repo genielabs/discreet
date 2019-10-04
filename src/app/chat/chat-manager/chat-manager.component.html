@@ -4,6 +4,8 @@
     #messageWindow [ngClass]="{'full-message-window': !showRightPanel}"
     (sendMessage)="onSendMessage($event)"></app-messages-window>
 
+  <app-youtube-video></app-youtube-video>
+
   <button mat-icon-button *ngIf="showRightPanel" class="close-panel" color="primary"
           (click)="showRightPanel = false">
     <mat-icon>arrow_forward</mat-icon>
@@ -35,7 +37,7 @@
        *ngIf="showUserList || !showRightPanel"
        [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
-    <strong *ngIf="currentChat && currentChat.name" class="title">{{currentChat.name}}</strong>
+    <strong *ngIf="currentChatInfo && currentChatInfo.name" class="title">{{currentChatInfo.name}}</strong>
     <cdk-virtual-scroll-viewport *ngIf="chat().hasUsers()" class="v-scroll" itemSize="38" minBufferPx="200" maxBufferPx="400">
       <button mat-button
               *cdkVirtualFor="let u of chat().users"
@@ -47,33 +49,34 @@
         <mat-icon *ngIf="u.hasPlaylist()">music_video</mat-icon>
       </button>
     </cdk-virtual-scroll-viewport>
-    <mat-menu #userMenu="matMenu" xPosition="after">
-      <div class="user-menu-title" *ngIf="currentUser">{{currentUser.name}}</div>
-      <!-- open a chat with this user -->
-      <button mat-menu-item (click)="onUserMenuChat()">
-        <mat-icon color="primary">message</mat-icon>
-        <span>Chat</span>
-      </button>
-      <!-- collection of media links shared by the user -->
-      <button *ngIf="currentUser" mat-menu-item [disabled]="!currentUser.hasPlaylist()" (click)="onUserPlaylistClick(currentUser)">
-        <mat-icon [color]="currentUser.playlist.length > 0 ? 'primary' : ''">library_music</mat-icon>
-        <span>Playlist</span>
-        <span>&nbsp;({{currentUser.playlist.length}})</span>
-      </button>
-      <!-- turn on/off notifications for messages from this user -->
-      <button mat-menu-item disabled>
-        <mat-icon>notifications_off</mat-icon>
-        <span>Disable alerts</span>
-      </button>
-    </mat-menu>
   </div>
+
+  <mat-menu #userMenu="matMenu" xPosition="after">
+    <div class="user-menu-title" *ngIf="currentUser">{{currentUser.name}}</div>
+    <!-- open a chat with this user -->
+    <button mat-menu-item (click)="onUserMenuChat()">
+      <mat-icon color="primary">message</mat-icon>
+      <span>Chat</span>
+    </button>
+    <!-- collection of media links shared by the user -->
+    <button *ngIf="currentUser" mat-menu-item [disabled]="!currentUser.hasPlaylist()" (click)="onUserPlaylistClick(currentUser)">
+      <mat-icon [color]="currentUser.playlist.length > 0 ? 'primary' : ''">library_music</mat-icon>
+      <span>Playlist</span>
+      <span>&nbsp;({{currentUser.playlist.length}})</span>
+    </button>
+    <!-- turn on/off notifications for messages from this user -->
+    <button mat-menu-item disabled>
+      <mat-icon>notifications_off</mat-icon>
+      <span>Disable alerts</span>
+    </button>
+  </mat-menu>
 
 </div>
 
-<div class="input-bar" fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="8px">
+<div class="input-bar mat-elevation-z4" fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="8px">
 
   <mat-form-field style="width: 100%">
-    <textarea matInput placeholder="Write to {{chat().info.name}}" class="message-input"
+    <textarea matInput placeholder="{{ircClient.config.nick}}  &rarr;  {{chat().info.name}}" class="message-input"
           fxFlex="1 1 100%"
           [(ngModel)]="userMessage"
           (keydown.enter)="onEnterKey($event)"></textarea>

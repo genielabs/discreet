@@ -1,0 +1,28 @@
+<!--
+<iframe class="video-frame"
+        width="240" height="135"
+        src="https://www.youtube.com/embed/C8QJmI_V3j4?autoplay=1&controls=0&enablejsapi=1"
+        autoplay="1" controls="0" enablejsapi="1"
+        frameborder="0" allowfullscreen></iframe>
+-->
+<div class="video-frame">
+  <div id="youtube-player"></div>
+  <div class="overlay"
+       matRipple matRippleColor="rgba(255,255,255,0.3)"
+       [matMenuTriggerFor]="playlistMenu"></div>
+</div>
+
+<mat-menu #playlistMenu="matMenu" xPosition="after">
+  <button mat-menu-item>
+    <mat-icon color="primary">pause</mat-icon>
+    <span>Pause</span>
+  </button>
+  <button mat-menu-item>
+    <mat-icon color="primary">fullscreen</mat-icon>
+    <span>Full Screen</span>
+  </button>
+  <button mat-menu-item>
+    <mat-icon color="primary">close</mat-icon>
+    <span>Close</span>
+  </button>
+</mat-menu>

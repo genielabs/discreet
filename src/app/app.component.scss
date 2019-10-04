@@ -17,25 +17,13 @@
 }
 
 .right-toolbar {
-  padding-right: 8px;
-
+  padding-right: 4px;
   .icon-big.mat-icon-button {
-    height:48px !important;
-    width:48px !important;
-    margin-left: 24px;
-  }
-  .icon-big .mat-icon {
-    height: 36px;
-    width: 36px;
-    font-size: 36px;
-  }
-  .icon-big.mat-icon-button .mat-icon, .icon-big.mat-icon-button i {
-    line-height: 36px;
+    margin-left: 16px;
   }
   .mat-badge-medium.mat-badge-above .mat-badge-content {
     top: 0 !important;
   }
-
 }
 
 mat-toolbar {

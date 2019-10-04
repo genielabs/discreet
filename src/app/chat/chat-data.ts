@@ -57,10 +57,9 @@ export class ChatData {
 
     this.textFormatting.enrich(message.formatted)
       .subscribe((result) => {
-        console.log(result);
+console.log(result);
         if (result.mediaInfo) {
           const sender = this.getUser(message.sender);
-          console.log(message.sender, sender);
           if (sender) {
             sender.playlist.push(result.mediaInfo);
           }
@@ -75,7 +74,10 @@ export class ChatData {
     }
     // if this is not the current chat, then increase
     // the number of unread messages
-    if (this.chatManager.currentChat == null || this.target().name !== this.chatManager.currentChat.name) {
+    if (this.chatManager.currentChatInfo == null ||
+      this.target().name !== this.chatManager.currentChatInfo.name ||
+      (this.target().name === this.chatManager.currentChatInfo.name && !this.chatManager.isLastMessageVisible())
+    ) {
       this.stats.messages.new++;
     }
     this.timestamp = Date.now();

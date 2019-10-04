@@ -1,6 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
+//@import "~@angular/material/prebuilt-themes/pink-bluegrey.css";
 @import '~@ctrl/ngx-emoji-mart/picker';
+
+@import url('https://fonts.googleapis.com/css?family=Delius&display=swap');
 
 @import '_variables.scss';
 
@@ -10,4 +13,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 a {
   color: $accent;
   text-decoration: none;
+}
+
+.mat-elevation-z4 {
+  // Adds a shadow for elevation level 2 with default color and full opacity:
+  @include mat-elevation(4);
 }
