@@ -61,16 +61,20 @@ export class MessagesWindowComponent implements OnInit {
     this.scrollLast(true);
   }
 
+  private scrollTimeout;
   scrollLast(force?: boolean, soft?: boolean) {
+    if (this.scrollTimeout != null) {
+      clearTimeout(this.scrollTimeout);
+    }
     const el: HTMLElement = this.chatBuffer.nativeElement;
     if (force && !soft) {
       el.style['scroll-behavior'] = 'initial';
-      setTimeout(() => {
+      this.scrollTimeout = setTimeout(() => {
         el.scrollTo(0, el.scrollHeight);
         el.style['scroll-behavior'] = 'smooth';
-      });
+      }, 10);
     } else if (this.isLastMessageVisible || force) {
-        setTimeout(() => { el.scrollTo(0, el.scrollHeight); });
+      this.scrollTimeout = setTimeout(() => { el.scrollTo(0, el.scrollHeight); }, 10);
     }
   }
 

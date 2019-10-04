@@ -154,7 +154,6 @@ export class ChatManagerComponent implements OnInit {
 
   ngOnInit() {
     this.messageWindow.mediaUrlClick.subscribe((mediaUrl) => {
-console.log('PLAY VIDEO', mediaUrl);
       this.videoPlayer.loadVideo(mediaUrl.id);
     });
     this.connect();
