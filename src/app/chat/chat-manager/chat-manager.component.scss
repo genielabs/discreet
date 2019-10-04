@@ -1,14 +1,24 @@
+@import '../../../_variables.scss';
+
 :host {
   display: flex;
   flex-direction: column;
   align-content: stretch;
   justify-content: stretch;
   width: 100%;
-  height: calc(100vh - 160px); /* 160px = top bar height 64 + bottom bar height 96 */
-  max-height: calc(100vh - 160px);; /* 160px = top bar height 64 + bottom bar height 96 */
+  height: calc(100% - 160px); /* 160px = top bar height 64 + bottom bar height 96 */
+  max-height: calc(100% - 160px);; /* 160px = top bar height 64 + bottom bar height 96 */
 }
 
-button mat-icon {
+cdk-virtual-scroll-viewport button mat-icon.first {
+  margin-left: 6px;
+}
+cdk-virtual-scroll-viewport button span {
+  display: inline-block;
+  width: 172px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   margin-left: 6px;
   margin-right: 6px;
 }
@@ -49,14 +59,14 @@ app-messages-window {
 .close-panel {
   border: solid 1px gray;
   position: absolute;
-  right: 220px;
-  top: -24px;
+  right: 224px;
+  top: 1px;
   background: white;
-  opacity: 0.9;
   z-index: 100;
 }
 
 .user-menu-title {
+  color: $accent;
   font-weight: 700;
   font-size: 14px;
   padding: 8px;
@@ -66,11 +76,13 @@ app-messages-window {
 
 .users-list {
   position: absolute;
+  padding-top: 3px;
   transition: all .3s ease-in-out;
   right: 0;
-  opacity: 0.9;
+  opacity: 0.95;
   background: whitesmoke;
-  border-bottom: solid 1px gray;
+  border-left: solid 1px $primary;
+  border-bottom: solid 1px $primary;
   height: 100%;
   width: 240px;
   min-width: 240px;
@@ -78,8 +90,6 @@ app-messages-window {
   overflow-y: auto;
 }
 .v-scroll {
-  margin-top: 8px;
-  border-top: 1px solid gray;
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -98,9 +108,10 @@ app-messages-window {
   position: absolute;
   transition: all .3s ease-in-out;
   right: 0;
-  opacity: 0.9;
+  opacity: 0.95;
   background: whitesmoke;
-  border-bottom: solid 1px gray;
+  border-left: solid 1px $primary;
+  border-bottom: solid 1px $primary;
   height: 100%;
   width: 240px;
   min-width: 240px;
@@ -120,9 +131,16 @@ app-messages-window {
   }
 }
 
-.users-list .title {
+.users-list .title, .conversations-list .title {
+  border-bottom: 1px solid $primary;
   text-align: center;
-  margin-top: 8px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 42px;
+  line-height: 42px;
+  vertical-align: middle;
 }
 
 .full-message-window {

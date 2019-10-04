@@ -7,11 +7,18 @@
 
     <ng-container *ngIf="boundChat">
 
-      <div *ngFor="let msg of boundChat.messages; let i = index; let count = count;">
-        <div class="message-sender" *ngIf="i == 0 || boundChat.messages[i - 1].sender !== msg.sender">
+      <div *ngFor="let msg of boundChat.messages; let i = index; let count = count">
+        <!-- message sender -->
+        <div class="message-sender"
+              *ngIf="i == 0 || boundChat.messages[i - 1].sender !== msg.sender"
+              fxLayout="row" fxLayoutAlign="start center">
+
+          <mat-icon *ngIf="boundChat.getUser(msg.sender)" [color]="boundChat.getUserColor(msg.sender)" [innerText]="boundChat.getUserIcon(msg.sender)"></mat-icon>
           <span [innerHTML]="msg.sender"></span>
+
         </div>
-        <span class="message-body" [innerHTML]="msg.message | enrichMessage | async"></span>
+        <!-- message body -->
+        <span class="message-body" [innerHTML]="msg.formatted"></span>
       </div>
 
     </ng-container>

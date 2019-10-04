@@ -165,11 +165,16 @@ export class IrcClient {
                     });
                     break;
                   case 'NICK':
-                    this.usersList.emit({
+                    const nickData = {
                       action: payload.command,
                       user: this.parseUserAddress(payload.prefix).nick,
                       nick: payload.params[0]
-                    });
+                    };
+                    // local user changed the nick, so update config
+                    if (nickData.user === this.config.nick) {
+                      this.config.nick = nickData.nick;
+                    }
+                    this.usersList.emit(nickData);
                     break;
                   case 'MODE':
                     console.log('####################### MODE ###########à', payload);
@@ -255,6 +260,10 @@ export class IrcClient {
         }
       );
       return subject;
+  }
+
+  nick() {
+    return this.config.nick;
   }
 
   send(target: string, message: string) {

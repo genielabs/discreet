@@ -1,7 +1,7 @@
 import {
   Component,
   ComponentFactoryResolver,
-  EventEmitter,
+  EventEmitter, HostListener,
   OnInit,
   Output,
   ViewChild,
@@ -12,9 +12,8 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 
 import {IrcClient} from '../../irc-client/irc-client';
 import {MessagesWindowComponent} from '../messages-window/messages-window.component';
-import {ChatHostDirective} from '../chat-host.directive';
 import {ChatInfo} from '../chat-info';
-import {ChatData} from '../chat-data';
+import {ChatData, ChatMessage} from '../chat-data';
 import {MatMenu} from '@angular/material';
 import {ChatUser} from '../chat-user';
 
@@ -27,13 +26,11 @@ import {ChatUser} from '../chat-user';
   styleUrls: ['./chat-manager.component.scss']
 })
 export class ChatManagerComponent implements OnInit {
-  @ViewChild(ChatHostDirective, {static: true})
-  private chatManagerHost: ChatHostDirective;
   @ViewChild(MessagesWindowComponent, {static: true})
   private messageWindow: MessagesWindowComponent;
 
   private chatList: ChatData[] = [];
-  private boundChatList: ChatData[] = [];
+  boundChatList: ChatData[] = [];
   currentChat: ChatInfo;
   currentUser: ChatUser;
 
@@ -44,8 +41,17 @@ export class ChatManagerComponent implements OnInit {
   showUserList = false;
   isLoadingChat = true;
 
+  screenHeight = window.innerHeight;
+  screenWidth = window.innerWidth;
+
   @Output() chatClosed = new EventEmitter<any>();
   @Output() chatOpen = new EventEmitter<any>();
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event?) {
+    this.screenHeight = window.innerHeight;
+    this.screenWidth = window.innerWidth;
+  }
 
   constructor(
     private snackBar: MatSnackBar,
@@ -55,18 +61,12 @@ export class ChatManagerComponent implements OnInit {
     this.ircClient.connectionStatus.subscribe((connected) => {
       this.isLoadingChat = false;
     });
-    this.ircClient.messageReceive.subscribe((msg) => {
-
-
-      console.log(msg.message);
-      const res = /(\u0002+)|(\u0003+)(\d{1,2})?(,(\d{1,2}))?(\w+)?/g.exec(msg.message);
-      console.log('!!!!!!!!!!', res);
-
-
-      const ni = msg.sender.indexOf('!');
+    this.ircClient.messageReceive.subscribe((msg: ChatMessage) => {
+      const ni = msg.sender.indexOf('!'); // <-- TODO: not sure if this check is still needed
       if (ni > 0) {
         msg.sender = msg.sender.substring(0, ni);
       }
+      // the message is for the local user
       if (this.ircClient.config.nick === msg.target) {
         msg.target = msg.sender;
       }
@@ -152,12 +152,37 @@ export class ChatManagerComponent implements OnInit {
   }
 
   onSendMessage(message) {
-    this.chat().send(message);
+    // strip unwanted characters codes from string
+    message = message.replace(/[\x00-\x1F\x7F]/gu, message);
+    if (message.trim() !== '') {
+      let spaceIndex = message.indexOf(' ');
+      if (message[0] === '/' && spaceIndex > 0) {
+        const command = message.substring(1, spaceIndex);
+        message = message.substring(spaceIndex + 1);
+        spaceIndex = message.indexOf(' ');
+        const target = message.substring(0, spaceIndex);
+        message = message.substring(spaceIndex + 1);
+        switch (command) {
+        case 'QUERY':
+        case 'MSG':
+          this.chat(target).send(message);
+          break;
+        }
+      } else {
+        this.chat().send(message);
+      }
+    }
   }
 
   onChannelButtonClick(c) {
     const chat = this.show(c.target());
-    this.showRightPanel = this.showUserList = chat.hasUsers();
+    if (this.screenWidth < 640) {
+      this.showRightPanel = false;
+      // this.showRightPanel = this.showUserList = chat.hasUsers();
+      // if (this.showRightPanel) {
+      //   setTimeout(() => this.showRightPanel = false, 2000);
+      // }
+    }
   }
 
   onUserClick(menu: MatMenu, user: ChatUser) {
@@ -169,23 +194,28 @@ export class ChatManagerComponent implements OnInit {
     this.showUserList = chat.hasUsers();
   }
 
+  onUserPlaylistClick(user: ChatUser) {
+    console.log(user, user.playlist);
+  }
+
   onAddEmoji(emoji) {
     console.log(emoji);
     this.userMessage += emoji.native + ' ';
   }
 
   onEnterKey(e) {
+    e.preventDefault();
     this.messageWindow.sendMessage.emit(this.userMessage);
     this.userMessage = '';
   }
 
   showChatList() {
-    this.showRightPanel = true;
     this.showUserList = false;
+    this.showRightPanel = true;
   }
   showChatUsers() {
-    this.showRightPanel = true;
     this.showUserList = true;
+    this.showRightPanel = true;
   }
 
   newMessageCount() {
@@ -241,7 +271,7 @@ export class ChatManagerComponent implements OnInit {
           this.showUserList = true;
           this.chatOpen.emit(chat);
           this.show(target);
-        } else {
+        } else if (this.screenWidth <= 640) {
           this.showRightPanel = false;
         }
       }
@@ -410,7 +440,7 @@ export class ChatManagerComponent implements OnInit {
       return 0;
     });
   }
-  private getUsersSortValue(u) {
+  private getUsersSortValue(u: ChatUser) {
     let user = u.flags + u.name;
     if (this.isOwner(user)) {
       user = user.replace('~', '0:');
@@ -422,8 +452,10 @@ export class ChatManagerComponent implements OnInit {
       user = user.replace('%', '3:');
     } else if (this.isVoice(user)) {
       user = user.replace('+', '4:');
-    } else {
+    } else if (u.hasPlaylist()) {
       user = '5:' + user;
+    } else {
+      user = '6:' + user;
     }
     user = this.removeUserNameFlags(user);
     return user;

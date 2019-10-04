@@ -1,6 +1,7 @@
 import {ChatInfo} from './chat-info';
 import {ChatManagerComponent} from './chat-manager/chat-manager.component';
 import {ChatUser} from './chat-user';
+import {TextFormatting} from './text-formatting';
 
 export class ChatData {
   topic = '';
@@ -14,7 +15,8 @@ export class ChatData {
   timestamp = Date.now();
 
   readonly info: ChatInfo;
-  private bufferMaxLines = 500;
+  private bufferMaxLines = 300;
+  private textFormatting = new TextFormatting();
 
   constructor(
     target: string | ChatInfo,
@@ -41,12 +43,31 @@ export class ChatData {
     // Add the outgoing message to the buffer as well
     this.receive({
       type: 'PRIVMSG',
-      sender: '@localuser',
+      sender: '<em>' + this.chatManager.client().config.nick + '</em>',
       target: name,
-      message
+      message,
+      formatted: message
     });
   }
   receive(message: ChatMessage) {
+    // strip color codes (sorry... not supported yet =/)
+    // TODO: add suport for IRC color codes
+    message.formatted = message.message
+      .replace(/(\u0002+)|(\u0003+)(\d{1,2})?(,(\d{1,2}))?/g, '');
+
+    this.textFormatting.enrich(message.formatted)
+      .subscribe((result) => {
+        console.log(result);
+        if (result.mediaInfo) {
+          const sender = this.getUser(message.sender);
+          console.log(message.sender, sender);
+          if (sender) {
+            sender.playlist.push(result.mediaInfo);
+          }
+        }
+        message.formatted = result.enriched;
+      });
+
     // add incoming messages to the message buffer
     this.messages.push(message);
     if (this.messages.length > this.bufferMaxLines) {
@@ -58,6 +79,17 @@ export class ChatData {
       this.stats.messages.new++;
     }
     this.timestamp = Date.now();
+  }
+  getUser(name: string) {
+    return this.users.find((u) => u.name === name);
+  }
+  getUserIcon(name: string) {
+    const u = this.getUser(name);
+    return u != null && this.manager().getIcon(u.flags);
+  }
+  getUserColor(name: string) {
+    const u = this.getUser(name);
+    return u != null && this.manager().getColor(u.flags);
   }
   hasUsers(): boolean {
     return this.users.length > 0;
@@ -92,4 +124,6 @@ export class ChatMessage {
   sender: string;
   target: string;
   message: string;
+  formatted?: string;
+  timestamp?: number = Date.now();
 }

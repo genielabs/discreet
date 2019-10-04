@@ -28,43 +28,42 @@ export interface MediaInfo {
 })
 export class EnrichMessage implements PipeTransform {
   static mediaUrlsCache: MediaInfo[] = [];
-  constructor(private httpClient: HttpClient) {}
 
-  transform(value: string, ...args: any[]): any {
+  static enrich(value, httpClient: HttpClient): Observable<string> {
     const text = this.createTextLinks_(value);
     return new Observable<string>((observer: Observer<string>) => {
-        observer.next(text.replaced);
-        const pending: Observable<any>[] = [];
-        text.urls.forEach((url) => {
-          const cached = EnrichMessage.mediaUrlsCache.find((v) => v.originalUrl === url || v.url === url);
-          if (cached != null) {
-            observer.next(text.replaced.replace(`[${url}]`, `${cached.title} (${cached.provider_name})`));
-            return;
-          }
-          const o = this.httpClient.get(`https://noembed.com/embed?url=${url}`);
-          pending.push(o);
-          o.subscribe((res: MediaInfo) => {
+      observer.next(text.replaced);
+      const pending: Observable<any>[] = [];
+      text.urls.forEach((url) => {
+        const cached = EnrichMessage.mediaUrlsCache.find((v) => v.originalUrl === url || v.url === url);
+        if (cached != null) {
+          observer.next(text.replaced.replace(`[${url}]`, `${cached.title} (${cached.provider_name})`));
+          return;
+        }
+        const o = httpClient.get(`https://noembed.com/embed?url=${url}`);
+        pending.push(o);
+        o.subscribe((res: MediaInfo) => {
+          console.log(res);
+          if (res && res.title) {
+            res.originalUrl = url;
+            EnrichMessage.mediaUrlsCache.push(res);
+            observer.next(text.replaced.replace(`[${url}]`, `${res.title} (${res.provider_name})`));
             console.log(res);
-            if (res && res.title) {
-              res.originalUrl = url;
-              EnrichMessage.mediaUrlsCache.push(res);
-              observer.next(text.replaced.replace(`[${url}]`, `${res.title} (${res.provider_name})`));
-              console.log(res);
-            } else {
-              observer.next(text.replaced.replace(`[${url}]`, url));
-            }
-          }, (err) => {
-            // TODO: ...
+          } else {
             observer.next(text.replaced.replace(`[${url}]`, url));
-          });
+          }
+        }, (err) => {
+          // TODO: ...
+          observer.next(text.replaced.replace(`[${url}]`, url));
         });
-        zip(...pending).subscribe((res) => {
-          observer.complete();
-        });
+      });
+      zip(...pending).subscribe((res) => {
+        observer.complete();
+      });
     });
   }
 
-  private createTextLinks_(text: string) {
+  static createTextLinks_(text: string) {
     const urls: string[] = [];
     const replaced = (text || '').replace(
       /([^\S]|^)(((https?\:\/\/)|(www\.))(\S+))/gi,
@@ -78,6 +77,12 @@ export class EnrichMessage implements PipeTransform {
       }
     );
     return { replaced, urls };
+  }
+
+  constructor(private httpClient: HttpClient) {}
+
+  transform(value: string, ...args: any[]): any {
+    EnrichMessage.enrich(value, this.httpClient);
   }
 
 }
