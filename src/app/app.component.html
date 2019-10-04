@@ -9,8 +9,10 @@
           <mat-icon>menu</mat-icon>
         </button>
         <div fxLayout="row" fxLayoutAlign="center center">
-          <span>{{ chatManager && chatManager.chat().target().name || 'NgWebIRC' }}</span>
-          <span *ngIf="chatManager && chatManager.chat().stats.messages.new > 0">{{ chatManager.chat().stats.messages.new }}</span>
+          <span [matBadge]="chatManager.chat().stats.messages.new"
+                matBadgeColor="accent"
+                [matBadgeHidden]="!(chatManager && chatManager.chat().target().name && chatManager.chat().stats.messages.new > 0)"
+                matBadgeOverlap="false">{{ chatManager && chatManager.chat().target().name || 'NgWebIRC' }}</span>
         </div>
         <span class="flex-fill"></span>
         <div class="right-toolbar">

@@ -1,6 +1,7 @@
 import {Observable, Observer, zip} from 'rxjs';
 import {MediaInfo} from './pipes/enrich-message.pipe';
 import {HttpClient, HttpXhrBackend} from '@angular/common/http';
+import {DomSanitizer} from '@angular/platform-browser';
 
 export interface MediaInfo {
   //
@@ -31,7 +32,7 @@ export class EnrichmentResult {
 export class TextFormatting {
   static mediaUrlsCache: MediaInfo[] = [];
 
-  constructor() {}
+  constructor(private sanitizer: DomSanitizer) {}
 
   enrich(value): Observable<EnrichmentResult> {
     const httpClient = new HttpClient(new HttpXhrBackend({ build: () => new XMLHttpRequest() }));
@@ -83,7 +84,18 @@ export class TextFormatting {
           hyperlink = 'http://' + hyperlink;
         }
         urls.push(url);
-        return space + '<a href="' + hyperlink + '">[' + url + ']</a>';
+        let videoId = '';
+        if (hyperlink.indexOf('v=') === -1) {
+          videoId = hyperlink.substring(hyperlink.lastIndexOf('/') + 1);
+        } else {
+          videoId = hyperlink.split('v=')[1];
+          const ampersandPosition = videoId.indexOf('&');
+          if (ampersandPosition !== -1) {
+            videoId = videoId.substring(0, ampersandPosition);
+          }
+        }
+        const mediaUrl = `<a style="cursor:pointer;" data-id="${videoId}" data-link="${hyperlink}">[${url}]</a>`;
+        return space + mediaUrl;
       }
     );
     return { replaced, urls };

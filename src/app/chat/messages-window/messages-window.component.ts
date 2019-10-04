@@ -16,6 +16,8 @@ export class MessagesWindowComponent implements OnInit {
 
   @Output()
   sendMessage = new EventEmitter<any>();
+  @Output()
+  mediaUrlClick = new EventEmitter<any>();
 
   isLastMessageVisible = true;
 
@@ -42,6 +44,14 @@ export class MessagesWindowComponent implements OnInit {
     }
   }
 
+  onMessageClick(e) {
+    console.log(e);
+    if (e.target.tagName === 'A') {
+      e.preventDefault();
+      this.mediaUrlClick.emit({ id: e.target.dataset.id, link: e.target.dataset.link, element: e.target });
+    }
+  }
+
   onNewMessage(msg: any) {
     this.scrollLast();
   }
@@ -51,15 +61,15 @@ export class MessagesWindowComponent implements OnInit {
     this.scrollLast(true);
   }
 
-  private scrollLast(force?: boolean) {
+  scrollLast(force?: boolean, soft?: boolean) {
     const el: HTMLElement = this.chatBuffer.nativeElement;
-    if (force) {
+    if (force && !soft) {
       el.style['scroll-behavior'] = 'initial';
       setTimeout(() => {
         el.scrollTo(0, el.scrollHeight);
         el.style['scroll-behavior'] = 'smooth';
       });
-    } else if (this.isLastMessageVisible) {
+    } else if (this.isLastMessageVisible || force) {
         setTimeout(() => { el.scrollTo(0, el.scrollHeight); });
     }
   }

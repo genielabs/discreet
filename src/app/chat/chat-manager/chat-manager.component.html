@@ -4,7 +4,7 @@
     #messageWindow [ngClass]="{'full-message-window': !showRightPanel}"
     (sendMessage)="onSendMessage($event)"></app-messages-window>
 
-  <app-youtube-video></app-youtube-video>
+  <app-youtube-video #videoPlayer></app-youtube-video>
 
   <button mat-icon-button *ngIf="showRightPanel" class="close-panel" color="primary"
           (click)="showRightPanel = false">

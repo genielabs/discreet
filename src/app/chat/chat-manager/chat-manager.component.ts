@@ -16,6 +16,7 @@ import {ChatInfo} from '../chat-info';
 import {ChatData, ChatMessage} from '../chat-data';
 import {MatMenu} from '@angular/material';
 import {ChatUser} from '../chat-user';
+import {YoutubeVideoComponent} from '../../socialmedia/youtube-video/youtube-video.component';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +29,10 @@ import {ChatUser} from '../chat-user';
 export class ChatManagerComponent implements OnInit {
   @ViewChild(MessagesWindowComponent, {static: true})
   private messageWindow: MessagesWindowComponent;
-  @ViewChild('userMenu', {static: true}) public userMenu: MatMenu;
+  @ViewChild('userMenu', {static: true})
+  userMenu: MatMenu;
+  @ViewChild(YoutubeVideoComponent, {static: true})
+  public videoPlayer: YoutubeVideoComponent;
 
   private chatList: ChatData[] = [];
   boundChatList: ChatData[] = [];
@@ -149,6 +153,10 @@ export class ChatManagerComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.messageWindow.mediaUrlClick.subscribe((mediaUrl) => {
+console.log('PLAY VIDEO', mediaUrl);
+      this.videoPlayer.loadVideo(mediaUrl.id);
+    });
     this.connect();
   }
 

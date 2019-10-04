@@ -5,23 +5,27 @@
         autoplay="1" controls="0" enablejsapi="1"
         frameborder="0" allowfullscreen></iframe>
 -->
-<div class="video-frame">
+<div class="video-frame" [ngClass]="{hidden: videoId == null}">
   <div id="youtube-player"></div>
-  <div class="overlay"
+  <div class="overlay" *ngIf="!isFullScreen"
        matRipple matRippleColor="rgba(255,255,255,0.3)"
        [matMenuTriggerFor]="playlistMenu"></div>
 </div>
 
 <mat-menu #playlistMenu="matMenu" xPosition="after">
-  <button mat-menu-item>
+  <button mat-menu-item *ngIf="playState == PlayState.PLAYING" (click)="onMenuControlPause()">
     <mat-icon color="primary">pause</mat-icon>
     <span>Pause</span>
   </button>
-  <button mat-menu-item>
+  <button mat-menu-item *ngIf="playState == PlayState.PAUSED" (click)="onMenuControlPlay()">
+    <mat-icon color="primary">play</mat-icon>
+    <span>Play</span>
+  </button>
+  <button mat-menu-item (click)="onMenuControlFullScreen()">
     <mat-icon color="primary">fullscreen</mat-icon>
     <span>Full Screen</span>
   </button>
-  <button mat-menu-item>
+  <button mat-menu-item (click)="onMenuControlClose()">
     <mat-icon color="primary">close</mat-icon>
     <span>Close</span>
   </button>

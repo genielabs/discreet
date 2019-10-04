@@ -1,6 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, Observer, zip} from 'rxjs';
+import {DomSanitizer} from '@angular/platform-browser';
 
 export interface MediaInfo {
   //
@@ -29,7 +30,7 @@ export interface MediaInfo {
 export class EnrichMessage implements PipeTransform {
   static mediaUrlsCache: MediaInfo[] = [];
 
-  static enrich(value, httpClient: HttpClient): Observable<string> {
+  enrich(value, httpClient: HttpClient): Observable<string> {
     const text = this.createTextLinks_(value);
     return new Observable<string>((observer: Observer<string>) => {
       observer.next(text.replaced);
@@ -63,7 +64,7 @@ export class EnrichMessage implements PipeTransform {
     });
   }
 
-  static createTextLinks_(text: string) {
+  createTextLinks_(text: string) {
     const urls: string[] = [];
     const replaced = (text || '').replace(
       /([^\S]|^)(((https?\:\/\/)|(www\.))(\S+))/gi,
@@ -73,16 +74,18 @@ export class EnrichMessage implements PipeTransform {
           hyperlink = 'http://' + hyperlink;
         }
         urls.push(url);
-        return space + '<a href="' + hyperlink + '">[' + url + ']</a>';
+        const mediaUrl = '<a href="' + hyperlink + '">[' + url + ']</a>';
+        this.sanitizer.bypassSecurityTrustHtml(mediaUrl);
+        return space + mediaUrl;
       }
     );
     return { replaced, urls };
   }
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(private sanitizer: DomSanitizer, private httpClient: HttpClient) {}
 
   transform(value: string, ...args: any[]): any {
-    EnrichMessage.enrich(value, this.httpClient);
+    this.enrich(value, this.httpClient);
   }
 
 }

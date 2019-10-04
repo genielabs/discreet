@@ -1,7 +1,7 @@
 <div class="container" fxLayout="column" fxLayoutAlign="end" fxLayoutJustify="stretch">
 
   <div class="message-buffer"
-       detect-scroll (onScroll)="handleScroll($event)" [bottomOffset]="24" [topOffset]="24"
+       detect-scroll (onScroll)="handleScroll($event)" [bottomOffset]="48" [topOffset]="48"
        fxLayout="column"
        fxLayoutJustify="stretch"
        #chatBuffer>
@@ -9,21 +9,33 @@
     <ng-container *ngIf="boundChat">
 
       <div *ngFor="let msg of boundChat.messages; let i = index; let count = count">
+
+        <div *ngIf="!isLastMessageVisible && boundChat.stats.messages.new > 0 && count - i === boundChat.stats.messages.new"
+             style="border-bottom: 2px solid red; display:block; width: 100%; height: 2px;margin-bottom: 4px; margin-top: 4px;"></div>
+
         <!-- message sender -->
         <div class="message-sender"
               *ngIf="i == 0 || boundChat.messages[i - 1].sender !== msg.sender"
-              fxLayout="row" fxLayoutAlign="start center"
-              (click)="boundChat.manager().onUserClick(boundChat.manager().userMenu, boundChat.getUser(msg.sender))"
-              [matMenuTriggerFor]="boundChat.manager().userMenu">
+              fxLayout="row" fxLayoutAlign="start center">
 
           <mat-icon *ngIf="boundChat.getUser(msg.sender)"
                     [color]="boundChat.getUserColor(msg.sender)"
                     [innerText]="boundChat.getUserIcon(msg.sender)"></mat-icon>
-          <span [innerHTML]="msg.sender"></span>
+          <span [innerHTML]="msg.sender"
+                [matMenuTriggerFor]="boundChat.manager().userMenu"
+                (click)="boundChat.manager().onUserClick(boundChat.manager().userMenu, boundChat.getUser(msg.sender))"></span>
 
         </div>
         <!-- message body -->
-        <span class="message-body" [innerHTML]="msg.formatted"></span>
+        <div class="message-body" [innerHTML]="msg.formatted | safe: 'html'" (click)="onMessageClick($event)"></div>
+      </div>
+
+      <div *ngIf="!isLastMessageVisible && boundChat.stats.messages.new > 0"
+           class="message-notification mat-elevation-z5"
+           (click)="scrollLast(true, true)">
+        <mat-icon>arrow_downward</mat-icon>
+        <span>{{boundChat.stats.messages.new}} new messages!</span>
+        <mat-icon>arrow_downward</mat-icon>
       </div>
 
     </ng-container>

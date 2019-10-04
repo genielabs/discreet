@@ -31,6 +31,7 @@ import { ChatManagerComponent } from './chat/chat-manager/chat-manager.component
 import { EnrichMessage } from './chat/pipes/enrich-message.pipe';
 import { SortByPipe } from './chat/pipes/sort-by.pipe';
 import { YoutubeVideoComponent } from './socialmedia/youtube-video/youtube-video.component';
+import { SafePipe } from './chat/pipes/safe.pipe';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { YoutubeVideoComponent } from './socialmedia/youtube-video/youtube-video
     ChatManagerComponent,
     EnrichMessage,
     SortByPipe,
-    YoutubeVideoComponent
+    YoutubeVideoComponent,
+    SafePipe
   ],
   imports: [
     // angular
