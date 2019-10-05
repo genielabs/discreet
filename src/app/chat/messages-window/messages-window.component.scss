@@ -12,9 +12,7 @@
   display: block;
   overflow-y: scroll;
   padding: 8px;
-  font-family: 'Delius', monospace;
-  font-size: 140%;
-  border-bottom: solid 1px $primary;
+  font-size: 120%;
 }
 .message-buffer:first-child {
   display: block;
@@ -26,20 +24,25 @@
 }
 .message-sender {
   margin-top: 24px;
-  margin-bottom: 4px;
   font-weight: 600;
 }
 .message-sender mat-icon {
-  margin-right: 8px;
+  margin-left: 4px;
+  margin-right: 4px;
 }
 .message-sender span {
+  font-weight: 600;
   cursor: pointer;
-  color: $primary;
 }
 .message-body {
+  font-family: 'Delius', monospace;
   line-height: 150%;
   vertical-align: middle;
   word-break: break-word;
+}
+.local-user {
+  text-decoration: underline;
+  font-weight: bolder;
 }
 
 .message-notification {
@@ -52,11 +55,17 @@
   color: white;
   right: 0;
   left: 0;
-  width: 300px;
+  width: 320px;
+  font-size: 16px;
   border-radius: 12px;
   margin-bottom: 24px;
   padding: 6px;
   cursor: pointer;
+}
+
+.message-notification mat-icon {
+  margin-left: 32px;
+  margin-right: 32px;
 }
 
 @media only screen and (max-device-width: 1024px) {

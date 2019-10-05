@@ -14,7 +14,5 @@ import {EnrichMessage} from './chat/pipes/enrich-message.pipe';
 export class AppComponent {
   title = 'ng-web-irc';
   @ViewChild('chatManager', {static: true}) chatManager: ChatManagerComponent;
-
-  mediaUrlsCache = EnrichMessage.mediaUrlsCache;
-
+  // TODO: ...
 }

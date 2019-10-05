@@ -2,12 +2,12 @@
 
 :host {
   display: flex;
+  font-size: 110%;
   flex-direction: column;
   align-content: stretch;
   justify-content: stretch;
   width: 100%;
   height: calc(100% - 160px); /* 160px = top bar height 64 + bottom bar height 96 */
-  max-height: calc(100% - 160px);; /* 160px = top bar height 64 + bottom bar height 96 */
 }
 
 cdk-virtual-scroll-viewport button mat-icon.first {
@@ -15,7 +15,7 @@ cdk-virtual-scroll-viewport button mat-icon.first {
 }
 cdk-virtual-scroll-viewport button span {
   display: inline-block;
-  width: 172px;
+  width: 162px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -42,6 +42,8 @@ app-messages-window {
 }
 
 .input-bar {
+  z-index: 1;
+  background-color: $backgroundColor;
   max-width: 100vw;
   padding: 16px 16px 24px;
   height: 96px;
@@ -60,7 +62,6 @@ app-messages-window {
 }
 
 .close-panel {
-  border: solid 1px gray;
   position: absolute;
   right: 224px;
   top: 1px;
@@ -83,9 +84,7 @@ app-messages-window {
   transition: all .3s ease-in-out;
   right: 0;
   opacity: 0.95;
-  background: whitesmoke;
-  border-left: solid 1px $primary;
-  border-bottom: solid 1px $primary;
+  background: $backgroundColor;
   height: 100%;
   width: 240px;
   min-width: 240px;
@@ -100,21 +99,13 @@ app-messages-window {
 .v-scroll button {
   padding-left: 12px;
 }
-.v-scroll:first-child {
-  margin-top: 12px;
-}
-.v-scroll:last-child {
-  margin-bottom: 12px;
-}
 
 .conversations-list {
   position: absolute;
   transition: all .3s ease-in-out;
   right: 0;
   opacity: 0.95;
-  background: whitesmoke;
-  border-left: solid 1px $primary;
-  border-bottom: solid 1px $primary;
+  background: $backgroundColor;
   height: 100%;
   width: 240px;
   min-width: 240px;
@@ -130,6 +121,8 @@ app-messages-window {
   width: 100%;
   text-align: start;
   mat-icon {
+    margin-left: 4px;
+    margin-right: 4px;
     opacity: 0.9;
   }
 }
@@ -177,4 +170,26 @@ app-messages-window {
     margin-right: -240px;
   }
 }
-
+/* break point for material toolbar (from 64px height to 56px) */
+@media only screen and (max-device-width: 599px) { // small screen
+  :host {
+    height: calc(100% - 152px); /* 160px = top bar height 56 + bottom bar height 96 */
+    font-size: 85%;
+  }
+}
+/* Responsive text size */
+@media only screen and (max-device-width: 1280px) {
+  :host {
+    font-size: 95%;
+  }
+}
+@media only screen and (max-device-width: 1024px) {
+  :host {
+    font-size: 90%;
+  }
+}
+@media only screen and (max-device-width: 599px) {
+  :host {
+    font-size: 85%;
+  }
+}

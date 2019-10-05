@@ -43,10 +43,11 @@ export class ChatData {
     // Add the outgoing message to the buffer as well
     this.receive({
       type: 'PRIVMSG',
-      sender: '<em>' + this.chatManager.client().config.nick + '</em>',
+      sender: this.chatManager.client().config.nick,
       target: name,
       message,
-      formatted: message
+      formatted: message,
+      isLocal: true
     });
   }
   receive(message: ChatMessage) {
@@ -57,7 +58,6 @@ export class ChatData {
 
     this.textFormatting.enrich(message.formatted)
       .subscribe((result) => {
-console.log(result);
         if (result.mediaInfo) {
           const sender = this.getUser(message.sender);
           if (sender) {
@@ -128,4 +128,5 @@ export class ChatMessage {
   message: string;
   formatted?: string;
   timestamp?: number = Date.now();
+  isLocal?: boolean;
 }

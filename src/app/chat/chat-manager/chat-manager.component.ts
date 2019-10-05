@@ -14,9 +14,10 @@ import {IrcClient} from '../../irc-client/irc-client';
 import {MessagesWindowComponent} from '../messages-window/messages-window.component';
 import {ChatInfo} from '../chat-info';
 import {ChatData, ChatMessage} from '../chat-data';
-import {MatMenu} from '@angular/material';
+import {MatDialog, MatMenu} from '@angular/material';
 import {ChatUser} from '../chat-user';
 import {YoutubeVideoComponent} from '../../socialmedia/youtube-video/youtube-video.component';
+import {EmojiDialogComponent} from '../dialogs/emoji-dialog/emoji-dialog.component';
 
 @Injectable({
   providedIn: 'root',
@@ -32,7 +33,7 @@ export class ChatManagerComponent implements OnInit {
   @ViewChild('userMenu', {static: true})
   userMenu: MatMenu;
   @ViewChild(YoutubeVideoComponent, {static: true})
-  public videoPlayer: YoutubeVideoComponent;
+  videoPlayer: YoutubeVideoComponent;
 
   private chatList: ChatData[] = [];
   boundChatList: ChatData[] = [];
@@ -40,6 +41,8 @@ export class ChatManagerComponent implements OnInit {
   currentUser: ChatUser;
 
   userMessage = '';
+  textInputCaretPosition = 0;
+  currentEmojiTextInput;
 
   // state variables
   showRightPanel = true;
@@ -61,7 +64,8 @@ export class ChatManagerComponent implements OnInit {
   constructor(
     private snackBar: MatSnackBar,
     private componentFactoryResolver: ComponentFactoryResolver,
-    private ircClient: IrcClient
+    private ircClient: IrcClient,
+    public dialog: MatDialog
   ) {
     this.ircClient.connectionStatus.subscribe((connected) => {
       this.isLoadingChat = false;
@@ -154,41 +158,22 @@ export class ChatManagerComponent implements OnInit {
 
   ngOnInit() {
     this.messageWindow.mediaUrlClick.subscribe((mediaUrl) => {
-      this.videoPlayer.loadVideo(mediaUrl.id);
+      if (mediaUrl.id) {
+        // YouTube link is opened with built-in player
+        this.videoPlayer.loadVideo(mediaUrl.id);
+      } else {
+        // Other links are opened in a new window
+        window.open(mediaUrl.link, '_blank');
+      }
     });
     this.connect();
-  }
-
-  onSendMessage(message) {
-    // strip unwanted characters codes from string
-    message = message.replace(/[\x00-\x1F\x7F]/gu, message);
-    if (message.trim() !== '') {
-      let spaceIndex = message.indexOf(' ');
-      if (message[0] === '/' && spaceIndex > 0) {
-        const command = message.substring(1, spaceIndex);
-        message = message.substring(spaceIndex + 1);
-        spaceIndex = message.indexOf(' ');
-        const target = message.substring(0, spaceIndex);
-        message = message.substring(spaceIndex + 1);
-        switch (command) {
-        case 'NICK':
-          this.ircClient.nick(target);
-          break;
-        case 'QUERY':
-        case 'MSG':
-          this.chat(target).send(message);
-          break;
-        }
-      } else {
-        this.chat().send(message);
-      }
-    }
   }
 
   onChannelButtonClick(c) {
     const chat = this.show(c.target());
     if (this.screenWidth < 640) {
       this.showRightPanel = false;
+      this.videoPlayer.toggleRightMargin(false);
       // this.showRightPanel = this.showUserList = chat.hasUsers();
       // if (this.showRightPanel) {
       //   setTimeout(() => this.showRightPanel = false, 2000);
@@ -210,24 +195,72 @@ export class ChatManagerComponent implements OnInit {
     console.log(user, user.playlist);
   }
 
-  onAddEmoji(emoji) {
-    console.log(emoji);
-    this.userMessage += emoji.native + ' ';
-  }
-
   onEnterKey(e) {
     e.preventDefault();
-    this.messageWindow.send(this.userMessage);
+    // TODO: make a method 'sendMessage' out of this
+    // strip unwanted characters codes from string
+    let message = this.userMessage.replace(/[\x00-\x1F\x7F]/gu, '');
+    if (message.trim() !== '') {
+      let spaceIndex = message.indexOf(' ');
+      if (message[0] === '/' && spaceIndex > 0) {
+        const command = message.substring(1, spaceIndex);
+        message = message.substring(spaceIndex + 1);
+        spaceIndex = message.indexOf(' ');
+        const target = message.substring(0, spaceIndex);
+        message = message.substring(spaceIndex + 1);
+        switch (command) {
+          case 'NICK':
+            this.ircClient.nick(target);
+            break;
+          case 'QUERY':
+          case 'MSG':
+            this.chat(target).send(message);
+            break;
+        }
+      } else {
+        this.chat().send(message);
+      }
+    }
     this.userMessage = '';
+    this.messageWindow.scrollLast(true);
+  }
+
+  onOpenEmojiClick(e) {
+    const dialogRef = this.dialog.open(EmojiDialogComponent, {panelClass: 'emoji-dialog-container'});
+    dialogRef.afterClosed().subscribe(emoji => {
+      if (emoji) {
+        const leftPart = this.userMessage.substring(0, this.textInputCaretPosition);
+        const rightPart = this.userMessage.substring(this.textInputCaretPosition);
+        this.userMessage = leftPart + emoji.native + rightPart;
+        this.textInputCaretPosition += emoji.native.length;
+      }
+      this.currentEmojiTextInput.focus();
+    });
+    e.preventDefault();
+  }
+
+  onTextInputBlur(e) {
+    const textInput = this.currentEmojiTextInput = e.target;
+    if (textInput.selectionStart || textInput.selectionStart == '0') {
+      this.textInputCaretPosition = textInput.selectionStart;
+    }
+  }
+  onTextInputFocus(e) {
+    const textInput = e.target;
+    setTimeout(() => {
+      textInput.selectionStart = textInput.selectionEnd = this.textInputCaretPosition;
+    }, 50);
   }
 
   showChatList() {
     this.showUserList = false;
     this.showRightPanel = true;
+    this.videoPlayer.toggleRightMargin(true);
   }
   showChatUsers() {
     this.showUserList = true;
     this.showRightPanel = true;
+    this.videoPlayer.toggleRightMargin(true);
   }
 
   newMessageCount() {
@@ -238,6 +271,11 @@ export class ChatManagerComponent implements OnInit {
       }
     });
     return newMessages;
+  }
+
+  toggleRightPanel() {
+    this.showRightPanel = false;
+    this.videoPlayer.toggleRightMargin(false);
   }
 
   connect() {
@@ -287,6 +325,7 @@ export class ChatManagerComponent implements OnInit {
           this.show(target);
         } else if (this.screenWidth <= 640) {
           this.showRightPanel = false;
+          this.videoPlayer.toggleRightMargin(false);
         }
       }
     }
@@ -327,10 +366,7 @@ export class ChatManagerComponent implements OnInit {
     if (this.isHalfOperator(prefix)) {
       return 'warn';
     }
-    if (this.isVoice(prefix)) {
-      return 'record_voice_over';
-    }
-    return 'person';
+    return '';
   }
 
   getIcon(c: ChatData | string): string {

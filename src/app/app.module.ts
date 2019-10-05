@@ -16,7 +16,9 @@ import {
   MatToolbarModule,
   MatTabsModule,
   MatMenuModule,
-  MatProgressSpinnerModule, MatSnackBarModule
+  MatProgressSpinnerModule,
+  MatSnackBarModule,
+  MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS
 } from '@angular/material';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatRippleModule } from '@angular/material/core';
@@ -32,6 +34,7 @@ import { EnrichMessage } from './chat/pipes/enrich-message.pipe';
 import { SortByPipe } from './chat/pipes/sort-by.pipe';
 import { YoutubeVideoComponent } from './socialmedia/youtube-video/youtube-video.component';
 import { SafePipe } from './chat/pipes/safe.pipe';
+import { EmojiDialogComponent } from './chat/dialogs/emoji-dialog/emoji-dialog.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +44,8 @@ import { SafePipe } from './chat/pipes/safe.pipe';
     EnrichMessage,
     SortByPipe,
     YoutubeVideoComponent,
-    SafePipe
+    SafePipe,
+    EmojiDialogComponent
   ],
   imports: [
     // angular
@@ -66,12 +70,18 @@ import { SafePipe } from './chat/pipes/safe.pipe';
     MatSnackBarModule,
     ScrollingModule,
     MatRippleModule,
+    MatDialogModule,
     // third party
     ScrollEventModule,
     PickerModule
   ],
-  entryComponents: [MessagesWindowComponent],
-  providers: [HttpClientModule, IrcClient, ChatManagerComponent],
-  bootstrap: [AppComponent]
+  entryComponents: [ EmojiDialogComponent ],
+  providers: [
+    HttpClientModule,
+    IrcClient,
+    ChatManagerComponent,
+    {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: true}}
+  ],
+  bootstrap: [ AppComponent ]
 })
 export class AppModule {}

@@ -18,12 +18,13 @@
               *ngIf="i == 0 || boundChat.messages[i - 1].sender !== msg.sender"
               fxLayout="row" fxLayoutAlign="start center">
 
-          <mat-icon *ngIf="boundChat.hasUsers()"
-                    [color]="boundChat.getUser(msg.sender) ? boundChat.getUserColor(msg.sender) : 'accent'"
-                    [innerText]="boundChat.getUser(msg.sender) ? boundChat.getUserIcon(msg.sender) : 'close'"></mat-icon>
-          <span [innerHTML]="msg.sender"
+          <span [innerHTML]="msg.sender" [ngClass]="{'local-user': msg.isLocal}"
                 [matMenuTriggerFor]="boundChat.manager().userMenu"
                 (click)="boundChat.manager().onUserClick(boundChat.manager().userMenu, boundChat.getUser(msg.sender))"></span>
+
+          <mat-icon *ngIf="boundChat.hasUsers()"
+                    [color]="boundChat.getUser(msg.sender) ? boundChat.getUserColor(msg.sender) : 'accent'"
+                    [innerText]="boundChat.getUser(msg.sender) ? boundChat.getUserIcon(msg.sender) : 'arrow_back'"></mat-icon>
 
         </div>
         <!-- message body -->
@@ -32,7 +33,8 @@
 
       <div *ngIf="!isLastMessageVisible && boundChat.stats.messages.new > 0"
            class="message-notification mat-elevation-z5"
-           (click)="scrollLast(true, true)">
+           (click)="scrollLast(true, true)"
+           fxLayout="row" fxLayoutAling="center center">
         <mat-icon>arrow_downward</mat-icon>
         <span>{{boundChat.stats.messages.new}} new messages!</span>
         <mat-icon>arrow_downward</mat-icon>

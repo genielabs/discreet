@@ -23,6 +23,8 @@ export class YoutubeVideoComponent implements OnInit {
   private player: any;
   private reframed = false;
   private iframe;
+  private isMinimized = true;
+  private hasMargin = true;
 
   @HostListener('document:fullscreenchange', ['$event'])
   @HostListener('document:webkitfullscreenchange', ['$event'])
@@ -50,10 +52,17 @@ export class YoutubeVideoComponent implements OnInit {
       this.reframed = false;
       this.player = new window['YT'].Player('youtube-player', {
         // videoId: this.video,
-        autoplay: 1,
-        controls: 0,
-        width: 100, // 240
-        height: 56, // 135
+        playerVars: {
+          modestbranding: 1, // no youtube logo
+          wmode: 'transparent',
+          autoplay: 1,
+          controls: 0,
+          fs: 0, // no full screen
+          rel: 0, // no similar video list at the end
+          showinfo: 0, // no video info at start
+        },
+        width: '100%', // 100 // 240
+        height: '100%', // 56 // 135
         events: {
           onStateChange: this.onPlayerStateChange.bind(this),
           onError: this.onPlayerError.bind(this),
@@ -89,7 +98,19 @@ export class YoutubeVideoComponent implements OnInit {
     }
   }
 
+  onMenuControlMinimize() {
+    this.isMinimized = true;
+  }
+
+  onMenuControlExpand() {
+    this.isMinimized = false;
+  }
+
   onMenuControlClose() {
+    this.closePlayer();
+  }
+
+  closePlayer() {
     this.player.stopVideo();
     this.videoId = null;
   }
@@ -114,12 +135,16 @@ export class YoutubeVideoComponent implements OnInit {
       case window['YT'].PlayerState.ENDED:
         this.playState = PlayStateEnum.ENDED;
         console.log('ended ');
+        this.closePlayer();
         break;
     }
   }
 
   //utility
 
+  toggleRightMargin(hasMargin: boolean) {
+    this.hasMargin = hasMargin;
+  }
   loadVideo(id: string) {
     this.videoId = id;
     this.player.loadVideoById(id);

@@ -1,17 +1,16 @@
 <div class="container" fxFlexFill fxLayout="row" fxLayoutAlign="stretch stretch">
 
   <app-messages-window
-    #messageWindow [ngClass]="{'full-message-window': !showRightPanel}"
-    (sendMessage)="onSendMessage($event)"></app-messages-window>
+    #messageWindow [ngClass]="{'full-message-window': !showRightPanel}"></app-messages-window>
 
   <app-youtube-video #videoPlayer></app-youtube-video>
 
-  <button mat-icon-button *ngIf="showRightPanel" class="close-panel" color="primary"
-          (click)="showRightPanel = false">
+  <button mat-icon-button *ngIf="showRightPanel" class="close-panel mat-elevation-z6" color="primary"
+          (click)="toggleRightPanel(false)">
     <mat-icon>arrow_forward</mat-icon>
   </button>
 
-  <div class="conversations-list"
+  <div class="conversations-list mat-elevation-z3"
        *ngIf="!showUserList || !showRightPanel"
        [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
@@ -33,7 +32,7 @@
     </div>
   </div>
 
-  <div class="users-list"
+  <div class="users-list mat-elevation-z3"
        *ngIf="showUserList || !showRightPanel"
        [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
@@ -73,32 +72,23 @@
 
 </div>
 
-<div class="input-bar mat-elevation-z4" fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="8px">
+<div class="input-bar mat-elevation-z6" fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="8px">
 
   <mat-form-field style="width: 100%">
     <textarea matInput placeholder="{{ircClient.config.nick}}  &rarr;  {{chat().info.name}}" class="message-input"
+          maxlength="300"
           fxFlex="1 1 100%"
           [(ngModel)]="userMessage"
-          (keydown.enter)="onEnterKey($event)"></textarea>
+          (keydown.enter)="onEnterKey($event)"
+          (blur)="onTextInputBlur($event)"
+          (focus)="onTextInputFocus($event)"></textarea>
     <button mat-icon-button>
-      <mat-icon color="primary">sentiment_satisfied_alt</mat-icon>
+      <mat-icon color="primary" (click)="onOpenEmojiClick($event)">sentiment_satisfied_alt</mat-icon>
     </button>
     <button mat-icon-button fxAlign="end" (click)="onEnterKey($event)">
       <mat-icon color="primary">send</mat-icon>
     </button>
   </mat-form-field>
-
-  <!--div>
-    <emoji-mart (emojiClick)="onAddEmoji($event.emoji)"
-                title="Pick your emoji…" emoji="point_up"
-                set="google"
-                hideObsolete="true"
-                skin="3"></emoji-mart>
-  </div-->
-  <!--
-  <div fxLayout="row" fxLayoutAlign="center center" style="margin: auto">
-  </div>
-  -->
 
 </div>
 

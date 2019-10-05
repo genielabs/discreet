@@ -7,7 +7,7 @@ export interface MediaInfo {
   //
   // SEE: https://noembed.com for further info
   //
-  html: string; // `\n<iframe width=\" 480\" height=\"270\" src=\"https://www.youtube.com/embed/srkdnRhnHPM?feature=oembed\" frameborder=\"0\" allowfullscreen=\"allowfullscreen\"></iframe>\n`;
+  html: string; // HTML code for embedding the media (eg. '<iframe ...></iframe>')
   version: string; // '1.0';
   height: number; // 270;
   thumbnail_url: string; // 'https://i.ytimg.com/vi/srkdnRhnHPM/hqdefault.jpg';
@@ -32,7 +32,7 @@ export class EnrichmentResult {
 export class TextFormatting {
   static mediaUrlsCache: MediaInfo[] = [];
 
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor() {}
 
   enrich(value): Observable<EnrichmentResult> {
     const httpClient = new HttpClient(new HttpXhrBackend({ build: () => new XMLHttpRequest() }));
@@ -84,17 +84,26 @@ export class TextFormatting {
           hyperlink = 'http://' + hyperlink;
         }
         urls.push(url);
-        let videoId = '';
-        if (hyperlink.indexOf('v=') === -1) {
-          videoId = hyperlink.substring(hyperlink.lastIndexOf('/') + 1);
-        } else {
-          videoId = hyperlink.split('v=')[1];
-          const ampersandPosition = videoId.indexOf('&');
-          if (ampersandPosition !== -1) {
-            videoId = videoId.substring(0, ampersandPosition);
+        let mediaUrl = hyperlink;
+        if (hyperlink.indexOf('/youtube.com/') !== -1
+          || hyperlink.indexOf('.youtube.com/') !== -1
+          || hyperlink.indexOf('/youtu.be/') !== -1
+          || hyperlink.indexOf('.youtu.be/') !== -1
+        ) {
+          let videoId = '';
+          if (hyperlink.indexOf('v=') === -1) {
+            videoId = hyperlink.substring(hyperlink.lastIndexOf('/') + 1);
+          } else {
+            videoId = hyperlink.split('v=')[1];
+            const ampersandPosition = videoId.indexOf('&');
+            if (ampersandPosition !== -1) {
+              videoId = videoId.substring(0, ampersandPosition);
+            }
           }
+          mediaUrl = `<a style="cursor:pointer;" data-id="${videoId}" data-link="${hyperlink}">[${url}]</a>`;
+        } else {
+          mediaUrl = `<a style="cursor:pointer;" data-link="${hyperlink}">[${url}]</a>`;
         }
-        const mediaUrl = `<a style="cursor:pointer;" data-id="${videoId}" data-link="${hyperlink}">[${url}]</a>`;
         return space + mediaUrl;
       }
     );

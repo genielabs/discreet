@@ -13,9 +13,6 @@ export class MessagesWindowComponent implements OnInit {
 
   @Input()
   boundChat: ChatData;
-
-  @Output()
-  sendMessage = new EventEmitter<any>();
   @Output()
   mediaUrlClick = new EventEmitter<any>();
 
@@ -76,10 +73,5 @@ export class MessagesWindowComponent implements OnInit {
     } else if (this.isLastMessageVisible || force) {
       this.scrollTimeout = setTimeout(() => { el.scrollTo(0, el.scrollHeight); }, 10);
     }
-  }
-
-  send(message: string) {
-    this.sendMessage.emit(message);
-    this.scrollLast();
   }
 }
