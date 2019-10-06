@@ -60,7 +60,7 @@ export class IrcClient {
         }      });
       subject.subscribe(
         msg => {
-console.log('>> ' + msg.data)
+//console.log('>> ' + msg.data)
           // control command codes
           switch (msg.data) {
             // Just connected
@@ -177,7 +177,6 @@ console.log('>> ' + msg.data)
                     this.usersList.emit(nickData);
                     break;
                   case 'MODE':
-                    console.log('####################### MODE ###########à', payload);
                     if (payload.params.length === 3) {
                       // user modes on channel
                       const channel = payload.params[0];

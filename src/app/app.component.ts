@@ -13,6 +13,16 @@ import {EnrichMessage} from './chat/pipes/enrich-message.pipe';
 })
 export class AppComponent {
   title = 'ng-web-irc';
-  @ViewChild('chatManager', {static: true}) chatManager: ChatManagerComponent;
+  isUserLogged = false;
+  nick: string;
+
+  onConnectRequest(nick) {
+    this.nick = nick;
+    this.isUserLogged = true;
+  }
+  onChannelButtonClick(chatManager: ChatManagerComponent) {
+    chatManager.show(chatManager.channel().info.name);
+    chatManager.showChatUsers();
+  }
   // TODO: ...
 }

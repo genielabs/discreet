@@ -19,12 +19,13 @@ export class YoutubeVideoComponent implements OnInit {
   isFullScreen = false;
 
   private YT: any;
-  private videoId: any;
   private player: any;
   private reframed = false;
   private iframe;
-  private isMinimized = true;
-  private hasMargin = true;
+
+  public videoId: any;
+  public isMinimized = true;
+  public hasMargin = true;
 
   @HostListener('document:fullscreenchange', ['$event'])
   @HostListener('document:webkitfullscreenchange', ['$event'])

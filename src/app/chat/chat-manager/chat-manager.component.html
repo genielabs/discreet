@@ -6,7 +6,7 @@
   <app-youtube-video #videoPlayer></app-youtube-video>
 
   <button mat-icon-button *ngIf="showRightPanel" class="close-panel mat-elevation-z6" color="primary"
-          (click)="toggleRightPanel(false)">
+          (click)="toggleRightPanel()">
     <mat-icon>arrow_forward</mat-icon>
   </button>
 
@@ -14,7 +14,7 @@
        *ngIf="!showUserList || !showRightPanel"
        [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
-    <strong class="title">Chat</strong>
+    <strong class="title">Messaggi</strong>
     <div style="padding-left: 12px; padding-right: 12px;">
       <div class="chat-button" *ngFor="let c of boundChatList | sortBy:'desc':'timestamp'">
         <button mat-raised-button (click)="onChannelButtonClick(c)"
@@ -36,7 +36,7 @@
        *ngIf="showUserList || !showRightPanel"
        [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
-    <strong *ngIf="currentChatInfo && currentChatInfo.name" class="title">{{currentChatInfo.name}}</strong>
+    <strong *ngIf="currentChatInfo && currentChatInfo.name" class="title">Utenti</strong>
     <cdk-virtual-scroll-viewport *ngIf="chat().hasUsers()" class="v-scroll" itemSize="38" minBufferPx="200" maxBufferPx="400">
       <button mat-button
               *cdkVirtualFor="let u of chat().users"
@@ -72,7 +72,9 @@
 
 </div>
 
-<div class="input-bar mat-elevation-z6" fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="8px">
+<div class="input-bar mat-elevation-z6"
+     [ngClass]="{ 'full-width': screenWidth < 640 || !showRightPanel }"
+     fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="8px">
 
   <mat-form-field style="width: 100%">
     <textarea matInput placeholder="{{ircClient.config.nick}}  &rarr;  {{chat().info.name}}" class="message-input"

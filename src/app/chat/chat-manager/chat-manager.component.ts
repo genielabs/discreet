@@ -1,14 +1,14 @@
 import {
   Component,
   ComponentFactoryResolver, ElementRef,
-  EventEmitter, HostListener,
+  EventEmitter, HostListener, Input,
   OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
 import {Injectable} from '@angular/core';
 
-import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatSnackBar, MatSnackBarRef, SimpleSnackBar} from '@angular/material/snack-bar';
 
 import {IrcClient} from '../../irc-client/irc-client';
 import {MessagesWindowComponent} from '../messages-window/messages-window.component';
@@ -35,6 +35,8 @@ export class ChatManagerComponent implements OnInit {
   @ViewChild(YoutubeVideoComponent, {static: true})
   videoPlayer: YoutubeVideoComponent;
 
+  @Input() nick: string;
+
   private chatList: ChatData[] = [];
   boundChatList: ChatData[] = [];
   currentChatInfo: ChatInfo;
@@ -59,12 +61,19 @@ export class ChatManagerComponent implements OnInit {
   onResize(event?) {
     this.screenHeight = window.innerHeight;
     this.screenWidth = window.innerWidth;
+    if (this.screenWidth < 640) {
+      this.showRightPanel = false;
+      this.videoPlayer.toggleRightMargin(false);
+    } else {
+      this.showRightPanel = true;
+      this.videoPlayer.toggleRightMargin(true);
+    }
   }
 
   constructor(
     private snackBar: MatSnackBar,
     private componentFactoryResolver: ComponentFactoryResolver,
-    private ircClient: IrcClient,
+    public ircClient: IrcClient,
     public dialog: MatDialog
   ) {
     this.ircClient.connectionStatus.subscribe((connected) => {
@@ -84,9 +93,13 @@ export class ChatManagerComponent implements OnInit {
       if (chat.info === this.currentChatInfo) {
         this.messageWindow.onNewMessage(msg);
       } else if (!chat.hasUsers()) {
-        this.snackBar.open(`${msg.sender}: ${msg.message}`, 'Show', {
+        const snackBarRef: MatSnackBarRef<SimpleSnackBar> = this.snackBar.open(`${msg.sender}: ${msg.message}`, 'Chat', {
           duration: 5000,
           verticalPosition: 'top'
+        });
+        snackBarRef.onAction().subscribe(() => {
+          console.log('The snack-bar action was triggered!');
+          this.show(msg.sender);
         });
       }
     });
@@ -166,6 +179,9 @@ export class ChatManagerComponent implements OnInit {
         window.open(mediaUrl.link, '_blank');
       }
     });
+    if (this.nick) {
+      this.ircClient.config.nick = this.nick;
+    }
     this.connect();
   }
 
@@ -174,10 +190,6 @@ export class ChatManagerComponent implements OnInit {
     if (this.screenWidth < 640) {
       this.showRightPanel = false;
       this.videoPlayer.toggleRightMargin(false);
-      // this.showRightPanel = this.showUserList = chat.hasUsers();
-      // if (this.showRightPanel) {
-      //   setTimeout(() => this.showRightPanel = false, 2000);
-      // }
     }
   }
 
@@ -301,10 +313,19 @@ export class ChatManagerComponent implements OnInit {
       this.currentChatInfo = chat.target();
       chat.stats.messages.new = 0;
       this.messageWindow.bind(chat);
+      if (!chat.hasUsers()) {
+        this.showUserList = false;
+      }
     });
     return chat;
   }
 
+  channel(target?: string | ChatInfo): ChatData {
+    return this.chatList.find((c) => {
+      return c.hasUsers()
+        && (target == null || c.target() === target || c.target().name === target || c.target().prefix === target);
+    });
+  }
   chat(target?: string | ChatInfo): ChatData {
     if (target == null && this.currentChatInfo) {
       return this.chat(this.currentChatInfo);

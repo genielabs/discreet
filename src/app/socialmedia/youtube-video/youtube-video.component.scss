@@ -46,3 +46,9 @@
     height: 200px; width: 320px;
   }
 }
+@media only screen and (max-device-height: 452px) {
+  /* Styles */
+  .video-frame.maximized {
+    height: 128px; width: 252px;
+  }
+}

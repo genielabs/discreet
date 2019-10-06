@@ -1,4 +1,7 @@
-<mat-sidenav-container [hasBackdrop]="false" class="container">
+<app-splash-screen *ngIf="!isUserLogged"
+  (connectRequest)="onConnectRequest($event)"></app-splash-screen>
+
+<mat-sidenav-container *ngIf="isUserLogged" [hasBackdrop]="false" class="container">
 
   <mat-sidenav-content>
 
@@ -16,9 +19,9 @@
         </div>
         <span class="flex-fill"></span>
         <div class="right-toolbar">
-          <button mat-icon-button *ngIf="chatManager.chat().hasUsers()" class="icon-big"
-                  (click)="chatManager.showChatUsers()"
-                  [matBadge]="chatManager.chat().users.length"
+          <button mat-icon-button class="icon-big" *ngIf="chatManager.channel()"
+                  (click)="onChannelButtonClick(chatManager)"
+                  [matBadge]="chatManager.channel().users.length"
                   matBadgePosition="after" matBadgeColor="primary">
             <mat-icon>people_alt</mat-icon>
           </button>
@@ -32,7 +35,7 @@
         </div>
       </mat-toolbar>
 
-      <app-chat-manager #chatManager></app-chat-manager>
+      <app-chat-manager #chatManager [nick]="nick"></app-chat-manager>
 
     </div>
 

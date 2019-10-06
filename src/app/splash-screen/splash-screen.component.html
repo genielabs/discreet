@@ -1,0 +1,21 @@
+<div fxLayout="column" fxLayoutAlign="center center" class="page dark-theme mat-app-background">
+
+  <mat-card fxLayout="column" fxLayoutAlign="center center" class="mat-elevation-z12">
+    <h1>#ChatOver40</h1>
+    <div fxFlex="0 0 0">
+      <mat-form-field>
+        <input matInput placeholder="Scegli un nome"
+               required
+               #nickname="ngModel"
+               [(ngModel)]="nick">
+        <mat-error *ngIf="nickname.invalid">
+          Nome non consentito.
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <button mat-raised-button
+            color="primary"
+            (click)="onConnectClick()"
+            [disabled]="nickname.invalid">Entra in Chat</button>
+  </mat-card>
+</div>

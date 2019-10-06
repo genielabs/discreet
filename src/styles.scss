@@ -2,9 +2,29 @@
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
 //@import "~@angular/material/prebuilt-themes/pink-bluegrey.css";
 
-// fonts
-@import url('https://fonts.googleapis.com/css?family=Delius&display=swap');
-@import url('https://fonts.googleapis.com/css?family=Hind+Madurai:400,600&display=swap');
+/*
+@import '~@angular/material/theming';
+
+@include mat-core();
+
+$primary: mat-palette($mat-indigo);
+$accent: mat-palette($mat-pink, A200, A100, A400);
+$warn: mat-palette($mat-red);
+$theme: mat-light-theme($primary, $accent, $warn);
+
+@include angular-material-theme($theme);
+
+// Our dark theme
+.dark-theme {
+  color: $light-primary-text;
+  $dark-primary: mat-palette($mat-yellow);
+  $dark-accent: mat-palette($mat-amber, A400, A100, A700);
+  $dark-warn: mat-palette($mat-red);
+  $dark-theme: mat-dark-theme($dark-primary, $dark-accent, $dark-warn);
+
+  @include angular-material-theme($dark-theme);
+}
+*/
 
 @import '~@angular/material/theming';
 $custom-typography: mat-typography-config(
@@ -26,6 +46,12 @@ body {
 a {
   color: $accent;
   text-decoration: none;
+}
+
+.flex-fill {
+  // This fills the remaining space, by using flexbox.
+  // Every toolbar row uses a flexbox row layout.
+  flex: 1 1 auto;
 }
 
 .emoji-dialog-container .mat-dialog-container {

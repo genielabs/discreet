@@ -1,7 +1,8 @@
+import { LOCALE_ID } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -18,7 +19,7 @@ import {
   MatMenuModule,
   MatProgressSpinnerModule,
   MatSnackBarModule,
-  MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS
+  MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS, MatCardModule
 } from '@angular/material';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatRippleModule } from '@angular/material/core';
@@ -35,6 +36,9 @@ import { SortByPipe } from './chat/pipes/sort-by.pipe';
 import { YoutubeVideoComponent } from './socialmedia/youtube-video/youtube-video.component';
 import { SafePipe } from './chat/pipes/safe.pipe';
 import { EmojiDialogComponent } from './chat/dialogs/emoji-dialog/emoji-dialog.component';
+import { SplashScreenComponent } from './splash-screen/splash-screen.component';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -45,7 +49,8 @@ import { EmojiDialogComponent } from './chat/dialogs/emoji-dialog/emoji-dialog.c
     SortByPipe,
     YoutubeVideoComponent,
     SafePipe,
-    EmojiDialogComponent
+    EmojiDialogComponent,
+    SplashScreenComponent
   ],
   imports: [
     // angular
@@ -55,6 +60,7 @@ import { EmojiDialogComponent } from './chat/dialogs/emoji-dialog/emoji-dialog.c
     BrowserAnimationsModule,
     FlexLayoutModule,
     FormsModule,
+    ReactiveFormsModule,
     // material
     MatFormFieldModule,
     MatButtonModule,
@@ -71,16 +77,19 @@ import { EmojiDialogComponent } from './chat/dialogs/emoji-dialog/emoji-dialog.c
     ScrollingModule,
     MatRippleModule,
     MatDialogModule,
+    MatCardModule,
     // third party
     ScrollEventModule,
-    PickerModule
+    PickerModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   entryComponents: [ EmojiDialogComponent ],
   providers: [
     HttpClientModule,
     IrcClient,
     ChatManagerComponent,
-    {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: true}}
+    {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: true}},
+    {provide: LOCALE_ID, useValue: 'it-IT'}
   ],
   bootstrap: [ AppComponent ]
 })
