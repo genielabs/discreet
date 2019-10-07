@@ -1,6 +1,7 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {ScrollEvent} from 'ngx-scroll-event';
-import {ChatData} from '../chat-data';
+import {ChatData, ChatMessage} from '../chat-data';
+import {DeviceDetectorService} from 'ngx-device-detector';
 
 @Component({
   selector: 'app-messages-window',
@@ -56,6 +57,15 @@ export class MessagesWindowComponent implements OnInit {
   bind(chat: ChatData) {
     this.boundChat = chat;
     this.scrollLast(true);
+  }
+
+  getTimeStamp(messages: ChatMessage[], i: number) {
+    const startMessage = messages[i++];
+    let timestamp = startMessage.timestamp;
+    while (i < messages.length && messages[i].sender === startMessage.sender) {
+      timestamp = messages[i++].timestamp;
+    }
+    return timestamp;
   }
 
   private scrollTimeout;

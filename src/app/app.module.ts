@@ -19,7 +19,7 @@ import {
   MatMenuModule,
   MatProgressSpinnerModule,
   MatSnackBarModule,
-  MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS, MatCardModule
+  MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS, MatCardModule, MatTooltipModule
 } from '@angular/material';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatRippleModule } from '@angular/material/core';
@@ -39,6 +39,7 @@ import { EmojiDialogComponent } from './chat/dialogs/emoji-dialog/emoji-dialog.c
 import { SplashScreenComponent } from './splash-screen/splash-screen.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
+import {DeviceDetectorModule} from 'ngx-device-detector';
 
 @NgModule({
   declarations: [
@@ -78,9 +79,11 @@ import { environment } from '../environments/environment';
     MatRippleModule,
     MatDialogModule,
     MatCardModule,
+    MatTooltipModule,
     // third party
     ScrollEventModule,
     PickerModule,
+    DeviceDetectorModule.forRoot(),
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   entryComponents: [ EmojiDialogComponent ],

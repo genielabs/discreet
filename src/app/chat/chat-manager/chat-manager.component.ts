@@ -18,6 +18,8 @@ import {MatDialog, MatMenu} from '@angular/material';
 import {ChatUser} from '../chat-user';
 import {YoutubeVideoComponent} from '../../socialmedia/youtube-video/youtube-video.component';
 import {EmojiDialogComponent} from '../dialogs/emoji-dialog/emoji-dialog.component';
+import {DeviceDetectorService} from 'ngx-device-detector';
+import {LoginInfo} from '../../irc-client/login-info';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +37,7 @@ export class ChatManagerComponent implements OnInit {
   @ViewChild(YoutubeVideoComponent, {static: true})
   videoPlayer: YoutubeVideoComponent;
 
-  @Input() nick: string;
+  @Input() loginInfo: LoginInfo;
 
   private chatList: ChatData[] = [];
   boundChatList: ChatData[] = [];
@@ -48,7 +50,7 @@ export class ChatManagerComponent implements OnInit {
 
   // state variables
   showRightPanel = true;
-  showUserList = false;
+  showUserList = true;
   isLoadingChat = true;
 
   screenHeight = window.innerHeight;
@@ -74,7 +76,8 @@ export class ChatManagerComponent implements OnInit {
     private snackBar: MatSnackBar,
     private componentFactoryResolver: ComponentFactoryResolver,
     public ircClient: IrcClient,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public deviceService: DeviceDetectorService
   ) {
     this.ircClient.connectionStatus.subscribe((connected) => {
       this.isLoadingChat = false;
@@ -93,12 +96,11 @@ export class ChatManagerComponent implements OnInit {
       if (chat.info === this.currentChatInfo) {
         this.messageWindow.onNewMessage(msg);
       } else if (!chat.hasUsers()) {
-        const snackBarRef: MatSnackBarRef<SimpleSnackBar> = this.snackBar.open(`${msg.sender}: ${msg.message}`, 'Chat', {
+        const snackBarRef: MatSnackBarRef<SimpleSnackBar> = this.snackBar.open(`${msg.sender}: ${msg.message}`, 'Mostra', {
           duration: 5000,
           verticalPosition: 'top'
         });
         snackBarRef.onAction().subscribe(() => {
-          console.log('The snack-bar action was triggered!');
           this.show(msg.sender);
         });
       }
@@ -179,8 +181,9 @@ export class ChatManagerComponent implements OnInit {
         window.open(mediaUrl.link, '_blank');
       }
     });
-    if (this.nick) {
-      this.ircClient.config.nick = this.nick;
+    if (this.loginInfo) {
+      this.ircClient.config.nick = this.loginInfo.nick;
+      this.ircClient.config.password = this.loginInfo.password;
     }
     this.connect();
   }
@@ -216,10 +219,12 @@ export class ChatManagerComponent implements OnInit {
       let spaceIndex = message.indexOf(' ');
       if (message[0] === '/' && spaceIndex > 0) {
         const command = message.substring(1, spaceIndex);
-        message = message.substring(spaceIndex + 1);
+        let target = message = message.substring(spaceIndex + 1);
         spaceIndex = message.indexOf(' ');
-        const target = message.substring(0, spaceIndex);
-        message = message.substring(spaceIndex + 1);
+        if (spaceIndex > 0) {
+          target = message.substring(0, spaceIndex);
+          message = message.substring(spaceIndex + 1);
+        }
         switch (command) {
           case 'NICK':
             this.ircClient.nick(target);
@@ -300,7 +305,6 @@ export class ChatManagerComponent implements OnInit {
       this.snackBar.open('Connection terminated.','', {
         verticalPosition: 'top'
       });
-      console.log('===');
     });
   }
   client() {
@@ -308,14 +312,16 @@ export class ChatManagerComponent implements OnInit {
   }
 
   show(target: string | ChatInfo) {
+    this.isLoadingChat = true;
     const chat = this.chat(target);
     setTimeout(() => {
       this.currentChatInfo = chat.target();
       chat.stats.messages.new = 0;
       this.messageWindow.bind(chat);
-      if (!chat.hasUsers()) {
+      if (!chat.info.name.startsWith('#')) {
         this.showUserList = false;
       }
+      this.isLoadingChat = false;
     });
     return chat;
   }

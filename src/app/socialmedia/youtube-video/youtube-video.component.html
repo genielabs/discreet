@@ -15,22 +15,22 @@
 <mat-menu #playlistMenu="matMenu" xPosition="after" yPosition="above">
   <button mat-menu-item *ngIf="playState == PlayState.PLAYING" (click)="onMenuControlPause()">
     <mat-icon color="primary">pause</mat-icon>
-    <span>Pause</span>
+    <span>Pausa</span>
   </button>
   <button mat-menu-item *ngIf="playState == PlayState.PAUSED" (click)="onMenuControlPlay()">
     <mat-icon color="primary">play_arrow</mat-icon>
-    <span>Play</span>
+    <span>Riproduci</span>
   </button>
   <button mat-menu-item *ngIf="isMinimized" (click)="onMenuControlExpand()">
     <mat-icon color="primary">fullscreen</mat-icon>
-    <span>Expand</span>
+    <span>Ingrandisci</span>
   </button>
   <button mat-menu-item *ngIf="!isMinimized" (click)="onMenuControlMinimize()">
     <mat-icon color="primary">fullscreen_exit</mat-icon>
-    <span>Minimize</span>
+    <span>Riduci</span>
   </button>
   <button mat-menu-item (click)="onMenuControlClose()">
     <mat-icon color="primary">close</mat-icon>
-    <span>Close</span>
+    <span>Chiudi</span>
   </button>
 </mat-menu>

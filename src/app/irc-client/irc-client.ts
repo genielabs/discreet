@@ -24,6 +24,7 @@ export class IrcClient {
 
   config = {
     nick: 'Wall`e',
+    password: '',
     host: 'localhost',
     user: 'Mibbit',
     info: 'https://ng-web-irc.com/',
@@ -60,7 +61,7 @@ export class IrcClient {
         }      });
       subject.subscribe(
         msg => {
-//console.log('>> ' + msg.data)
+console.log('>> ' + msg.data)
           // control command codes
           switch (msg.data) {
             // Just connected
@@ -94,7 +95,7 @@ export class IrcClient {
               }
 
               if (payload) {
-                const target = payload.params[0];
+                let target = payload.params[0];
 
                 let message = payload.params[1];
                 // // TODO: decoding
@@ -206,6 +207,12 @@ export class IrcClient {
                           user: modeTarget,
                           mode
                         });
+                        // send password for identifying the registered nick with NickServ
+                        if (this.config.password && this.config.password.length > 0) {
+                          this.send('NickServ', `IDENTIFY ${this.config.password}`);
+                          // reset password once sent (identify only and once right after connection)
+                          this.config.password = null;
+                        }
                       }
                     }
                     break;
@@ -224,6 +231,7 @@ export class IrcClient {
                     joinChannels.forEach((ch) => subject.next([ `:1 JOIN ${ch}` ]));
                     break;
                   case '372': // MOTD TEXT
+                  case 'NOTICE':
                   case 'PRIVMSG':
                     const c = this.config;
                     if (payload.command === 'PRIVMSG' && message === '\u0001VERSION\u0001') {
@@ -237,11 +245,15 @@ export class IrcClient {
                       subject.next([ pingReply ]);
                       break;
                     }
+                    if (target === '*') {
+                      target = this.config.nick;
+                    }
                     this.messageReceive.emit({
                       type: payload.command,
                       sender: payload.prefix,
                       target,
-                      message
+                      message,
+                      timestamp: Date.now()
                     });
                     break;
                 }
@@ -263,7 +275,7 @@ export class IrcClient {
 
   nick(nick) {
     if (nick) {
-      this.raw(`:1 NICK ${nick} `);
+      this.raw(`:1 NICK ${nick}`);
     }
     return this.config.nick;
   }

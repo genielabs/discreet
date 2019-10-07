@@ -7,7 +7,7 @@
   align-content: stretch;
   justify-content: stretch;
   width: 100%;
-  height: calc(100% - 160px); /* 160px = top bar height 64 + bottom bar height 96 */
+  height: calc(100% - 96px); /* 160px = top bar height 64 + bottom bar height 96 */
 }
 
 cdk-virtual-scroll-viewport button mat-icon.first {
@@ -15,7 +15,7 @@ cdk-virtual-scroll-viewport button mat-icon.first {
 }
 cdk-virtual-scroll-viewport button span {
   display: inline-block;
-  width: 162px;
+  width: calc(162px - 16px); /* 16px is the scrollbar width - should not be considered on mobile */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -67,7 +67,7 @@ app-messages-window {
 
 .close-panel {
   position: absolute;
-  right: 224px;
+  right: 200px;
   top: 1px;
   background: white;
   z-index: 101;
@@ -126,7 +126,7 @@ app-messages-window {
   padding-left: 2px;
   padding-right: 2px;
   width: 100%;
-  font-size: 120%;
+  font-size: 100%;
   text-align: start;
   mat-icon {
     margin-left: 4px;
@@ -181,23 +181,26 @@ app-messages-window {
 /* break point for material toolbar (from 64px height to 56px) */
 @media only screen and (max-device-width: 599px) { // small screen
   :host {
-    height: calc(100% - 152px); /* 160px = top bar height 56 + bottom bar height 96 */
+    height: calc(100% - 96px); /* 160px = top bar height 56 + bottom bar height 96 */
     font-size: 85%;
   }
-}
-/* Responsive text size */
-@media only screen and (max-device-width: 1280px) {
-  :host {
-    font-size: 95%;
+  .input-bar {
+    font-size: 140%;
   }
 }
 @media only screen and (max-device-width: 1024px) {
   :host {
     font-size: 90%;
   }
+  .input-bar {
+    font-size: 130%;
+  }
 }
-@media only screen and (max-device-width: 599px) {
+@media only screen and (max-device-width: 1280px) {
   :host {
-    font-size: 85%;
+    font-size: 95%;
+  }
+  .input-bar {
+    font-size: 120%;
   }
 }

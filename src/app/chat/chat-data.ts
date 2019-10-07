@@ -46,17 +46,20 @@ export class ChatData {
       sender: this.chatManager.client().config.nick,
       target: name,
       message,
-      formatted: message,
+      rendered: {},
       isLocal: true
     });
   }
   receive(message: ChatMessage) {
+    const senderUser = this.getUser(message.sender);
+
+    message = Object.assign(new ChatMessage(), message);
     // strip color codes (sorry... not supported yet =/)
     // TODO: add suport for IRC color codes
-    message.formatted = message.message
+    message.rendered.message = message.message
       .replace(/(\u0002+)|(\u0003+)(\d{1,2})?(,(\d{1,2}))?/g, '');
 
-    this.textFormatting.enrich(message.formatted)
+    this.textFormatting.enrich(message.rendered.message)
       .subscribe((result) => {
         if (result.mediaInfo) {
           const sender = this.getUser(message.sender);
@@ -64,14 +67,21 @@ export class ChatData {
             sender.playlist.push(result.mediaInfo);
           }
         }
-        message.formatted = result.enriched;
+        message.rendered.message = result.enriched;
+        if (senderUser) {
+          message.rendered.musicIcon = senderUser.playlist.length > 0 ? 'music_video' : '';
+        }
       });
 
-    // add incoming messages to the message buffer
-    this.messages.push(message);
-    if (this.messages.length > this.bufferMaxLines) {
+    message.rendered.flagsIconColor = this.getUserColor(message.sender);
+    message.rendered.flagsIconName = this.getUserIcon(message.sender);
+
+    // keep only 'bufferMaxLines' messages
+    if (this.messages.length === this.bufferMaxLines) {
       this.messages.shift();
     }
+    // add incoming messages to the message buffer
+    this.messages.push(message);
     // if this is not the current chat, then increase
     // the number of unread messages
     if (this.chatManager.currentChatInfo == null ||
@@ -126,7 +136,14 @@ export class ChatMessage {
   sender: string;
   target: string;
   message: string;
-  formatted?: string;
   timestamp?: number = Date.now();
   isLocal?: boolean;
+  // data for visualization
+  rendered = {} as {
+    message?: string;
+    flagsIconColor?: string;
+    flagsIconName?: string;
+    musicIcon?: string;
+    date?: string;
+  };
 }

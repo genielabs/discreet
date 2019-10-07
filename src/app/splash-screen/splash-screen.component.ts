@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
+import {LoginInfo} from '../irc-client/login-info';
 
 @Component({
   selector: 'app-splash-screen',
@@ -8,8 +9,9 @@ import { FormControl, Validators } from '@angular/forms';
 })
 export class SplashScreenComponent implements OnInit {
   //nick = new FormControl('', [Validators.required, Validators.maxLength(15)]);
-  @Output() connectRequest = new EventEmitter<string>();
+  @Output() connectRequest = new EventEmitter<LoginInfo>();
   nick = 'Ospite-' + Math.ceil(Math.random() * 1000);
+  password = '';
 
   constructor() { }
 
@@ -17,6 +19,9 @@ export class SplashScreenComponent implements OnInit {
   }
 
   onConnectClick() {
-    this.connectRequest.emit(this.nick);
+    this.connectRequest.emit({
+      nick: this.nick,
+      password: this.password
+    });
   }
 }

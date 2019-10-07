@@ -8,9 +8,13 @@
   padding-left: 8px;
 }
 
+.mat-menu-trigger {
+  cursor: pointer;
+}
+
 .message-buffer {
   display: block;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding: 8px;
   font-size: 120%;
 }
@@ -23,15 +27,22 @@
   display: block;
 }
 .message-sender {
+  color: $primary;
   margin-top: 24px;
   font-weight: 600;
 }
 .message-sender mat-icon {
   margin-left: 4px;
   margin-right: 4px;
+  font-size: 80%;
+  line-height: 120%;
+  opacity: 0.5;
 }
 .message-sender span {
+  word-break: keep-all;
+  white-space: nowrap;
   font-weight: 600;
+  margin-right: 6px;
   cursor: pointer;
 }
 .message-body {
@@ -43,6 +54,17 @@
 .local-user {
   text-decoration: underline;
   font-weight: bolder;
+  opacity: 0.5;
+}
+
+.message-date {
+  padding: 4px;
+  margin-left: 8px;
+  font-size: 75%;
+  font-family: monospace;
+  opacity: 0.3;
+  width: 100%;
+  text-align: right;
 }
 
 .message-notification {
@@ -68,9 +90,12 @@
   margin-right: 32px;
 }
 
-@media only screen and (max-device-width: 1024px) {
+@media only screen and (max-device-width: 1023px) {
   /* Styles */
   .container {
     padding-left: 0;
+  }
+  .message-sender {
+    margin-top: 16px;
   }
 }

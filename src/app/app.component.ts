@@ -1,10 +1,7 @@
-import {Component, Input, ViewChild} from '@angular/core';
-
-import {MatMenu} from '@angular/material';
+import {Component, HostListener} from '@angular/core';
 
 import {ChatManagerComponent} from './chat/chat-manager/chat-manager.component';
-import {ChatData} from './chat/chat-data';
-import {EnrichMessage} from './chat/pipes/enrich-message.pipe';
+import {LoginInfo} from './irc-client/login-info';
 
 @Component({
   selector: 'app-root',
@@ -14,10 +11,20 @@ import {EnrichMessage} from './chat/pipes/enrich-message.pipe';
 export class AppComponent {
   title = 'ng-web-irc';
   isUserLogged = false;
-  nick: string;
+  loginInfo = new LoginInfo();
 
-  onConnectRequest(nick) {
-    this.nick = nick;
+  screenWidth: number;
+  screenHeight: number;
+  sideOverBreakPoint = 768;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event?) {
+    this.screenHeight = window.innerHeight;
+    this.screenWidth = window.innerWidth;
+  }
+
+  onConnectRequest(credentials: LoginInfo) {
+    this.loginInfo = credentials;
     this.isUserLogged = true;
   }
   onChannelButtonClick(chatManager: ChatManagerComponent) {

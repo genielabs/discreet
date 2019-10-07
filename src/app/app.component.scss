@@ -1,3 +1,5 @@
+@import '../_variables.scss';
+
 :host {
   display: block;
   position: absolute;
@@ -8,6 +10,12 @@
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   overflow: hidden;
+}
+
+.left-panel {
+  /*
+  background-color: $primary;
+ */
 }
 
 .right-toolbar {
@@ -35,7 +43,7 @@ mat-sidenav {
 }
 */
 mat-sidenav-container {
-  height: 100%;
+  height: calc(100vh - 68px);
 }
 mat-sidenav-content {
   height: 100%;
@@ -56,4 +64,10 @@ mat-drawer-content {
 
 .menu-button {
   transform: translateX(-16px);
+}
+/* break point for material toolbar (from 64px height to 56px) */
+@media only screen and (max-device-width: 599px) { // small screen
+  mat-sidenav-container {
+    height: calc(100vh - 56px);
+  }
 }

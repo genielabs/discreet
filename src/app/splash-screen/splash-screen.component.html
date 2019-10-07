@@ -2,15 +2,23 @@
 
   <mat-card fxLayout="column" fxLayoutAlign="center center" class="mat-elevation-z12">
     <h1>#ChatOver40</h1>
-    <div fxFlex="0 0 0">
+    <div fxFlex="0 0 0" fxLayout="column">
       <mat-form-field>
+        <!-- pattern="^[A-Za-z_\-\[\]\\^{}|`][A-Za-z0-9_\-\[\]\\^{}|`]{2,15}$" -->
         <input matInput placeholder="Scegli un nome"
                required
+               pattern="^[A-Za-z_\-\[\]\\^{}|`][A-Za-z0-9_\-\[\]\\^{}|`]{2,15}$"
                #nickname="ngModel"
                [(ngModel)]="nick">
         <mat-error *ngIf="nickname.invalid">
-          Nome non consentito.
+          Caratteri non consentiti.
         </mat-error>
+      </mat-form-field>
+      <mat-checkbox #registered>Sono un utente registrato</mat-checkbox>
+      <mat-form-field *ngIf="registered.checked">
+        <input matInput type="password" placeholder="Password"
+               #nickpass="ngModel"
+               [(ngModel)]="password">
       </mat-form-field>
     </div>
     <button mat-raised-button

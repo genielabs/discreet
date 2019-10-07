@@ -5,12 +5,13 @@
 
   <app-youtube-video #videoPlayer></app-youtube-video>
 
-  <button mat-icon-button *ngIf="showRightPanel" class="close-panel mat-elevation-z6" color="primary"
+  <button mat-icon-button *ngIf="showRightPanel" class="close-panel" color="primary"
+          matTooltip="Nascondi pannello"
           (click)="toggleRightPanel()">
-    <mat-icon>arrow_forward</mat-icon>
+    <mat-icon>arrow_forward_ios</mat-icon>
   </button>
 
-  <div class="conversations-list mat-elevation-z3"
+  <div class="conversations-list mat-elevation-z4"
        *ngIf="!showUserList || !showRightPanel"
        [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
@@ -32,7 +33,7 @@
     </div>
   </div>
 
-  <div class="users-list mat-elevation-z3"
+  <div class="users-list mat-elevation-z4"
        *ngIf="showUserList || !showRightPanel"
        [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
@@ -72,7 +73,7 @@
 
 </div>
 
-<div class="input-bar mat-elevation-z6"
+<div class="input-bar mat-elevation-z1"
      [ngClass]="{ 'full-width': screenWidth < 640 || !showRightPanel }"
      fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="8px">
 
@@ -84,7 +85,7 @@
           (keydown.enter)="onEnterKey($event)"
           (blur)="onTextInputBlur($event)"
           (focus)="onTextInputFocus($event)"></textarea>
-    <button mat-icon-button>
+    <button mat-icon-button *ngIf="!deviceService.isMobile()">
       <mat-icon color="primary" (click)="onOpenEmojiClick($event)">sentiment_satisfied_alt</mat-icon>
     </button>
     <button mat-icon-button fxAlign="end" (click)="onEnterKey($event)">
