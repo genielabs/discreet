@@ -13,27 +13,75 @@
         <div *ngIf="!isLastMessageVisible && boundChat.stats.messages.new > 0 && count - i === boundChat.stats.messages.new"
              style="border-bottom: 2px solid red; display:block; width: 100%; height: 2px;margin-bottom: 4px; margin-top: 4px;"></div>
 
-        <!-- message sender -->
-        <div class="message-sender"
-              *ngIf="i === 0 || boundChat.messages[i - 1].sender !== msg.sender"
-              fxLayout="row" fxLayoutAlign="start center">
+        <!-- ACTION MESSAGE -->
+        <ng-container *ngIf="msg.type === MessageType.ACTION">
+          <!-- message sender and action -->
+          <div class="message-sender margin-top margin-bottom action"
+               fxLayout="row" fxLayoutAlign="center center">
 
-          <span [innerHTML]="msg.sender" [ngClass]="{'local-user': msg.isLocal}"
-                [matMenuTriggerFor]="boundChat.manager().userMenu"
-                (click)="boundChat.manager().onUserClick(boundChat.manager().userMenu, boundChat.getUser(msg.sender))"></span>
+            <mat-icon class="icon">announcement</mat-icon>
 
-          <mat-icon *ngIf="msg.rendered.flagsIconName"
-                    [color]="msg.rendered.flagsIconColor">{{msg.rendered.flagsIconName}}</mat-icon>
+            <span [innerHTML]="msg.sender" [ngClass]="{'local-user': msg.isLocal}"
+                  [matMenuTriggerFor]="boundChat.manager().userMenu"
+                  (click)="boundChat.manager().onUserClick(boundChat.manager().userMenu, boundChat.getUser(msg.sender))"></span>
 
-          <mat-icon *ngIf="msg.rendered.musicIcon">{{msg.rendered.musicIcon}}</mat-icon>
+            <span class="message">
+            {{ msg.rendered.message }}
+            </span>
 
-          <!-- message timestamp -->
-          <div class="message-date">{{getTimeStamp(boundChat.messages, i) | date: 'mediumTime' : '' : 'en-US'}}</div>
+            <!-- message timestamp -->
+            <div class="message-date">{{getTimeStamp(boundChat.messages, i) | date: 'mediumTime' : '' : 'en-US'}}</div>
 
-        </div>
+          </div>
+        </ng-container>
 
-        <!-- message body -->
-        <div class="message-body" [innerHTML]="msg.rendered.message | safe: 'html'" (click)="onMessageClick($event)"></div>
+        <!-- JOIN/PART/KICK MESSAGE -->
+        <ng-container *ngIf="isServiceMessage(msg) && boundChat.preferences.showChannelActivity">
+          <!-- message sender and action -->
+          <div class="message-sender service"
+               [ngClass]="{ 'margin-top': i === 0 || boundChat.messages[i - 1].type === MessageType.MESSAGE }"
+               fxLayout="row" fxLayoutAlign="start center">
+
+            <mat-icon *ngIf="msg.type === MessageType.JOIN" class="icon enter">arrow_forward</mat-icon>
+            <mat-icon *ngIf="msg.type === MessageType.PART" class="icon exit">arrow_back</mat-icon>
+            <mat-icon *ngIf="msg.type === MessageType.KICK" class="icon exit">close</mat-icon>
+            <mat-icon *ngIf="msg.type === MessageType.QUIT" class="icon exit">arrow_back</mat-icon>
+
+            <span [innerHTML]="msg.sender" [ngClass]="{'local-user': msg.isLocal}"
+                  [matMenuTriggerFor]="boundChat.manager().userMenu"
+                  (click)="boundChat.manager().onUserClick(boundChat.manager().userMenu, boundChat.getUser(msg.sender))"></span>
+
+            <span class="message info" title="{{ msg.data.description }}">
+            {{ msg.rendered.message }}
+            </span>
+
+            <!-- message timestamp -->
+            <div class="message-date">{{getTimeStamp(boundChat.messages, i) | date: 'mediumTime' : '' : 'en-US'}}</div>
+
+          </div>
+        </ng-container>
+
+        <!-- PRIVMSG MESSAGE -->
+        <ng-container *ngIf="msg.type === MessageType.MESSAGE">
+          <!-- message sender -->
+          <div class="message-sender margin-top"
+               *ngIf="i === 0 || boundChat.messages[i - 1].sender !== msg.sender || boundChat.messages[i - 1].type !== msg.type"
+               fxLayout="row" fxLayoutAlign="start center">
+
+            <span [innerHTML]="msg.sender" [ngClass]="{'local-user': msg.isLocal}"
+                  [matMenuTriggerFor]="boundChat.manager().userMenu"
+                  (click)="boundChat.manager().onUserClick(boundChat.manager().userMenu, boundChat.getUser(msg.sender))"></span>
+            <mat-icon *ngIf="msg.rendered.flagsIconName" class="icon"
+                      [color]="msg.rendered.flagsIconColor">{{msg.rendered.flagsIconName}}</mat-icon>
+            <mat-icon *ngIf="msg.rendered.musicIcon" class="icon">{{msg.rendered.musicIcon}}</mat-icon>
+
+            <!-- message timestamp -->
+            <div class="message-date">{{getTimeStamp(boundChat.messages, i) | date: 'mediumTime' : '' : 'en-US'}}</div>
+          </div>
+
+          <!-- message body -->
+          <div class="message-body" [innerHTML]="msg.rendered.message | safe: 'html'" (click)="onMessageClick($event)"></div>
+        </ng-container>
 
       </div>
 

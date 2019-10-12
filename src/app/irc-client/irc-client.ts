@@ -12,6 +12,7 @@ import { Buffer } from 'buffer';
 export class IrcClient {
   private ircClientSubject: Subject<any>;
 
+  loggedIn = new EventEmitter<any>();
   messageReceive = new EventEmitter<any>();
   usersList = new EventEmitter<any>();
   joinChannel = new EventEmitter<any>();
@@ -57,11 +58,13 @@ export class IrcClient {
         openObserver: {
           next: (e: Event) => {
             this.connectionStatus.next(true);
+            this.loggedIn.emit(false);
           }
-        }      });
+        }
+      });
       subject.subscribe(
         msg => {
-console.log('>> ' + msg.data)
+//console.log('>> ' + msg.data)
           // control command codes
           switch (msg.data) {
             // Just connected
@@ -147,7 +150,8 @@ console.log('>> ' + msg.data)
                     this.usersList.emit({
                       action: payload.command,
                       target: payload.params[0],
-                      user: payload.params[1]
+                      user: payload.params[1],
+                      message: payload.params[2] || payload.params[1]
                     });
                     break;
                   case 'JOIN':
@@ -158,14 +162,17 @@ console.log('>> ' + msg.data)
                       this.joinChannel.emit(ch);
                       break;
                     }
+                    // otherwise threat this JOIN message as "userList" message
                   case 'PART':
                     this.usersList.emit({
                       action: payload.command,
                       target: payload.params[0],
-                      user: this.parseUserAddress(payload.prefix).nick
+                      user: this.parseUserAddress(payload.prefix).nick,
+                      message: payload.params[2] || payload.params[1]
                     });
                     break;
                   case 'NICK':
+console.log(payload)
                     const nickData = {
                       action: payload.command,
                       user: this.parseUserAddress(payload.prefix).nick,
@@ -177,11 +184,23 @@ console.log('>> ' + msg.data)
                     }
                     this.usersList.emit(nickData);
                     break;
+                  case 'AWAY':
+console.log(payload)
+                  case 'QUIT':
+                    // other users actions
+                    if (message !== '*') {
+                      this.usersList.emit({
+                        action: payload.command,
+                        user: this.parseUserAddress(payload.prefix).nick,
+                        message: payload.params[1] || payload.params[0]
+                      });
+                    }
+                    break;
                   case 'MODE':
-                    if (payload.params.length === 3) {
+                    if (payload.params.length >= 3) {
                       // user modes on channel
                       const channel = payload.params[0];
-                      const mode = payload.params[1]; // eg. "+ooo", "+b", "-bb"
+                      const mode = payload.params[1]; // eg. "+oao", "+b", "-bbv", +"ao"
                       const users = [];
                       let u = 2;
                       while (payload.params[u]) {
@@ -196,7 +215,7 @@ console.log('>> ' + msg.data)
                     } else {
                       // channel or local user modes
                       const modeTarget = payload.params[0];
-                      const mode = payload.params[1]; // eg. "+iwxz"
+                      const mode = payload.params[1]; // eg. "+iwxz" (channel)
                       if (modeTarget[0] === '#') {
                         this.chanMode.emit({
                           channel: modeTarget,
@@ -216,19 +235,10 @@ console.log('>> ' + msg.data)
                       }
                     }
                     break;
-                  case 'AWAY':
-                  case 'QUIT':
-                    // other users actions
-                    if (message !== '*') {
-                      this.usersList.emit({
-                        action: payload.command,
-                        user: this.parseUserAddress(payload.prefix).nick
-                      });
-                    }
-                    break;
                   case '376': // MOTD END
                   case '422': // MOTD MISSING
                     joinChannels.forEach((ch) => subject.next([ `:1 JOIN ${ch}` ]));
+                    this.loggedIn.emit(true);
                     break;
                   case '372': // MOTD TEXT
                   case 'NOTICE':

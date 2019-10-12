@@ -2,6 +2,7 @@ import {ChatInfo} from './chat-info';
 import {ChatManagerComponent} from './chat-manager/chat-manager.component';
 import {ChatUser} from './chat-user';
 import {TextFormatting} from './text-formatting';
+import {ChatMessage, ChatMessageType} from './chat-message';
 
 export class ChatData {
   topic = '';
@@ -13,6 +14,12 @@ export class ChatData {
   stats = new ChatStats();
   status: any;
   timestamp = Date.now();
+  preferences = {
+    showChannelActivity: true,
+    showChannelActivityToggle() {
+      this.showChannelActivity = !this.showChannelActivity;
+    }
+  };
 
   readonly info: ChatInfo;
   private bufferMaxLines = 300;
@@ -42,7 +49,7 @@ export class ChatData {
     this.chatManager.client().send(name, message);
     // Add the outgoing message to the buffer as well
     this.receive({
-      type: 'PRIVMSG',
+      type: ChatMessageType.MESSAGE,
       sender: this.chatManager.client().config.nick,
       target: name,
       message,
@@ -54,6 +61,11 @@ export class ChatData {
     const senderUser = this.getUser(message.sender);
 
     message = Object.assign(new ChatMessage(), message);
+    if (message.message.startsWith('\x01ACTION ') && message.message.endsWith('\x01')) {
+      message.type = ChatMessageType.ACTION;
+      message.message = message.message.slice(8, -1);
+    }
+
     // strip color codes (sorry... not supported yet =/)
     // TODO: add suport for IRC color codes
     message.rendered.message = message.message
@@ -75,6 +87,10 @@ export class ChatData {
 
     message.rendered.flagsIconColor = this.getUserColor(message.sender);
     message.rendered.flagsIconName = this.getUserIcon(message.sender);
+    if (message.rendered.flagsIconName === 'person') {
+      // do not show standard use icon in message buffer
+      message.rendered.flagsIconName = null;
+    }
 
     // keep only 'bufferMaxLines' messages
     if (this.messages.length === this.bufferMaxLines) {
@@ -91,6 +107,11 @@ export class ChatData {
       this.stats.messages.new++;
     }
     this.timestamp = Date.now();
+
+    // scroll down to last visible message
+    if (this.info === this.manager().currentChatInfo) {
+      this.manager().scrollToLast();
+    }
   }
   getUser(name: string) {
     return this.users.find((u) => u.name === name);
@@ -128,22 +149,5 @@ export class ChatStats {
   users: {};
   messages = {
     new: 0
-  };
-}
-
-export class ChatMessage {
-  type: string;
-  sender: string;
-  target: string;
-  message: string;
-  timestamp?: number = Date.now();
-  isLocal?: boolean;
-  // data for visualization
-  rendered = {} as {
-    message?: string;
-    flagsIconColor?: string;
-    flagsIconName?: string;
-    musicIcon?: string;
-    date?: string;
   };
 }

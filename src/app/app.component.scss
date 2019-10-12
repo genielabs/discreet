@@ -13,9 +13,38 @@
 }
 
 .left-panel {
-  /*
-  background-color: $primary;
- */
+  background-color: azure;
+  padding: 8px;
+
+  & .mat-flat-button {
+    background: transparent;
+    width: 100%;
+    margin-top: 2px !important;
+    margin-bottom: 2px !important;
+    text-align: start !important;
+
+    & .mat-icon {
+      margin-right: 8px;
+    }
+
+  }
+
+  & h4 {
+    margin: 12px 12px 6px;
+  }
+
+  & label {
+    display: block;
+    font-weight: 600;
+    margin: 12px;
+  }
+
+  & .mat-checkbox {
+    display: block;
+    margin-top: 8px;
+    margin-left: 20px;
+  }
+
 }
 
 .right-toolbar {

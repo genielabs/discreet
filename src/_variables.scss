@@ -10,5 +10,10 @@ $app-warn:    mat-palette($mat-red);
 $primary: mat-color($app-primary);
 $accent: mat-color($app-accent);
 $warn: mat-color($app-warn);
+
 $backgroundColor: white;
 $textColor: black;
+
+$positive: mat-color(mat-palette($mat-green));
+$negative: mat-color(mat-palette($mat-red));
+$notice: mat-color(mat-palette($mat-orange));

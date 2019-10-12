@@ -40,6 +40,7 @@ import { SplashScreenComponent } from './splash-screen/splash-screen.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import {DeviceDetectorModule} from 'ngx-device-detector';
+import { MediaPlaylistComponent } from './chat/dialogs/media-playlist/media-playlist.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import {DeviceDetectorModule} from 'ngx-device-detector';
     YoutubeVideoComponent,
     SafePipe,
     EmojiDialogComponent,
-    SplashScreenComponent
+    SplashScreenComponent,
+    MediaPlaylistComponent
   ],
   imports: [
     // angular
@@ -86,7 +88,7 @@ import {DeviceDetectorModule} from 'ngx-device-detector';
     DeviceDetectorModule.forRoot(),
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
-  entryComponents: [ EmojiDialogComponent ],
+  entryComponents: [ EmojiDialogComponent, MediaPlaylistComponent ],
   providers: [
     HttpClientModule,
     IrcClient,

@@ -1,4 +1,4 @@
-import {Component, HostListener} from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 
 import {ChatManagerComponent} from './chat/chat-manager/chat-manager.component';
 import {LoginInfo} from './irc-client/login-info';
@@ -8,7 +8,7 @@ import {LoginInfo} from './irc-client/login-info';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'ng-web-irc';
   isUserLogged = false;
   loginInfo = new LoginInfo();
@@ -23,6 +23,11 @@ export class AppComponent {
     this.screenWidth = window.innerWidth;
   }
 
+  ngOnInit(): void {
+    this.screenHeight = window.innerHeight;
+    this.screenWidth = window.innerWidth;
+  }
+
   onConnectRequest(credentials: LoginInfo) {
     this.loginInfo = credentials;
     this.isUserLogged = true;
@@ -31,5 +36,7 @@ export class AppComponent {
     chatManager.show(chatManager.channel().info.name);
     chatManager.showChatUsers();
   }
-  // TODO: ...
+  onDisconnectClick() {
+    window.document.location.reload();
+  }
 }

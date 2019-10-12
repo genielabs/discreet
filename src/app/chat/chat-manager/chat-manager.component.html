@@ -84,7 +84,8 @@
           [(ngModel)]="userMessage"
           (keydown.enter)="onEnterKey($event)"
           (blur)="onTextInputBlur($event)"
-          (focus)="onTextInputFocus($event)"></textarea>
+          (focus)="onTextInputFocus($event)"
+          #messageInput></textarea>
     <button mat-icon-button *ngIf="!deviceService.isMobile()">
       <mat-icon color="primary" (click)="onOpenEmojiClick($event)">sentiment_satisfied_alt</mat-icon>
     </button>

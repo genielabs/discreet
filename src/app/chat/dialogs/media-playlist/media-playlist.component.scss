@@ -1,0 +1,23 @@
+@import "../../../../variables";
+
+.content {
+  margin-bottom: 8px;
+}
+.title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: $primary;
+}
+.title .mat-icon {
+  margin-right: 8px;
+}
+.media-image {
+  margin-right: 8px;
+}
+.media-title {
+  overflow: hidden;
+  height: 56px;
+  margin-bottom: 16px;
+  font-size: 87%;
+}

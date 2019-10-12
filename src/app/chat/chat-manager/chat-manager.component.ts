@@ -1,25 +1,30 @@
 import {
   Component,
-  ComponentFactoryResolver, ElementRef,
-  EventEmitter, HostListener, Input,
+  ComponentFactoryResolver,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Injectable,
+  Input,
   OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
-import {Injectable} from '@angular/core';
 
 import {MatSnackBar, MatSnackBarRef, SimpleSnackBar} from '@angular/material/snack-bar';
 
 import {IrcClient} from '../../irc-client/irc-client';
 import {MessagesWindowComponent} from '../messages-window/messages-window.component';
 import {ChatInfo} from '../chat-info';
-import {ChatData, ChatMessage} from '../chat-data';
+import {ChatData} from '../chat-data';
 import {MatDialog, MatMenu} from '@angular/material';
 import {ChatUser} from '../chat-user';
 import {YoutubeVideoComponent} from '../../socialmedia/youtube-video/youtube-video.component';
 import {EmojiDialogComponent} from '../dialogs/emoji-dialog/emoji-dialog.component';
 import {DeviceDetectorService} from 'ngx-device-detector';
 import {LoginInfo} from '../../irc-client/login-info';
+import {MediaPlaylistComponent} from '../dialogs/media-playlist/media-playlist.component';
+import {ChatMessage, ChatMessageType} from '../chat-message';
 
 @Injectable({
   providedIn: 'root',
@@ -36,6 +41,8 @@ export class ChatManagerComponent implements OnInit {
   userMenu: MatMenu;
   @ViewChild(YoutubeVideoComponent, {static: true})
   videoPlayer: YoutubeVideoComponent;
+  @ViewChild('messageInput', {static: true})
+  messageInput: ElementRef;
 
   @Input() loginInfo: LoginInfo;
 
@@ -80,7 +87,10 @@ export class ChatManagerComponent implements OnInit {
     public deviceService: DeviceDetectorService
   ) {
     this.ircClient.connectionStatus.subscribe((connected) => {
-      this.isLoadingChat = false;
+      // TODO:
+    });
+    this.ircClient.loggedIn.subscribe((loggedIn) => {
+      if (loggedIn) this.isLoadingChat = false;
     });
     this.ircClient.messageReceive.subscribe((msg: ChatMessage) => {
       const ni = msg.sender.indexOf('!'); // <-- TODO: not sure if this check is still needed
@@ -91,11 +101,12 @@ export class ChatManagerComponent implements OnInit {
       if (this.ircClient.config.nick === msg.target) {
         msg.target = msg.sender;
       }
+      // set type to MESSAGE (TODO: add support for NOTICE and MOTD TEXT '372')
+      msg.type = ChatMessageType.MESSAGE;
       const chat = this.chat(msg.target);
       chat.receive(msg);
-      if (chat.info === this.currentChatInfo) {
-        this.messageWindow.onNewMessage(msg);
-      } else if (!chat.hasUsers()) {
+      // Show notification popup if message is not coming from the currently opened chat
+      if (chat.info !== this.currentChatInfo && !chat.hasUsers()) {
         const snackBarRef: MatSnackBarRef<SimpleSnackBar> = this.snackBar.open(`${msg.sender}: ${msg.message}`, 'Mostra', {
           duration: 5000,
           verticalPosition: 'top'
@@ -106,23 +117,51 @@ export class ChatManagerComponent implements OnInit {
       }
     });
     this.ircClient.usersList.subscribe((msg) => {
+      let eventDescription;
+      let eventType;
       switch (msg.action) {
         case 'LIST':
           this.addChatUser(msg.target, ...msg.users.filter((u) => {
             return u !== '';
           }));
           break;
-        case 'JOIN':
-          this.addChatUser(msg.target, msg.user);
-          break;
         case 'NICK':
           this.renChatUser(msg.user, msg.nick);
           break;
-        case 'KICK':
+        case 'JOIN':
+          eventType = ChatMessageType.JOIN;
+          eventDescription = 'è entrato.';
+          this.addChatUser(msg.target, msg.user);
+          break;
         case 'PART':
-        case 'QUIT':
+          eventType = ChatMessageType.PART;
+          eventDescription = 'è uscito.';
           this.delChatUser(msg.target, msg.user);
           break;
+        case 'KICK':
+          eventType = ChatMessageType.KICK;
+          eventDescription = 'è stato espulso.';
+          this.delChatUser(msg.target, msg.user);
+          break;
+        case 'QUIT':
+          eventType = ChatMessageType.QUIT;
+          msg.target = this.currentChatInfo.name;
+          eventDescription = 'si è disconnesso.';
+          this.delChatUser(msg.target, msg.user);
+          break;
+      }
+      if (eventDescription) {
+        // add join message to the chat buffer
+        const chat = this.channel();
+        if (chat) {
+          const eventMessage = new ChatMessage();
+          eventMessage.type = eventType;
+          eventMessage.message = eventDescription;
+          eventMessage.data = { description: msg.message };
+          eventMessage.sender = msg.user;
+          eventMessage.target = msg.target;
+          chat.receive(eventMessage);
+        }
       }
     });
     this.ircClient.joinChannel.subscribe(this.show.bind(this));
@@ -138,35 +177,37 @@ export class ChatManagerComponent implements OnInit {
     this.ircClient.userChannelMode.subscribe((m) => {
       const chat = this.chatList.find((c) => c.target().name === m.channel || c.target().prefix === m.channel);
       if (chat) {
-        let flag: string;
-        switch (m.mode[1]) {
-          case 'q':
-            flag = '~';
-            break;
-          case 'a':
-            flag = '&';
-            break;
-          case 'o':
-            flag = '@';
-            break;
-          case 'h':
-            flag = '%';
-            break;
-          case 'v':
-            flag = '+';
-            break;
-        }
-        if (flag) {
-          m.users.forEach((userName) => {
-            const user = chat.users.find((u) => u.name === userName);
+        m.mode = m.mode.split('');
+        const mode = m.mode.shift();
+        let flag = '';
+        m.mode.forEach((userMode, i) => {
+          switch (userMode) {
+            case 'q':
+              flag = '~';
+              break;
+            case 'a':
+              flag = '&';
+              break;
+            case 'o':
+              flag = '@';
+              break;
+            case 'h':
+              flag = '%';
+              break;
+            case 'v':
+              flag = '+';
+              break;
+          }
+          const user = chat.users.find((u) => u.name === m.users[i]);
+          if (user) {
             user.flags.replace(flag, '');
-            if (m.mode[0] === '+') {
+            if (mode === '+') {
               user.flags += flag;
             }
             user.icon = this.getIcon(user.flags);
             user.color = this.getColor(user.flags);
-          });
-        }
+          }
+        });
       }
     });
   }
@@ -197,7 +238,6 @@ export class ChatManagerComponent implements OnInit {
   }
 
   onUserClick(menu: MatMenu, user: ChatUser) {
-    console.log('currentUser', user)
     this.currentUser = user;
   }
 
@@ -207,7 +247,26 @@ export class ChatManagerComponent implements OnInit {
   }
 
   onUserPlaylistClick(user: ChatUser) {
-    console.log(user, user.playlist);
+    const dialogRef = this.dialog.open(MediaPlaylistComponent, {
+      panelClass: 'playlist-dialog-container',
+      width: '330px',
+      data: user
+    });
+    dialogRef.afterClosed().subscribe(media => {
+      if (media) {
+        let videoId = '';
+        if (media.url.indexOf('v=') === -1) {
+          videoId = media.url.substring(media.url.lastIndexOf('/') + 1);
+        } else {
+          videoId = media.url.split('v=')[1];
+          const ampersandPosition = videoId.indexOf('&');
+          if (ampersandPosition !== -1) {
+            videoId = videoId.substring(0, ampersandPosition);
+          }
+        }
+        this.videoPlayer.loadVideo(videoId);
+      }
+    });
   }
 
   onEnterKey(e) {
@@ -220,26 +279,32 @@ export class ChatManagerComponent implements OnInit {
       if (message[0] === '/' && spaceIndex > 0) {
         const command = message.substring(1, spaceIndex);
         let target = message = message.substring(spaceIndex + 1);
-        spaceIndex = message.indexOf(' ');
-        if (spaceIndex > 0) {
-          target = message.substring(0, spaceIndex);
-          message = message.substring(spaceIndex + 1);
-        }
-        switch (command) {
-          case 'NICK':
-            this.ircClient.nick(target);
-            break;
-          case 'QUERY':
-          case 'MSG':
-            this.chat(target).send(message);
-            break;
+        if (command === 'ME') {
+          message = `\x01ACTION ${message}\x01`;
+          this.chat(this.currentChatInfo.name).send(message);
+          // TODO: this.ircClient.action(target, message)
+        } else {
+          spaceIndex = message.indexOf(' ');
+          if (spaceIndex > 0) {
+            target = message.substring(0, spaceIndex);
+            message = message.substring(spaceIndex + 1);
+          }
+          switch (command) {
+            case 'NICK':
+              this.ircClient.nick(target);
+              break;
+            case 'QUERY':
+            case 'MSG':
+              this.chat(target).send(message);
+              break;
+          }
         }
       } else {
         this.chat().send(message);
       }
     }
     this.userMessage = '';
-    this.messageWindow.scrollLast(true);
+    this.scrollToLast(true);
   }
 
   onOpenEmojiClick(e) {
@@ -278,6 +343,18 @@ export class ChatManagerComponent implements OnInit {
     this.showUserList = true;
     this.showRightPanel = true;
     this.videoPlayer.toggleRightMargin(true);
+  }
+
+  // hide/show join/part/kick/quit messages
+  toggleChannelActivity() {
+    const chat = this.channel();
+    if (chat) {
+      chat.preferences.showChannelActivity = !chat.preferences.showChannelActivity;
+    }
+  }
+
+  scrollToLast(force?: boolean) {
+    this.messageWindow.scrollLast(force);
   }
 
   newMessageCount() {
@@ -320,6 +397,10 @@ export class ChatManagerComponent implements OnInit {
       this.messageWindow.bind(chat);
       if (!chat.info.name.startsWith('#')) {
         this.showUserList = false;
+      }
+      if (!this.deviceService.isMobile()) {
+        // TODO: focus input text
+        (this.messageInput.nativeElement as HTMLElement).focus();
       }
       this.isLoadingChat = false;
     });
@@ -529,8 +610,8 @@ export class ChatManagerComponent implements OnInit {
       user = user.replace('%', '3:');
     } else if (this.isVoice(user)) {
       user = user.replace('+', '4:');
-    } else if (u.hasPlaylist()) {
-      user = '5:' + user;
+//    } else if (u.hasPlaylist()) {
+//      user = '5:' + user;
     } else {
       user = '6:' + user;
     }

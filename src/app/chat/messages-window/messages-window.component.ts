@@ -1,7 +1,7 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {ScrollEvent} from 'ngx-scroll-event';
-import {ChatData, ChatMessage} from '../chat-data';
-import {DeviceDetectorService} from 'ngx-device-detector';
+import {ChatData} from '../chat-data';
+import {ChatMessageType, ChatMessage} from '../chat-message';
 
 @Component({
   selector: 'app-messages-window',
@@ -9,6 +9,8 @@ import {DeviceDetectorService} from 'ngx-device-detector';
   styleUrls: ['./messages-window.component.scss']
 })
 export class MessagesWindowComponent implements OnInit {
+  private scrollTimeout;
+
   @ViewChild('chatBuffer', {static: true})
   chatBuffer: ElementRef;
 
@@ -17,6 +19,7 @@ export class MessagesWindowComponent implements OnInit {
   @Output()
   mediaUrlClick = new EventEmitter<any>();
 
+  MessageType = ChatMessageType;
   isLastMessageVisible = true;
 
   constructor() {}
@@ -27,31 +30,25 @@ export class MessagesWindowComponent implements OnInit {
   handleScroll(event: ScrollEvent) {
 //    console.log('scroll occurred', event.originalEvent);
     if (event.isReachingBottom) {
-      console.log(`the user is reaching the bottom`);
       this.isLastMessageVisible = true;
       this.boundChat.stats.messages.new = 0;
     } else if (event.isReachingTop) {
-      console.log(`the user is reaching the top`);
       this.isLastMessageVisible = false;
     } else {
       // scrolling
       this.isLastMessageVisible = false;
     }
-    if (event.isWindowEvent) {
-      console.log(`This event is fired on Window not on an element.`);
-    }
+    // if (event.isWindowEvent) {
+    //   console.log(`This event is fired on Window not on an element.`);
+    // }
   }
 
   onMessageClick(e) {
-    console.log(e);
+    // Handle click on Anchor elements (YouTube and other external links)
     if (e.target.tagName === 'A') {
       e.preventDefault();
       this.mediaUrlClick.emit({ id: e.target.dataset.id, link: e.target.dataset.link, element: e.target });
     }
-  }
-
-  onNewMessage(msg: any) {
-    this.scrollLast();
   }
 
   bind(chat: ChatData) {
@@ -68,7 +65,13 @@ export class MessagesWindowComponent implements OnInit {
     return timestamp;
   }
 
-  private scrollTimeout;
+  isServiceMessage(msg) {
+    return msg.type === ChatMessageType.JOIN
+      || msg.type === ChatMessageType.PART
+      || msg.type === ChatMessageType.QUIT
+      || msg.type === ChatMessageType.KICK;
+  }
+
   scrollLast(force?: boolean, soft?: boolean) {
     if (this.scrollTimeout != null) {
       clearTimeout(this.scrollTimeout);

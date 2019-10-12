@@ -23,15 +23,21 @@
   margin-top: auto;
 }
 
+.margin-top {
+  margin-top: 24px !important;
+}
+.margin-bottom {
+  margin-bottom: 24px !important;
+}
+
 .message {
   display: block;
 }
 .message-sender {
   color: $primary;
-  margin-top: 24px;
   font-weight: 600;
 }
-.message-sender mat-icon {
+.message-sender .icon {
   margin-left: 4px;
   margin-right: 4px;
   font-size: 80%;
@@ -45,12 +51,67 @@
   margin-right: 6px;
   cursor: pointer;
 }
+.message-sender .info {
+  cursor: help;
+}
+
+/* ACTION MESSAGE */
+.message-sender.action .message {
+  font-weight: 400 !important;
+}
+.message-sender.action .icon {
+  color: $notice;
+  margin-left: 0 !important;
+  margin-right: 8px !important;
+  margin-bottom: 4px;
+  font-size: 120% !important;
+  line-height: 120% !important;
+  opacity: 1 !important;
+}
+
+
+
+/* JOIN/PART MESSAGE */
+.message-sender.service {
+  color: initial;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-weight: 400;
+  opacity: 0.25;
+  font-size: 80%;
+}
+.message-sender.service .message {
+  font-weight: 400 !important;
+}
+.message-sender.service .icon {
+  margin-left: 0 !important;
+  margin-right: 8px !important;
+  margin-bottom: 4px;
+  font-size: 120% !important;
+  font-weight: 800;
+  line-height: 150% !important;
+  opacity: 1 !important;
+}
+.message-sender .icon.enter {
+  color: $positive;
+}
+.message-sender .icon.exit {
+  color: $negative;
+}
+.message-sender.service .message-date {
+  font-size: 95%;
+  opacity: 0.5;
+}
+
+
+
 .message-body {
   font-family: 'Delius', monospace;
   line-height: 150%;
   vertical-align: middle;
   word-break: break-word;
 }
+
 .local-user {
   text-decoration: underline;
   font-weight: bolder;
@@ -95,7 +156,10 @@
   .container {
     padding-left: 0;
   }
-  .message-sender {
-    margin-top: 16px;
+  .margin-top {
+    margin-top: 16px !important;
+  }
+  .margin-bottom {
+    margin-bottom: 16px !important;
   }
 }
