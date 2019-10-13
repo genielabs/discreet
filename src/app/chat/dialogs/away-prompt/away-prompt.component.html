@@ -1,0 +1,14 @@
+<h2 mat-dialog-title class="title">
+  Imposta assente
+</h2>
+<mat-dialog-content class="content" fxLayout="column">
+  <strong>Quando sei assente gli utenti che ti contattano riceveranno un messaggio automatico</strong>
+  <mat-form-field>
+    <textarea matInput placeholder="Testo del messaggio"
+         required #textInput="ngModel" [(ngModel)]="awayText"></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="awayText" [disabled]="textInput.invalid">Conferma</button>
+  <button mat-button mat-dialog-close cdkFocusInitial>Annulla</button>
+</mat-dialog-actions>

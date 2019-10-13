@@ -55,6 +55,8 @@ export class ChatManagerComponent implements OnInit {
   textInputCaretPosition = 0;
   currentEmojiTextInput;
 
+  awayMessage = '';
+
   // state variables
   showRightPanel = true;
   showUserList = true;
@@ -124,6 +126,17 @@ export class ChatManagerComponent implements OnInit {
           this.addChatUser(msg.target, ...msg.users.filter((u) => {
             return u !== '';
           }));
+          break;
+        case 'AWAY':
+          // TODO: flag the sender user as marked away
+          // TODO: this require a global users list to be implemented
+          const channel = this.channel();
+          if (channel) {
+            const user = channel.getUser(msg.user);
+            if (user) {
+              user.away = msg.message;
+            }
+          }
           break;
         case 'NICK':
           this.renChatUser(msg.user, msg.nick);
@@ -210,6 +223,20 @@ export class ChatManagerComponent implements OnInit {
         });
       }
     });
+    this.ircClient.awayReply.subscribe((msg) => {
+      msg.type = ChatMessageType.MESSAGE;
+      const chat = this.chat(msg.sender).receive(msg);
+      // Mark the sender user as AWAY
+      // TODO: flag the sender user as marked away
+      // TODO: this require a global users list to be implemented
+      const channel = this.channel();
+      if (channel) {
+        const user = channel.getUser(msg.sender);
+        if (user) {
+          user.away = msg.message;
+        }
+      }
+    });
   }
 
   ngOnInit() {
@@ -280,9 +307,7 @@ export class ChatManagerComponent implements OnInit {
         const command = message.substring(1, spaceIndex);
         let target = message = message.substring(spaceIndex + 1);
         if (command === 'ME') {
-          message = `\x01ACTION ${message}\x01`;
-          this.chat(this.currentChatInfo.name).send(message);
-          // TODO: this.ircClient.action(target, message)
+          this.userAction(message);
         } else {
           spaceIndex = message.indexOf(' ');
           if (spaceIndex > 0) {
@@ -357,6 +382,16 @@ export class ChatManagerComponent implements OnInit {
     this.messageWindow.scrollLast(force);
   }
 
+  userAction(message: string) {
+    // TODO: this.ircClient.action(target, message)
+    message = `\x01ACTION ${message}\x01`;
+    this.chat(this.currentChatInfo.name).send(message);
+  }
+  setAway(reason?: string) {
+    this.awayMessage = reason;
+    this.ircClient.away(reason);
+  }
+
   newMessageCount() {
     let newMessages = 0;
     this.chatList.forEach((c) => {
@@ -375,8 +410,12 @@ export class ChatManagerComponent implements OnInit {
   connect() {
     this.isLoadingChat = true;
     this.ircClient.connect().subscribe(null, (error) => {
-      this.snackBar.open(error.toString(),'', {
+      console.log(error)
+      const snackBarRef: MatSnackBarRef<SimpleSnackBar> = this.snackBar.open('Connessione interrotta.','Connetti', {
         verticalPosition: 'top'
+      });
+      snackBarRef.onAction().subscribe(() => {
+        this.connect();
       });
     }, () => {
       this.snackBar.open('Connection terminated.','', {
@@ -384,6 +423,7 @@ export class ChatManagerComponent implements OnInit {
       });
     });
   }
+
   client() {
     return this.ircClient;
   }

@@ -20,6 +20,7 @@ export class IrcClient {
   userMode = new EventEmitter<any>();
   userChannelMode = new EventEmitter<any>();
   connectionStatus = new EventEmitter<boolean>();
+  awayReply = new EventEmitter<any>();
 
   testChannelName = '#chatover40';
 
@@ -117,6 +118,9 @@ export class IrcClient {
                     if (payload.params[1] === 'LS') {
                       subject.next([ ':1 CAP REQ :account-notify away-notify extended-join multi-prefix message-tags' ]);
                       subject.next([ ':1 CAP END' ]);
+                    } else if (payload.params[1] === 'NACK') {
+                      // CAP REPLY (NACK)
+                      // TODO: ..
                     } else if (payload.params[1] === 'ACK') {
                       // CAP REPLY (ACK)
                       // TODO: ..
@@ -141,10 +145,19 @@ export class IrcClient {
                     });*/
                     break;
                   case '474': // BANNED
-                    console.log('\\\\\\\\\\\\\\\\\\\\\\', 'CANNOT JOIN', payload.params[1], payload.params[2]);
                     // payload.params[0]  NICK
                     // payload.params[1]  Channel
-                    // payload.params[2]  Reasong
+                    // payload.params[2]  Reason
+                    console.log('\\\\\\\\\\\\\\\\\\\\\\', 'CANNOT JOIN', payload.params[1], payload.params[2]);
+                    break;
+                  case '301': // AUTOMATIC REPLY FROM AWAY USER
+                    this.awayReply.emit({
+                      type: payload.command, // 301
+                      sender: payload.params[1],
+                      target: payload.params[0],
+                      message: payload.params[2],
+                      timestamp: Date.now()
+                    });
                     break;
                   case 'KICK':
                     this.usersList.emit({
@@ -172,7 +185,6 @@ export class IrcClient {
                     });
                     break;
                   case 'NICK':
-console.log(payload)
                     const nickData = {
                       action: payload.command,
                       user: this.parseUserAddress(payload.prefix).nick,
@@ -185,7 +197,6 @@ console.log(payload)
                     this.usersList.emit(nickData);
                     break;
                   case 'AWAY':
-console.log(payload)
                   case 'QUIT':
                     // other users actions
                     if (message !== '*') {
@@ -230,7 +241,7 @@ console.log(payload)
                         if (this.config.password && this.config.password.length > 0) {
                           this.send('NickServ', `IDENTIFY ${this.config.password}`);
                           // reset password once sent (identify only and once right after connection)
-                          this.config.password = null;
+                          //this.config.password = null;
                         }
                       }
                     }
@@ -241,6 +252,8 @@ console.log(payload)
                     this.loggedIn.emit(true);
                     break;
                   case '372': // MOTD TEXT
+                  case '305': // You are no longer marked as being away
+                  case '306': // You have been marked as being away
                   case 'NOTICE':
                   case 'PRIVMSG':
                     const c = this.config;
@@ -288,6 +301,15 @@ console.log(payload)
       this.raw(`:1 NICK ${nick}`);
     }
     return this.config.nick;
+  }
+
+  away(reason?: string) {
+    let away = 'AWAY';
+    if (reason && reason.length > 0) {
+      away += ` :${reason}`;
+    }
+    const c = this.config;
+    this.raw(`:1 :${c.nick}!${c.user}@${c.host} ${away}`);
   }
 
   raw(message: string) {

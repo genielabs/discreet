@@ -15,7 +15,7 @@ export class ChatData {
   status: any;
   timestamp = Date.now();
   preferences = {
-    showChannelActivity: true,
+    showChannelActivity: false,
     showChannelActivityToggle() {
       this.showChannelActivity = !this.showChannelActivity;
     }
@@ -100,9 +100,11 @@ export class ChatData {
     this.messages.push(message);
     // if this is not the current chat, then increase
     // the number of unread messages
-    if (this.chatManager.currentChatInfo == null ||
-      this.target().name !== this.chatManager.currentChatInfo.name ||
-      (this.target().name === this.chatManager.currentChatInfo.name && !this.chatManager.isLastMessageVisible())
+    if (message.type === ChatMessageType.MESSAGE && (
+        this.chatManager.currentChatInfo == null ||
+        this.target().name !== this.chatManager.currentChatInfo.name ||
+        (this.target().name === this.chatManager.currentChatInfo.name && !this.chatManager.isLastMessageVisible())
+      )
     ) {
       this.stats.messages.new++;
     }

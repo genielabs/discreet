@@ -50,26 +50,24 @@
                  [opened]="screenWidth > 1024 ? true : false" position="start"
                  fxLayout="column">
 
-      <h4>{{ chatManager.ircClient.config.nick }}</h4>
+      <h4>{{ chatManager.client().config.nick }}</h4>
 
-      <button mat-flat-button disabled>
-        <mat-icon color="primary">announcement</mat-icon>
-        <span>Descrivi un azione</span>
-      </button>
-      <button mat-flat-button disabled>
-        <mat-icon color="primary">speaker_notes_off</mat-icon>
-        <span>Imposta assente</span>
-      </button>
-      <button mat-flat-button disabled>
+      <button mat-flat-button disabled (click)="onNickChangeClick(chatManager)">
         <mat-icon color="primary">autorenew</mat-icon>
         <span>Cambia nome</span>
       </button>
+      <button mat-flat-button (click)="onUserActionClick(chatManager)">
+        <mat-icon color="primary">announcement</mat-icon>
+        <span>Azione</span>
+      </button>
+      <mat-checkbox [checked]="isUserAway"
+                    (change)="onSetAwayClick($event, chatManager)">Assente</mat-checkbox>
 
       <label>Preferenze interfaccia</label>
 
       <mat-checkbox *ngIf="chatManager.channel()"
                     [checked]="chatManager.channel().preferences.showChannelActivity"
-                    (change)="chatManager.channel().preferences.showChannelActivityToggle()">Mostra in/out</mat-checkbox>
+                    (change)="onShowJoinPartsChange($event, chatManager)">Mostra in/out</mat-checkbox>
       <mat-checkbox disabled>Tema scuro</mat-checkbox>
 
       <label>Server</label>

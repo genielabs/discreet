@@ -134,6 +134,9 @@ app-messages-window {
     opacity: 0.9;
   }
 }
+.users-list button.is-away {
+  opacity: 0.4;
+}
 
 .users-list .title, .conversations-list .title {
   border-bottom: 1px solid $primary;

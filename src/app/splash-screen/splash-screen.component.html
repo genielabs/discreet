@@ -4,14 +4,17 @@
     <h1>#ChatOver40</h1>
     <div fxFlex="0 0 0" fxLayout="column">
       <mat-form-field>
-        <!-- pattern="^[A-Za-z_\-\[\]\\^{}|`][A-Za-z0-9_\-\[\]\\^{}|`]{2,15}$" -->
         <input matInput placeholder="Scegli un nome"
                required
-               pattern="^[A-Za-z_\-\[\]\\^{}|`][A-Za-z0-9_\-\[\]\\^{}|`]{2,15}$"
+               maxlength="30"
+               pattern="^[A-Za-z_\-\[\]\\^{}|`][A-Za-z0-9_\-\[\]\\^{}|`]{2,29}$"
                #nickname="ngModel"
                [(ngModel)]="nick">
-        <mat-error *ngIf="nickname.invalid">
+        <mat-error *ngIf="nickname.value && nickname.value.length >= 3 && nickname.invalid">
           Caratteri non consentiti.
+        </mat-error>
+        <mat-error *ngIf="nickname.value && nickname.value.length < 3">
+          Inserire almeno 3 caratteri.
         </mat-error>
       </mat-form-field>
       <mat-checkbox #registered>Sono un utente registrato</mat-checkbox>

@@ -41,6 +41,8 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import {DeviceDetectorModule} from 'ngx-device-detector';
 import { MediaPlaylistComponent } from './chat/dialogs/media-playlist/media-playlist.component';
+import { ActionPromptComponent } from './chat/dialogs/action-prompt/action-prompt.component';
+import { AwayPromptComponent } from './chat/dialogs/away-prompt/away-prompt.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +55,9 @@ import { MediaPlaylistComponent } from './chat/dialogs/media-playlist/media-play
     SafePipe,
     EmojiDialogComponent,
     SplashScreenComponent,
-    MediaPlaylistComponent
+    MediaPlaylistComponent,
+    ActionPromptComponent,
+    AwayPromptComponent
   ],
   imports: [
     // angular
@@ -88,7 +92,7 @@ import { MediaPlaylistComponent } from './chat/dialogs/media-playlist/media-play
     DeviceDetectorModule.forRoot(),
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
-  entryComponents: [ EmojiDialogComponent, MediaPlaylistComponent ],
+  entryComponents: [ EmojiDialogComponent, MediaPlaylistComponent, ActionPromptComponent, AwayPromptComponent ],
   providers: [
     HttpClientModule,
     IrcClient,

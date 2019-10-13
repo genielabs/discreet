@@ -39,7 +39,7 @@
        fxLayout="column" fxLayoutAlign="stretch stretch">
     <strong *ngIf="currentChatInfo && currentChatInfo.name" class="title">Utenti</strong>
     <cdk-virtual-scroll-viewport *ngIf="chat().hasUsers()" class="v-scroll" itemSize="38" minBufferPx="200" maxBufferPx="400">
-      <button mat-button
+      <button mat-button [ngClass]="{ 'is-away': u.away }"
               *cdkVirtualFor="let u of chat().users"
               (click)="onUserClick(userMenu, u)"
               [matMenuTriggerFor]="userMenu"

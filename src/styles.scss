@@ -37,10 +37,17 @@ $custom-typography: mat-typography-config(
 // other imports
 @import '~@ctrl/ngx-emoji-mart/picker';
 
-html, body { height: 100%; }
+html, body {
+  height: 100%;
+  overscroll-behavior-y: contain;
+}
 body {
   margin: 0;
   font-family: 'Hind Madurai', Roboto, "Helvetica Neue", sans-serif;
+}
+
+snack-bar-container {
+  margin-top: 72px !important;
 }
 
 a {
