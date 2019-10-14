@@ -59,7 +59,7 @@
       <span>Chat</span>
     </button>
     <!-- collection of media links shared by the user -->
-    <button *ngIf="currentUser" mat-menu-item [disabled]="!currentUser.hasPlaylist()" (click)="onUserPlaylistClick(currentUser)">
+    <button *ngIf="currentUser && currentUser.playlist.length > 0" mat-menu-item [disabled]="!currentUser.hasPlaylist()" (click)="onUserPlaylistClick(currentUser)">
       <mat-icon [color]="currentUser.playlist.length > 0 ? 'primary' : ''">library_music</mat-icon>
       <span>Playlist</span>
       <span>&nbsp;({{currentUser.playlist.length}})</span>
@@ -73,7 +73,7 @@
 
 </div>
 
-<div class="input-bar mat-elevation-z1"
+<div class="input-bar mat-elevation-z6"
      [ngClass]="{ 'full-width': screenWidth < 640 || !showRightPanel }"
      fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="8px">
 
@@ -94,8 +94,4 @@
     </button>
   </mat-form-field>
 
-</div>
-
-<div class="loading-message" *ngIf="isLoadingChat" fxLayout="column" fxLayoutAlign="center center">
-  <mat-spinner>Loading</mat-spinner>
 </div>

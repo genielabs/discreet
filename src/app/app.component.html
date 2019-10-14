@@ -39,7 +39,7 @@
 
       <div class="content" fxLayout="column" fxLayoutAlign="start stretch">
 
-        <app-chat-manager #chatManager [loginInfo]="loginInfo"></app-chat-manager>
+        <app-chat-manager #chatManager [loginInfo]="loginInfo" (chatLoading)="onChatLoading($event)"></app-chat-manager>
 
       </div>
 
@@ -56,25 +56,29 @@
         <mat-icon color="primary">autorenew</mat-icon>
         <span>Cambia nome</span>
       </button>
-      <button mat-flat-button (click)="onUserActionClick(chatManager)">
+      <button mat-flat-button [disabled]="!chatManager.isLoggedIn" (click)="onUserActionClick(chatManager)">
         <mat-icon color="primary">announcement</mat-icon>
         <span>Azione</span>
       </button>
-      <mat-checkbox [checked]="isUserAway"
+      <mat-checkbox [checked]="isUserAway" [disabled]="!chatManager.isLoggedIn"
                     (change)="onSetAwayClick($event, chatManager)">Assente</mat-checkbox>
 
       <label>Preferenze interfaccia</label>
 
-      <mat-checkbox *ngIf="chatManager.channel()"
-                    [checked]="chatManager.channel().preferences.showChannelActivity"
+      <mat-checkbox [disabled]="chatManager.channel() == null"
+                    [checked]="chatManager.channel() && chatManager.channel().preferences.showChannelActivity"
                     (change)="onShowJoinPartsChange($event, chatManager)">Mostra in/out</mat-checkbox>
       <mat-checkbox disabled>Tema scuro</mat-checkbox>
 
       <label>Server</label>
 
-      <button mat-flat-button (click)="onDisconnectClick()">
+      <button *ngIf="chatManager.client().isConnected()" mat-flat-button (click)="onDisconnectClick(chatManager)">
         <mat-icon color="warn">exit_to_app</mat-icon>
         <span>Disconnetti</span>
+      </button>
+      <button *ngIf="!chatManager.client().isConnected()" mat-flat-button (click)="onConnectClick(chatManager)">
+        <mat-icon color="primary">offline_bolt</mat-icon>
+        <span>Connetti</span>
       </button>
 
     </mat-sidenav>
@@ -83,5 +87,6 @@
 
 </div>
 
-
-
+<div class="loading-message" *ngIf="isLoadingChat" fxLayout="column" fxLayoutAlign="center center">
+  <mat-spinner>Loading</mat-spinner>
+</div>

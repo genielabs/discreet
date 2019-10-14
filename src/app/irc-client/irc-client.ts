@@ -65,7 +65,7 @@ export class IrcClient {
       });
       subject.subscribe(
         msg => {
-//console.log('>> ' + msg.data)
+console.log('>> ' + msg.data)
           // control command codes
           switch (msg.data) {
             // Just connected
@@ -288,12 +288,27 @@ export class IrcClient {
         },
         err => {
           console.log(err);
+          this.ircClientSubject = null;
         },
         () => {
           console.log('complete');
+          this.ircClientSubject = null;
         }
       );
       return subject;
+  }
+
+  disconnect() {
+    if (this.ircClientSubject) {
+      this.raw(`:1 QUIT :See you later!`);
+      this.ircClientSubject.unsubscribe();
+      this.ircClientSubject.complete();
+      this.ircClientSubject = null;
+    }
+  }
+
+  isConnected() {
+    return this.ircClientSubject != null;
   }
 
   nick(nick) {
@@ -313,10 +328,14 @@ export class IrcClient {
   }
 
   raw(message: string) {
-    this.ircClientSubject.next([ message ]);
+    if (this.ircClientSubject) {
+      this.ircClientSubject.next([ message ]);
+    }
   }
   send(target: string, message: string) {
-    this.ircClientSubject.next([ `:1 PRIVMSG ${target} :${message}` ]);
+    if (this.ircClientSubject) {
+      this.ircClientSubject.next([`:1 PRIVMSG ${target} :${message}`]);
+    }
   }
 
   private parseUserAddress(prefix) {

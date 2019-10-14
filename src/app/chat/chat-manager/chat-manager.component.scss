@@ -26,11 +26,6 @@ cdk-virtual-scroll-viewport button span {
 .container {
   position: relative;
 }
-.loading-message {
-  position: fixed;
-  left: 0; top: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-}
 
 app-messages-window {
   transition: all .3s ease-in-out;

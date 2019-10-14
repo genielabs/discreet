@@ -60,13 +60,14 @@ export class ChatManagerComponent implements OnInit {
   // state variables
   showRightPanel = true;
   showUserList = true;
-  isLoadingChat = true;
+  isLoggedIn = false;
 
   screenHeight = window.innerHeight;
   screenWidth = window.innerWidth;
 
   @Output() chatClosed = new EventEmitter<any>();
   @Output() chatOpen = new EventEmitter<any>();
+  @Output() chatLoading = new EventEmitter<boolean>();
 
   @HostListener('window:resize', ['$event'])
   onResize(event?) {
@@ -92,7 +93,10 @@ export class ChatManagerComponent implements OnInit {
       // TODO:
     });
     this.ircClient.loggedIn.subscribe((loggedIn) => {
-      if (loggedIn) this.isLoadingChat = false;
+      this.isLoggedIn = loggedIn;
+      if (loggedIn) {
+        this.chatLoading.emit(false);
+      }
     });
     this.ircClient.messageReceive.subscribe((msg: ChatMessage) => {
       const ni = msg.sender.indexOf('!'); // <-- TODO: not sure if this check is still needed
@@ -253,7 +257,8 @@ export class ChatManagerComponent implements OnInit {
       this.ircClient.config.nick = this.loginInfo.nick;
       this.ircClient.config.password = this.loginInfo.password;
     }
-    this.connect();
+    // work-around for ngCheckExpressioneChanged...
+    setTimeout(this.connect.bind(this), 100);
   }
 
   onChannelButtonClick(c) {
@@ -408,20 +413,31 @@ export class ChatManagerComponent implements OnInit {
   }
 
   connect() {
-    this.isLoadingChat = true;
+    this.isLoggedIn = false;
+    this.chatLoading.emit(true);
+    this.chatList.forEach((c) => {
+      c.users = [] as ChatUser[];
+    });
     this.ircClient.connect().subscribe(null, (error) => {
-      console.log(error)
-      const snackBarRef: MatSnackBarRef<SimpleSnackBar> = this.snackBar.open('Connessione interrotta.','Connetti', {
+console.log(error)
+      this.isLoggedIn = false;
+      this.snackBar.open('Connessione interrotta.','Connetti', {
         verticalPosition: 'top'
-      });
-      snackBarRef.onAction().subscribe(() => {
+      }).onAction().subscribe(() => {
         this.connect();
       });
     }, () => {
-      this.snackBar.open('Connection terminated.','', {
+      this.isLoggedIn = false;
+      this.snackBar.open('Connessione interrotta.','Connetti', {
         verticalPosition: 'top'
+      }).onAction().subscribe(() => {
+        this.connect();
       });
     });
+  }
+
+  disconnect() {
+    this.ircClient.disconnect();
   }
 
   client() {
@@ -429,7 +445,7 @@ export class ChatManagerComponent implements OnInit {
   }
 
   show(target: string | ChatInfo) {
-    this.isLoadingChat = true;
+    this.chatLoading.emit(true);
     const chat = this.chat(target);
     setTimeout(() => {
       this.currentChatInfo = chat.target();
@@ -442,7 +458,7 @@ export class ChatManagerComponent implements OnInit {
         // TODO: focus input text
         (this.messageInput.nativeElement as HTMLElement).focus();
       }
-      this.isLoadingChat = false;
+      this.chatLoading.emit(false);
     });
     return chat;
   }
@@ -579,14 +595,18 @@ export class ChatManagerComponent implements OnInit {
 
   private addChatUser(target: string, ...users: string[]) {
     const usersList = this.getUsersList(target);
-    usersList.push(...users.map((u) => {
+    users.map((u) => {
       const user = new ChatUser();
       user.name = this.removeUserNameFlags(u);
       user.color = this.getColor(u);
       user.icon = this.getIcon(u);
       user.flags = this.getUserNameFlags(u);
+      const existingUser = usersList.find((eu) => eu.name === user.name);
+      if (existingUser == null) {
+        usersList.push(user);
+      }
       return user;
-    }));
+    });
     this.sortUsersList(target);
     const chat = this.chatList.find((c) => c.target().name === target || c.target().prefix === target);
     chat.users = [...usersList];

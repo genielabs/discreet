@@ -19,6 +19,7 @@ export class AppComponent implements OnInit {
   isUserLogged = false;
   isUserAway = false;
   loginInfo = new LoginInfo();
+  isLoadingChat = false;
 
   screenWidth: number;
   screenHeight: number;
@@ -107,8 +108,21 @@ export class AppComponent implements OnInit {
     }
     chatManager.channel().preferences.showChannelActivityToggle();
   }
-  onDisconnectClick() {
-    this.sidenav.close();
-    window.document.location.reload();
+  onDisconnectClick(chatManager: ChatManagerComponent) {
+    if (this.deviceService.isMobile()) {
+      this.sidenav.close();
+    }
+    chatManager.disconnect();
+    //window.document.location.reload();
+  }
+  onConnectClick(chatManager: ChatManagerComponent) {
+    if (this.deviceService.isMobile()) {
+      this.sidenav.close();
+    }
+    chatManager.connect();
+  }
+  onChatLoading(loading) {
+    console.log('LOADING', loading);
+    this.isLoadingChat = loading;
   }
 }
