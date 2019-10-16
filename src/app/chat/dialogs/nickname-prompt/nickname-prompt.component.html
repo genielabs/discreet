@@ -1,0 +1,31 @@
+<h2 mat-dialog-title class="title">
+  Nome utente
+</h2>
+<mat-dialog-content fxLayout="column" fxLayoutAlign="center center">
+  <div fxFlex="0 0 0" fxLayout="column">
+    <mat-form-field>
+      <input matInput placeholder="Scegli un nome"
+             required
+             maxlength="30"
+             pattern="^[A-Za-z_\-\[\]\\^{}|`][A-Za-z0-9_\-\[\]\\^{}|`]{2,29}$"
+             #nickname="ngModel"
+             [(ngModel)]="loginInfo.nick">
+      <mat-error *ngIf="nickname.value && nickname.value.length >= 3 && nickname.invalid">
+        Caratteri non consentiti.
+      </mat-error>
+      <mat-error *ngIf="nickname.value && nickname.value.length < 3">
+        Inserire almeno 3 caratteri.
+      </mat-error>
+    </mat-form-field>
+    <mat-checkbox #registered>Utente registrato</mat-checkbox>
+    <mat-form-field *ngIf="registered.checked">
+      <input matInput type="password" placeholder="Password"
+             #nickpass="ngModel"
+             [(ngModel)]="loginInfo.password">
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="loginInfo" [disabled]="nickname.invalid">Conferma</button>
+  <button mat-button mat-dialog-close cdkFocusInitial>Annulla</button>
+</mat-dialog-actions>

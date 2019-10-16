@@ -6,13 +6,11 @@ import {ChatMessage, ChatMessageType} from './chat-message';
 
 export class ChatData {
   topic = '';
-  flags: string;
   mode: string;
+  hidden = false;
   users: ChatUser[] = [] as ChatUser[];
   messages: ChatMessage[] = [];
-  input: ChatInput = new ChatInput(this);
   stats = new ChatStats();
-  status: any;
   timestamp = Date.now();
   preferences = {
     showChannelActivity: false,
@@ -128,22 +126,6 @@ export class ChatData {
   }
   hasUsers(): boolean {
     return this.users.length > 0;
-  }
-}
-
-export class ChatInput {
-  textInput = '';
-  textBuffer: string[] = [];
-  constructor(private chat: ChatData) {}
-  getInput(): string {
-    return this.textInput;
-  }
-  setInput(s: string) {
-    this.textInput = s;
-  }
-  dispatch() {
-    this.chat.send(this.textInput);
-    this.textInput = '';
   }
 }
 

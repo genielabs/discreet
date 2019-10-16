@@ -86,7 +86,7 @@ export class YoutubeVideoComponent implements OnInit {
   }
 
   onMenuControlPlay() {
-    this.player.setVolume(50);
+    this.player.setVolume(30);
     this.player.playVideo();
   }
 

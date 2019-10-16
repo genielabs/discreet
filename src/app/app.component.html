@@ -1,9 +1,9 @@
 <app-splash-screen *ngIf="!isUserLogged"
   (connectRequest)="onConnectRequest($event)"></app-splash-screen>
 
-<div *ngIf="isUserLogged" class="container" fxLayout="column" fxLayoutAlign="start stretch">
+<div *ngIf="isUserLogged" class="container" fxLayout="column" fxLayoutAlign="start stretch" [ngStyle]="{'height.px': screenHeight}">
 
-  <mat-toolbar color="primary" fxLayout="row" fxLayoutAlign="start center" class="mat-elevation-z4">
+  <mat-toolbar color="primary" fxLayout="row" fxLayoutAlign="start center">
     <button mat-flat-button color="primary" class="menu-button" (click)="sidenav.toggle()">
       <mat-icon>menu</mat-icon>
     </button>
@@ -52,7 +52,7 @@
 
       <h4>{{ chatManager.client().config.nick }}</h4>
 
-      <button mat-flat-button disabled (click)="onNickChangeClick(chatManager)">
+      <button mat-flat-button [disabled]="!chatManager.isLoggedIn" (click)="onNickChangeClick(chatManager)">
         <mat-icon color="primary">autorenew</mat-icon>
         <span>Cambia nome</span>
       </button>

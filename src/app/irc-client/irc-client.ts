@@ -238,11 +238,7 @@ console.log('>> ' + msg.data)
                           mode
                         });
                         // send password for identifying the registered nick with NickServ
-                        if (this.config.password && this.config.password.length > 0) {
-                          this.send('NickServ', `IDENTIFY ${this.config.password}`);
-                          // reset password once sent (identify only and once right after connection)
-                          //this.config.password = null;
-                        }
+                        this.identify();
                       }
                     }
                     break;
@@ -254,6 +250,9 @@ console.log('>> ' + msg.data)
                   case '372': // MOTD TEXT
                   case '305': // You are no longer marked as being away
                   case '306': // You have been marked as being away
+                  case '433': // Nickname already in use
+                    message = payload.params[1] += ': ' + payload.params[2];
+                    console.log('NICKNAME ALREADY IN USE', payload);
                   case 'NOTICE':
                   case 'PRIVMSG':
                     const c = this.config;
@@ -316,6 +315,14 @@ console.log('>> ' + msg.data)
       this.raw(`:1 NICK ${nick}`);
     }
     return this.config.nick;
+  }
+
+  identify() {
+    if (this.config.password && this.config.password.length > 0) {
+      this.send('NickServ', `IDENTIFY ${this.config.password}`);
+      // reset password once sent (identify only and once right after connection)
+      //this.config.password = null;
+    }
   }
 
   away(reason?: string) {

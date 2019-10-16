@@ -43,6 +43,8 @@ import {DeviceDetectorModule} from 'ngx-device-detector';
 import { MediaPlaylistComponent } from './chat/dialogs/media-playlist/media-playlist.component';
 import { ActionPromptComponent } from './chat/dialogs/action-prompt/action-prompt.component';
 import { AwayPromptComponent } from './chat/dialogs/away-prompt/away-prompt.component';
+import { NicknamePromptComponent } from './chat/dialogs/nickname-prompt/nickname-prompt.component';
+import {CallbackPipe} from './chat/pipes/callback.pipe';
 
 @NgModule({
   declarations: [
@@ -51,13 +53,15 @@ import { AwayPromptComponent } from './chat/dialogs/away-prompt/away-prompt.comp
     ChatManagerComponent,
     EnrichMessage,
     SortByPipe,
+    CallbackPipe,
     YoutubeVideoComponent,
     SafePipe,
     EmojiDialogComponent,
     SplashScreenComponent,
     MediaPlaylistComponent,
     ActionPromptComponent,
-    AwayPromptComponent
+    AwayPromptComponent,
+    NicknamePromptComponent
   ],
   imports: [
     // angular
@@ -92,7 +96,7 @@ import { AwayPromptComponent } from './chat/dialogs/away-prompt/away-prompt.comp
     DeviceDetectorModule.forRoot(),
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
-  entryComponents: [ EmojiDialogComponent, MediaPlaylistComponent, ActionPromptComponent, AwayPromptComponent ],
+  entryComponents: [ EmojiDialogComponent, MediaPlaylistComponent, ActionPromptComponent, AwayPromptComponent, NicknamePromptComponent ],
   providers: [
     HttpClientModule,
     IrcClient,

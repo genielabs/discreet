@@ -9,6 +9,14 @@
   padding-left: 8px;
 }
 
+.top-shadow {
+  position: absolute;
+  height: 48px;
+  top:-48px;
+  width: 100%;
+  z-index: 10;
+}
+
 .mat-menu-trigger {
   cursor: pointer;
 }

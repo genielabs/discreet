@@ -1,5 +1,5 @@
+<div class="top-shadow mat-elevation-z4"></div>
 <div class="container" fxLayout="column" fxLayoutAlign="end" fxLayoutJustify="stretch">
-
   <div class="message-buffer"
        detect-scroll (onScroll)="handleScroll($event)" [bottomOffset]="96" [topOffset]="16"
        fxLayout="column"
@@ -16,7 +16,8 @@
         <!-- ACTION MESSAGE -->
         <ng-container *ngIf="msg.type === MessageType.ACTION">
           <!-- message sender and action -->
-          <div class="message-sender margin-top margin-bottom action"
+          <div class="message-sender margin-top action"
+               [ngClass]="{ 'margin-bottom': i === 0 || i === boundChat.messages.length - 1 || boundChat.messages[i + 1].type !== MessageType.MESSAGE }"
                fxLayout="row" fxLayoutAlign="center center">
 
             <mat-icon class="icon">announcement</mat-icon>
@@ -90,7 +91,7 @@
            (click)="scrollLast(true, true)"
            fxLayout="row" fxLayoutAling="center center">
         <mat-icon>arrow_downward</mat-icon>
-        <span>nuovi messaggi</span>
+        <span fxFlex="1 0 0">nuovi messaggi</span>
         <mat-icon>arrow_downward</mat-icon>
       </div>
 

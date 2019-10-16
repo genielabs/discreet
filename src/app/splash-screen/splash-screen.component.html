@@ -17,7 +17,7 @@
           Inserire almeno 3 caratteri.
         </mat-error>
       </mat-form-field>
-      <mat-checkbox #registered>Sono un utente registrato</mat-checkbox>
+      <mat-checkbox #registered>Utente registrato</mat-checkbox>
       <mat-form-field *ngIf="registered.checked">
         <input matInput type="password" placeholder="Password"
                #nickpass="ngModel"

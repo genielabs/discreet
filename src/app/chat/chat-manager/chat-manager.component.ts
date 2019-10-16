@@ -50,6 +50,7 @@ export class ChatManagerComponent implements OnInit {
   boundChatList: ChatData[] = [];
   currentChatInfo: ChatInfo;
   currentUser: ChatUser;
+  currentMenuChat: ChatData;
 
   userMessage = '';
   textInputCaretPosition = 0;
@@ -261,12 +262,20 @@ export class ChatManagerComponent implements OnInit {
     setTimeout(this.connect.bind(this), 100);
   }
 
-  onChannelButtonClick(c) {
+  onChatMenuButtonClick(c: ChatData) {
+    this.currentMenuChat = c;
+  }
+  onChatButtonClick(c: ChatData) {
     const chat = this.show(c.target());
     if (this.screenWidth < 640) {
       this.showRightPanel = false;
       this.videoPlayer.toggleRightMargin(false);
     }
+  }
+  onCloseChatClick(c: ChatData) {
+    // TODO:
+    this.show(this.channel().info);
+    c.hidden = true;
   }
 
   onUserClick(menu: MatMenu, user: ChatUser) {
@@ -370,6 +379,7 @@ export class ChatManagerComponent implements OnInit {
     this.videoPlayer.toggleRightMargin(true);
   }
   showChatUsers() {
+    this.show(this.channel().info);
     this.showUserList = true;
     this.showRightPanel = true;
     this.videoPlayer.toggleRightMargin(true);
@@ -400,7 +410,7 @@ export class ChatManagerComponent implements OnInit {
   newMessageCount() {
     let newMessages = 0;
     this.chatList.forEach((c) => {
-      if (c.info !== this.currentChatInfo) {
+      if (c.info !== this.currentChatInfo && !c.hidden) {
         newMessages += c.stats.messages.new;
       }
     });
@@ -493,7 +503,12 @@ console.log(error)
         }
       }
     }
+    chat.hidden = false;
     return chat;
+  }
+
+  filterChat(chat: ChatData) {
+    return !chat.hidden;
   }
 
   /*

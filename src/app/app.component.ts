@@ -6,6 +6,7 @@ import {MatDialog, MatSidenav, MatSidenavContainer} from '@angular/material';
 import {ActionPromptComponent} from './chat/dialogs/action-prompt/action-prompt.component';
 import {AwayPromptComponent} from './chat/dialogs/away-prompt/away-prompt.component';
 import {DeviceDetectorService} from 'ngx-device-detector';
+import {NicknamePromptComponent} from './chat/dialogs/nickname-prompt/nickname-prompt.component';
 
 @Component({
   selector: 'app-root',
@@ -46,7 +47,6 @@ export class AppComponent implements OnInit {
     this.isUserLogged = true;
   }
   onChannelButtonClick(chatManager: ChatManagerComponent) {
-    chatManager.show(chatManager.channel().info.name);
     chatManager.showChatUsers();
   }
 
@@ -88,18 +88,20 @@ export class AppComponent implements OnInit {
     if (this.deviceService.isMobile()) {
       this.sidenav.close();
     }
-    const dialogRef = this.dialog.open(ActionPromptComponent, {
+    const dialogRef = this.dialog.open(NicknamePromptComponent,{
       data: {
-        title: 'Cambia nick',
-        description: 'Inserisci il nuovo nome da utilizzare',
-        pattern: '^[A-Za-z_\-\[\]\\^{}|`][A-Za-z0-9_\-\[\]\\^{}|`]{2,15}$',
-        value: chatManager.client().config.nick,
-        confirm: 'Cambia',
-        cancel: 'Annulla'
+        nick: chatManager.client().config.nick,
+        password: chatManager.client().config.password
       }
     });
     dialogRef.afterClosed().subscribe(res => {
-      console.log(res);
+      if (res) {
+        chatManager.client().nick(res.nick);
+        if (res.password && res.password.length > 0) {
+          chatManager.client().config.password = res.password;
+          chatManager.client().identify();
+        }
+      }
     });
   }
   onShowJoinPartsChange(e, chatManager: ChatManagerComponent) {
