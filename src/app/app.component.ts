@@ -18,10 +18,10 @@ import {filter, tap} from 'rxjs/operators';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
-  @ViewChild('sidenav', {static: false}) public sidenav: MatSidenav;
-
-
-  @ViewChild('chatManager', {read: ChatManagerComponent, static: false}) private channelManager: ChatManagerComponent;
+  @ViewChild('sidenav', {static: false})
+  public sidenav: MatSidenav;
+  @ViewChild('chatManager', {read: ChatManagerComponent, static: false})
+  private channelManager: ChatManagerComponent;
 
   title = 'ng-web-irc';
   isUserLogged = false;
@@ -81,6 +81,9 @@ export class AppComponent implements OnInit, OnDestroy {
     chatManager.showChatUsers();
   }
   onChannelPlaylistButtonClick(chatManager: ChatManagerComponent) {
+    if (this.screenWidth < 640) {
+      this.channelManager.toggleRightPanel();
+    }
     this.mediaPlaylistNotify = false;
     const dialogRef = this.dialog.open(MediaPlaylistComponent, {
       panelClass: 'playlist-dialog-container',

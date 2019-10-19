@@ -78,15 +78,17 @@ export class ChatManagerComponent implements OnInit {
 
   @HostListener('window:resize', ['$event'])
   onResize(event?) {
+    if (this.screenWidth !== window.innerWidth) {
+      if (this.screenWidth < 640) {
+        this.showRightPanel = false;
+        this.videoPlayer.toggleRightMargin(false);
+      } else {
+        this.showRightPanel = true;
+        this.videoPlayer.toggleRightMargin(true);
+      }
+    }
     this.screenHeight = window.innerHeight;
     this.screenWidth = window.innerWidth;
-    if (this.screenWidth < 640) {
-      this.showRightPanel = false;
-      this.videoPlayer.toggleRightMargin(false);
-    } else {
-      this.showRightPanel = true;
-      this.videoPlayer.toggleRightMargin(true);
-    }
   }
 
   constructor(
@@ -271,8 +273,7 @@ export class ChatManagerComponent implements OnInit {
   onChatButtonClick(c: ChatData) {
     const chat = this.show(c.target());
     if (this.screenWidth < 640) {
-      this.showRightPanel = false;
-      this.videoPlayer.toggleRightMargin(false);
+      this.toggleRightPanel();
     }
   }
   onCloseChatClick(c: ChatData) {
@@ -290,6 +291,9 @@ export class ChatManagerComponent implements OnInit {
   }
 
   onUserPlaylistClick(user: ChatUser) {
+    if (this.screenWidth < 640) {
+      this.toggleRightPanel();
+    }
     const dialogRef = this.dialog.open(MediaPlaylistComponent, {
       panelClass: 'playlist-dialog-container',
       width: '330px',
