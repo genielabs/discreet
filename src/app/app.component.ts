@@ -1,7 +1,7 @@
 import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import {ChatManagerComponent} from './chat/chat-manager/chat-manager.component';
-import {LoginInfo} from './irc-client/login-info';
+import {LoginInfo} from './irc-client-service/login-info';
 import {MatDialog, MatSidenav} from '@angular/material';
 import {ActionPromptComponent} from './chat/dialogs/action-prompt/action-prompt.component';
 import {AwayPromptComponent} from './chat/dialogs/away-prompt/away-prompt.component';
@@ -11,6 +11,7 @@ import {MediaPlaylistComponent} from './chat/dialogs/media-playlist/media-playli
 import {ChatUser} from './chat/chat-user';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
+import {IrcClientService} from './irc-client-service/irc-client-service';
 
 @Component({
   selector: 'app-root',
@@ -26,7 +27,6 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'ng-web-irc';
   isUserLogged = false;
   isUserAway = false;
-  loginInfo = new LoginInfo();
   isLoadingChat = false;
 
   screenWidth: number;
@@ -53,6 +53,7 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     public dialog: MatDialog,
     public deviceService: DeviceDetectorService,
+    public ircClientService: IrcClientService,
     private router: Router,
     private route: ActivatedRoute,
     private locationService: Location
@@ -75,7 +76,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onConnectRequest(credentials: LoginInfo) {
-    this.loginInfo = credentials;
+    this.ircClientService.setCredentials(credentials);
     this.isUserLogged = true;
   }
   onChannelUsersButtonClick(chatManager: ChatManagerComponent) {

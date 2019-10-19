@@ -2,6 +2,8 @@ import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} f
 import {ScrollEvent} from 'ngx-scroll-event';
 import {ChatData} from '../chat-data';
 import {ChatMessageType, ChatMessage} from '../chat-message';
+import {PrivateChat} from '../private-chat';
+import {PublicChat} from '../public-chat';
 
 @Component({
   selector: 'app-messages-window',
@@ -15,7 +17,7 @@ export class MessagesWindowComponent implements OnInit {
   chatBuffer: ElementRef;
 
   @Input()
-  boundChat: ChatData;
+  boundChat: any;
   @Output()
   mediaUrlClick = new EventEmitter<any>();
 
@@ -51,7 +53,7 @@ export class MessagesWindowComponent implements OnInit {
     }
   }
 
-  bind(chat: ChatData) {
+  bind(chat: PrivateChat | PublicChat) {
     this.boundChat = chat;
     this.scrollLast(true);
   }

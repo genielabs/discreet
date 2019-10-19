@@ -1,27 +1,15 @@
 import {ChatInfo} from './chat-info';
 import {ChatManagerComponent} from './chat-manager/chat-manager.component';
-import {ChatUser} from './chat-user';
-import {TextFormatting} from './text-formatting';
 import {ChatMessage, ChatMessageType} from './chat-message';
 
 export class ChatData {
-  topic = '';
-  mode: string;
   hidden = false;
-  users: ChatUser[] = [] as ChatUser[];
   messages: ChatMessage[] = [];
   stats = new ChatStats();
   timestamp = Date.now();
-  preferences = {
-    showChannelActivity: false,
-    showChannelActivityToggle() {
-      this.showChannelActivity = !this.showChannelActivity;
-    }
-  };
 
   readonly info: ChatInfo;
   private bufferMaxLines = 300;
-  private textFormatting = new TextFormatting();
 
   constructor(
     target: string | ChatInfo,
@@ -55,8 +43,7 @@ export class ChatData {
       isLocal: true
     });
   }
-  receive(message: ChatMessage) {
-    const senderUser = this.getUser(message.sender);
+  receive(message: ChatMessage): ChatMessage {
 
     message = Object.assign(new ChatMessage(), message);
     if (message.message.startsWith('\x01ACTION ') && message.message.endsWith('\x01')) {
@@ -69,40 +56,15 @@ export class ChatData {
     message.rendered.message = message.message
       .replace(/(\u0002+)|(\u0003+)(\d{1,2})?(,(\d{1,2}))?/g, '');
 
-    this.textFormatting.enrich(message.rendered.message)
-      .subscribe((result) => {
-        if (result.mediaInfo) {
-          const sender = this.getUser(message.sender);
-          if (sender) {
-            const existingItem = sender.playlist
-              .find((item) => item.url === result.mediaInfo.url);
-            if (existingItem == null) {
-              sender.playlist.push(result.mediaInfo);
-            }
-          }
-        }
-        message.rendered.message = result.enriched;
-        if (senderUser) {
-          message.rendered.musicIcon = senderUser.playlist.length > 0 ? 'music_video' : '';
-        }
-      });
-
-    message.rendered.flagsIconColor = this.getUserColor(message.sender);
-    message.rendered.flagsIconName = this.getUserIcon(message.sender);
-    if (message.rendered.flagsIconName === 'person') {
-      // do not show standard use icon in message buffer
-      message.rendered.flagsIconName = null;
-    }
-
     // find user nick in sentence and make it bold
     let nickMatched = false;
-    const nick = this.chatManager.client().config.nick;
+    const nick = this.chatManager.client().config.nick; // <--- TODO: create an @Injectable IrcClientService
     const replacer = new RegExp(`(^|\\b)${nick}(?=\\W|\\w+|$)`, 'ig');
     message.rendered.message = message.rendered.message.replace(replacer, (match) => {
       nickMatched = true;
       return `<strong><u>${nick}</u></strong>`;
     });
-    if (nickMatched && this.info !== this.chatManager.currentChatInfo) {
+    if (nickMatched && this.info !== this.chatManager.chat().info) {
       this.chatManager.notify(message.sender, `[${this.info.name}] ${message.message}`, this.info);
     }
 
@@ -115,33 +77,22 @@ export class ChatData {
     // if this is not the current chat, then increase
     // the number of unread messages
     if (message.type === ChatMessageType.MESSAGE && (
-        this.chatManager.currentChatInfo == null ||
-        this.target().name !== this.chatManager.currentChatInfo.name ||
-        (this.target().name === this.chatManager.currentChatInfo.name && !this.chatManager.isLastMessageVisible())
+        this.chatManager.chat().info.name === 'localhost' ||
+        this.target().name !== this.chatManager.chat().info.name ||
+        (this.target().name === this.chatManager.chat().info.name && !this.chatManager.isLastMessageVisible())
       )
     ) {
       this.stats.messages.new++;
     }
     this.timestamp = Date.now();
 
+    // TODO: implment this via EventEmitter
     // scroll down to last visible message
-    if (this.info === this.manager().currentChatInfo) {
+    if (this.info === this.manager().chat().info) {
       this.manager().scrollToLast();
     }
-  }
-  getUser(name: string) {
-    return this.users.find((u) => u.name === name);
-  }
-  getUserIcon(name: string) {
-    const u = this.getUser(name);
-    return u != null && this.manager().getIcon(u.flags);
-  }
-  getUserColor(name: string) {
-    const u = this.getUser(name);
-    return u != null && this.manager().getColor(u.flags);
-  }
-  hasUsers(): boolean {
-    return this.users.length > 0;
+
+    return message;
   }
 }
 

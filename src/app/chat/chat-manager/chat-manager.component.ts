@@ -5,7 +5,6 @@ import {
   EventEmitter,
   HostListener,
   Injectable,
-  Input,
   OnInit,
   Output,
   ViewChild,
@@ -13,7 +12,7 @@ import {
 
 import {MatSnackBar, MatSnackBarRef, SimpleSnackBar} from '@angular/material/snack-bar';
 
-import {IrcClient} from '../../irc-client/irc-client';
+import {IrcClientService} from '../../irc-client-service/irc-client-service';
 import {MessagesWindowComponent} from '../messages-window/messages-window.component';
 import {ChatInfo} from '../chat-info';
 import {ChatData} from '../chat-data';
@@ -22,12 +21,12 @@ import {ChatUser} from '../chat-user';
 import {YoutubeVideoComponent} from '../../socialmedia/youtube-video/youtube-video.component';
 import {EmojiDialogComponent} from '../dialogs/emoji-dialog/emoji-dialog.component';
 import {DeviceDetectorService} from 'ngx-device-detector';
-import {LoginInfo} from '../../irc-client/login-info';
 import {MediaPlaylistComponent} from '../dialogs/media-playlist/media-playlist.component';
 import {ChatMessage, ChatMessageType} from '../chat-message';
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import {ActivatedRoute, NavigationStart, Router, RouterEvent} from '@angular/router';
-import {filter, tap} from 'rxjs/operators';
+import {ActivatedRoute, Router} from '@angular/router';
+import {PublicChat} from '../public-chat';
+import {PrivateChat} from '../private-chat';
 
 @Injectable({
   providedIn: 'root',
@@ -49,13 +48,38 @@ export class ChatManagerComponent implements OnInit {
   @ViewChild('userListScrollView', {static: false})
   userListScrollView: CdkVirtualScrollViewport;
 
-  @Input() loginInfo: LoginInfo;
+  private chatList = {
+    public: [] as PublicChat[],
+    private: [] as PrivateChat[],
+    isPublic(target: string | ChatInfo | PublicChat | PrivateChat): boolean {
+      return (target instanceof PublicChat)
+        || (target instanceof ChatInfo && target.type === 'public')
+        || (typeof target === 'string' && target.startsWith('#'));
+    },
+    find(target: string | ChatInfo): PublicChat | PrivateChat {
+      if (this.isPublic(target)) {
+        return this.public.find((c) => c.target() === target || c.target().name === target || c.target().prefix === target);
+      } else {
+        return this.private.find((c) => c.target() === target || c.target().name === target || c.target().prefix === target);
+      }
+    },
+    add(target: string | ChatInfo, chatManager: ChatManagerComponent): PublicChat | PrivateChat {
+      let chat = null;
+      if (this.isPublic(target)) {
+        chat = new PublicChat(target, chatManager);
+        this.public.push(chat);
+      } else {
+        chat = new PrivateChat(target, chatManager);
+        this.private.push(chat);
+      }
+      return chat;
+    }
+  };
+  boundChatList = {public: [] as PublicChat[], private: [] as PrivateChat[]};
 
-  private chatList: ChatData[] = [];
-  boundChatList: ChatData[] = [];
-  currentChatInfo: ChatInfo;
+  currentChat: PrivateChat | PublicChat;
   currentUser: ChatUser;
-  currentMenuChat: ChatData;
+  currentMenuChat: PrivateChat | PublicChat;
 
   userMessage = '';
   awayMessage = '';
@@ -94,7 +118,7 @@ export class ChatManagerComponent implements OnInit {
   constructor(
     private snackBar: MatSnackBar,
     private componentFactoryResolver: ComponentFactoryResolver,
-    public ircClient: IrcClient,
+    public ircClient: IrcClientService,
     public dialog: MatDialog,
     public deviceService: DeviceDetectorService,
     private router: Router,
@@ -124,7 +148,7 @@ export class ChatManagerComponent implements OnInit {
       const chat = this.chat(msg.target);
       chat.receive(msg);
       // Show notification popup if message is not coming from the currently opened chat
-      if (chat.info !== this.currentChatInfo && !chat.hasUsers()) {
+      if (chat !== this.currentChat && !(chat instanceof PublicChat)) {
         this.notify(msg.sender, msg.message, msg.sender);
       }
     });
@@ -167,8 +191,8 @@ export class ChatManagerComponent implements OnInit {
           this.delChatUser(msg.target, msg.user);
           break;
         case 'QUIT':
+          msg.target = null; // delete user from all channels
           eventType = ChatMessageType.QUIT;
-          msg.target = this.currentChatInfo.name;
           eventDescription = 'si è disconnesso.';
           this.delChatUser(msg.target, msg.user);
           break;
@@ -198,7 +222,7 @@ export class ChatManagerComponent implements OnInit {
       // TODO: ...
     });
     this.ircClient.userChannelMode.subscribe((m) => {
-      const chat = this.chatList.find((c) => c.target().name === m.channel || c.target().prefix === m.channel);
+      const chat = this.chatList.public.find((c) => c.target().name === m.channel || c.target().prefix === m.channel);
       if (chat) {
         m.mode = m.mode.split('');
         const mode = m.mode.shift();
@@ -259,15 +283,11 @@ export class ChatManagerComponent implements OnInit {
         window.open(mediaUrl.link, '_blank');
       }
     });
-    if (this.loginInfo) {
-      this.ircClient.config.nick = this.loginInfo.nick;
-      this.ircClient.config.password = this.loginInfo.password;
-    }
     // work-around for ngCheckExpressioneChanged...
     setTimeout(this.connect.bind(this), 100);
   }
 
-  onChatMenuButtonClick(c: ChatData) {
+  onChatMenuButtonClick(c: PrivateChat | PublicChat) {
     this.currentMenuChat = c;
   }
   onChatButtonClick(c: ChatData) {
@@ -286,8 +306,8 @@ export class ChatManagerComponent implements OnInit {
   }
 
   onUserMenuChat() {
-    const chat = this.show(this.currentUser.name);
-    this.showUserList = chat.hasUsers();
+    this.showUserList = false;
+    this.show(this.currentUser.name);
   }
 
   onUserPlaylistClick(user: ChatUser) {
@@ -446,7 +466,7 @@ console.log(user)
   userAction(message: string) {
     // TODO: this.ircClient.action(target, message)
     message = `\x01ACTION ${message}\x01`;
-    this.chat(this.currentChatInfo.name).send(message);
+    this.chat().send(message);
   }
   setAway(reason?: string) {
     this.awayMessage = reason;
@@ -455,12 +475,19 @@ console.log(user)
 
   newMessageCount() {
     let newMessages = 0;
-    this.chatList.forEach((c) => {
-      if (c.info !== this.currentChatInfo && !c.hidden) {
+    // new messages from public channels
+    this.chatList.public.forEach((c) => {
+      if (c !== this.currentChat && !c.hidden) {
         newMessages += c.stats.messages.new;
       }
     });
-    return newMessages;
+    // new messages from users
+    this.chatList.private.forEach((c) => {
+      if (c !== this.currentChat && !c.hidden) {
+        newMessages += c.stats.messages.new;
+      }
+    });
+    return newMessages > 99 ? '99+' : newMessages;
   }
 
   toggleRightPanel() {
@@ -471,7 +498,7 @@ console.log(user)
   connect() {
     this.isLoggedIn = false;
     this.chatLoading.emit(true);
-    this.chatList.forEach((c) => {
+    this.chatList.public.forEach((c) => {
       c.users = [] as ChatUser[];
     });
     this.ircClient.connect().subscribe(null, (error) => {
@@ -502,9 +529,8 @@ console.log(error)
 
   show(target: string | ChatInfo) {
     this.chatLoading.emit(true);
-    const chat = this.chat(target);
+    const chat = this.currentChat = this.chat(target);
     setTimeout(() => {
-      this.currentChatInfo = chat.target();
       chat.stats.messages.new = 0;
       this.messageWindow.bind(chat);
       if (!chat.info.name.startsWith('#')) {
@@ -519,27 +545,33 @@ console.log(error)
     return chat;
   }
 
-  channel(target?: string | ChatInfo): ChatData {
-    return this.chatList.find((c) => {
-      return c.hasUsers()
-        && (target == null || c.target() === target || c.target().name === target || c.target().prefix === target);
+  channel(target?: string | ChatInfo): PublicChat {
+    if (target == null && this.isPublicChat(this.currentChat)) {
+      return (this.currentChat as PublicChat);
+    }
+    return this.chatList.public.find((c) => {
+      return (target == null || c.target() === target || c.target().name === target || c.target().prefix === target);
     });
   }
-  chat(target?: string | ChatInfo): ChatData {
-    if (target == null && this.currentChatInfo) {
-      return this.chat(this.currentChatInfo);
+  chat(target?: string | ChatInfo): PublicChat | PrivateChat {
+    if (target == null && this.currentChat) {
+      // if no argument is provided return the currently open chat
+      return this.currentChat;
     } else if (target == null) {
-      return new ChatData('server', this);
+      // default loopback chat
+      return new PrivateChat('server', this);
     }
-    let chat = this.chatList.find((c) => c.target() === target || c.target().name === target || c.target().prefix === target);
+    let chat = this.chatList.find(target);
     if (chat == null) {
-      chat = new ChatData(target, this);
-      this.chatList.push(chat);
+      chat = this.chatList.add(target, this);
       if (target) {
         // force *ngFor refresh by re-assigning chatList
-        this.boundChatList = this.chatList.slice();
+        this.boundChatList = {
+          public: this.chatList.public.slice(),
+          private: this.chatList.private.slice()
+        };
         // automatically open chat if it's a channel
-        if (chat.info.name[0] === '#') { // TODO: add facility 'chat.isChannel()'
+        if (chat instanceof PublicChat) { // TODO: add facility 'chat.isChannel()'
           this.showUserList = true;
           this.chatOpen.emit(chat);
           this.show(target);
@@ -549,10 +581,17 @@ console.log(error)
         }
       }
     }
-    if (chat.info !== this.currentChatInfo) {
+    if (chat !== this.currentChat) {
       chat.hidden = false;
     }
     return chat;
+  }
+
+  isPublicChat(target?: string | ChatInfo | PublicChat | PrivateChat) {
+    return target && this.chatList.isPublic(target);
+  }
+  isPrivateChat(target?: string | ChatInfo | PublicChat | PrivateChat) {
+    return target && !this.chatList.isPublic(target);
   }
 
   filterChat(chat: ChatData) {
@@ -579,7 +618,7 @@ console.log(error)
     if (typeof c === 'string') {
       prefix = c;
     } else {
-      if (c.hasUsers()) {
+      if (c instanceof PublicChat) {
         return 'primary';
       }
       prefix = c.info.name;
@@ -604,7 +643,7 @@ console.log(error)
     if (typeof c === 'string') {
       prefix = c;
     } else {
-      if (c.hasUsers()) {
+      if (c instanceof PublicChat) {
         return 'people_alt';
       }
       prefix = c.info.name;
@@ -652,11 +691,12 @@ console.log(error)
   }
 
   getUsersList(target: string) {
-    const chat = this.chatList.find((c) => c.target().name === target || c.target().prefix === target);
-    return chat && chat.users;
+    const chat = this.chatList.find(target);
+    return chat && (chat as PublicChat).users;
   }
 
   private addChatUser(target: string, ...users: string[]) {
+    // TODO: should check chatList.isPublic(target) and throw an exception if not
     const usersList = this.getUsersList(target);
     users.map((u) => {
       const user = new ChatUser();
@@ -671,18 +711,17 @@ console.log(error)
       return user;
     });
     this.sortUsersList(target);
-    const chat = this.chatList.find((c) => c.target().name === target || c.target().prefix === target);
-    chat.users = [...usersList];
+    const chat = this.chatList.find(target);
+    (chat as PublicChat).users = [...usersList];
   }
   private renChatUser(user: string, nick: string) {
-    this.chatList.forEach((c) => {
-      if (c.hasUsers()) {
-        const userList = c.users;
-        const u = userList.find((n) => n.name === user);
-        if (u != null) {
-          u.name = nick;
-          this.sortUsersList(c.info.name);
-        }
+    // TODO: store user in a global list and rename from that!!
+    this.chatList.public.forEach((c) => {
+      const userList = c.users;
+      const u = userList.find((n) => n.name === user);
+      if (u != null) {
+        u.name = nick;
+        this.sortUsersList(c.info.name);
       }
     });
   }
@@ -691,14 +730,12 @@ console.log(error)
       // TODO: .... (for better perfs, this should be implemented
       //    via keeping a global list of users instead of instances
       //    for each channel)
-      this.chatList.forEach((c) => {
-        if (c.hasUsers()) {
-          const userList = c.users;
-          const u = userList.find((n) => n.name === user);
-          const ui = userList.indexOf(u);
-          if (ui !== -1) {
-            userList.splice(ui, 1);
-          }
+      this.chatList.public.forEach((c) => {
+        const userList = c.users;
+        const u = userList.find((n) => n.name === user);
+        const ui = userList.indexOf(u);
+        if (ui !== -1) {
+          userList.splice(ui, 1);
         }
       });
     } else {

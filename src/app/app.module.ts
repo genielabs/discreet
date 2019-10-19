@@ -29,7 +29,7 @@ import { ScrollEventModule } from 'ngx-scroll-event';
 
 import { AppComponent } from './app.component';
 import { MessagesWindowComponent } from './chat/messages-window/messages-window.component';
-import { IrcClient } from './irc-client/irc-client';
+import { IrcClientService } from './irc-client-service/irc-client-service';
 import { ChatManagerComponent } from './chat/chat-manager/chat-manager.component';
 import { EnrichMessage } from './chat/pipes/enrich-message.pipe';
 import { SortByPipe } from './chat/pipes/sort-by.pipe';
@@ -101,7 +101,7 @@ import {RouterModule} from '@angular/router';
   entryComponents: [ EmojiDialogComponent, MediaPlaylistComponent, ActionPromptComponent, AwayPromptComponent, NicknamePromptComponent ],
   providers: [
     HttpClientModule,
-    IrcClient,
+    IrcClientService,
     ChatManagerComponent,
     {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: true}},
     {provide: LOCALE_ID, useValue: 'it-IT'}

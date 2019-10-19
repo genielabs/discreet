@@ -8,7 +8,7 @@
       <mat-icon>menu</mat-icon>
     </button>
     <div fxLayout="row" fxLayoutAlign="center center" class="title">
-          <span [matBadge]="chatManager.chat().stats.messages.new"
+          <span [matBadge]="chatManager.chat().stats.messages.new > 99 ? '99+' : chatManager.chat().stats.messages.new"
                 matBadgeColor="accent"
                 [matBadgeHidden]="!(chatManager && chatManager.chat().target().name && chatManager.chat().stats.messages.new > 0)"
                 matBadgeOverlap="false">{{ chatManager && chatManager.chat().target().name || 'NgWebIRC' }}</span>
@@ -46,7 +46,7 @@
 
       <div class="content" fxLayout="column" fxLayoutAlign="start stretch">
 
-        <app-chat-manager #chatManager [loginInfo]="loginInfo" (chatLoading)="onChatLoading($event)"></app-chat-manager>
+        <app-chat-manager #chatManager (chatLoading)="onChatLoading($event)"></app-chat-manager>
 
       </div>
 
