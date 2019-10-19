@@ -81,7 +81,6 @@ app-messages-window {
   font-size: 100%;
   z-index: 100;
   position: absolute;
-  padding-top: 3px;
   transition: all .3s ease-in-out;
   right: 0;
   opacity: 0.95;
@@ -115,7 +114,7 @@ app-messages-window {
   overflow-y: auto;
 }
 
-.users-list button {
+.users-list button.user {
   margin-top: 2px;
   margin-bottom: 2px;
   padding-left: 2px;
@@ -134,15 +133,31 @@ app-messages-window {
 }
 
 .users-list .title, .conversations-list .title {
+  padding-left: 40px;
   border-bottom: 1px solid $primary;
   text-align: center;
   width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  height: 42px;
-  line-height: 42px;
+  height: 46px;
+  line-height: 46px;
   vertical-align: middle;
+}
+.conversations-list .title {
+  padding-left: 0;
+}
+.users-list .search-field {
+  height: 46px;
+  line-height: 46px;
+  width: 100%;
+  border-bottom: 1px solid $primary;
+  padding-left: 40px;
+  input[type="text"] {
+    border: 0;
+    font-size: 100%;
+    width: 100%;
+  }
 }
 
 .full-message-window {

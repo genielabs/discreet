@@ -45,6 +45,7 @@ import { ActionPromptComponent } from './chat/dialogs/action-prompt/action-promp
 import { AwayPromptComponent } from './chat/dialogs/away-prompt/away-prompt.component';
 import { NicknamePromptComponent } from './chat/dialogs/nickname-prompt/nickname-prompt.component';
 import {CallbackPipe} from './chat/pipes/callback.pipe';
+import {RouterModule} from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -93,6 +94,7 @@ import {CallbackPipe} from './chat/pipes/callback.pipe';
     // third party
     ScrollEventModule,
     PickerModule,
+    RouterModule.forRoot([], {useHash: true}),
     DeviceDetectorModule.forRoot(),
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],

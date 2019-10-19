@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import {MatDialogRef} from '@angular/material';
+import {Component, EventEmitter, Inject, OnInit} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 
 @Component({
   selector: 'app-emoji-dialog',
@@ -8,14 +8,17 @@ import {MatDialogRef} from '@angular/material';
 })
 export class EmojiDialogComponent implements OnInit {
 
-  constructor(public dialogRef: MatDialogRef<EmojiDialogComponent>) { }
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public eventEmitter: EventEmitter<string>,
+    public dialogRef: MatDialogRef<EmojiDialogComponent>
+  ) { }
 
   ngOnInit() {
   }
 
-  onAddEmoji(emoji) {
-    console.log(emoji);
-    this.dialogRef.close(emoji);
+  onAddEmoji(emoji: string) {
+    this.eventEmitter.emit(emoji);
+    //this.dialogRef.close(emoji);
   }
 
 }

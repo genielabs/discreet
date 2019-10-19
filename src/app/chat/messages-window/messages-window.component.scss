@@ -1,7 +1,7 @@
 @import '../../../_variables.scss';
 
 .container {
-  background-color: #fffadc;
+  background-color: #fffae6;
   position: relative;
   width: 100%;
   height: 100%;
@@ -14,7 +14,7 @@
   height: 48px;
   top:-48px;
   width: 100%;
-  z-index: 10;
+  z-index: 1;
 }
 
 .mat-menu-trigger {
@@ -44,6 +44,7 @@
 }
 .message-sender {
   color: $primary;
+  opacity: 0.6;
   font-weight: 600;
 }
 .message-sender .icon {
@@ -51,7 +52,7 @@
   margin-right: 4px;
   font-size: 80%;
   line-height: 120%;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 .message-sender span {
   word-break: keep-all;

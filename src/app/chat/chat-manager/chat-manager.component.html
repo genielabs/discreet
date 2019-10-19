@@ -16,7 +16,7 @@
        [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
     <strong class="title">Messaggi</strong>
-    <div *ngFor="let c of boundChatList | callback: filterChat | sortBy:'desc':'timestamp'" fxLayout="row">
+    <div *ngFor="let c of boundChatList | callback: filterChat" fxLayout="row"> <!--  | sortBy:'desc':'timestamp' -->
       <button class="chat-button-menu" mat-icon-button (click)="onChatMenuButtonClick(c)"
               [matMenuTriggerFor]="chatMenu">
         <mat-icon>menu</mat-icon>
@@ -38,9 +38,22 @@
        *ngIf="showUserList || !showRightPanel"
        [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
-    <strong *ngIf="currentChatInfo && currentChatInfo.name" class="title">Utenti</strong>
-    <cdk-virtual-scroll-viewport *ngIf="chat().hasUsers()" class="v-scroll" itemSize="38" minBufferPx="200" maxBufferPx="400">
-      <button mat-button [ngClass]="{ 'is-away': u.away }"
+    <div class="search-field"
+         fxLayout="row" fxLayoutAlign="start stretch">
+        <input type="text" placeholder="Cerca utente..."
+               fxFlex="1 0 0"
+               [(ngModel)]="userSearchValue"
+               (input)="onUserSearchChange()"
+               tabindex="0">
+        <button mat-button *ngIf="userSearchValue"
+                mat-icon-button aria-label="Clear"
+                (click)="userSearchValue=''">
+          <mat-icon>close</mat-icon>
+        </button>
+    </div>
+    <cdk-virtual-scroll-viewport *ngIf="chat().hasUsers()" #userListScrollView class="v-scroll"
+                                 itemSize="38" minBufferPx="200" maxBufferPx="400">
+      <button mat-button class="user" [ngClass]="{ 'is-away': u.away }"
               *cdkVirtualFor="let u of chat().users"
               (click)="onUserClick(userMenu, u)"
               [matMenuTriggerFor]="userMenu"
@@ -60,11 +73,14 @@
       <span>Chat</span>
     </button>
     <!-- collection of media links shared by the user -->
-    <button *ngIf="currentUser && currentUser.playlist.length > 0" mat-menu-item [disabled]="!currentUser.hasPlaylist()" (click)="onUserPlaylistClick(currentUser)">
+    <a [routerLink]="" [queryParams]="{dialog: true}" *ngIf="currentUser && currentUser.playlist.length > 0"
+            mat-menu-item
+            [disabled]="!currentUser.hasPlaylist()"
+            (click)="onUserPlaylistClick(currentUser)">
       <mat-icon [color]="currentUser.playlist.length > 0 ? 'primary' : ''">library_music</mat-icon>
       <span>Playlist</span>
       <span>&nbsp;({{currentUser.playlist.length}})</span>
-    </button>
+    </a>
     <!-- turn on/off notifications for messages from this user -->
     <button mat-menu-item disabled>
       <mat-icon>notifications_off</mat-icon>
@@ -105,7 +121,7 @@
           (blur)="onTextInputBlur($event)"
           (focus)="onTextInputFocus($event)"
           #messageInput></textarea>
-    <button mat-icon-button *ngIf="!deviceService.isMobile()">
+    <button [routerLink]="" [queryParams]="{dialog: true}" mat-icon-button *ngIf="!deviceService.isMobile()">
       <mat-icon color="primary" (click)="onOpenEmojiClick($event)">sentiment_satisfied_alt</mat-icon>
     </button>
     <button mat-icon-button fxAlign="end" (click)="onEnterKey($event)">

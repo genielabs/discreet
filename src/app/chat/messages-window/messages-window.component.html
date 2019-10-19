@@ -26,9 +26,7 @@
                   [matMenuTriggerFor]="boundChat.manager().userMenu"
                   (click)="boundChat.manager().onUserClick(boundChat.manager().userMenu, boundChat.getUser(msg.sender))"></span>
 
-            <span class="message">
-            {{ msg.rendered.message }}
-            </span>
+            <span class="message" [innerHTML]="msg.rendered.message"></span>
 
             <!-- message timestamp -->
             <div class="message-date">{{getTimeStamp(boundChat.messages, i) | date: 'mediumTime' : '' : 'en-US'}}</div>

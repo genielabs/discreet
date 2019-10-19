@@ -247,12 +247,12 @@ console.log('>> ' + msg.data)
                     joinChannels.forEach((ch) => subject.next([ `:1 JOIN ${ch}` ]));
                     this.loggedIn.emit(true);
                     break;
-                  case '372': // MOTD TEXT
-                  case '305': // You are no longer marked as being away
-                  case '306': // You have been marked as being away
                   case '433': // Nickname already in use
                     message = payload.params[1] += ': ' + payload.params[2];
                     console.log('NICKNAME ALREADY IN USE', payload);
+                  case '372': // MOTD TEXT
+                  case '305': // You are no longer marked as being away
+                  case '306': // You have been marked as being away
                   case 'NOTICE':
                   case 'PRIVMSG':
                     const c = this.config;
@@ -270,6 +270,26 @@ console.log('>> ' + msg.data)
                     if (target === '*') {
                       target = this.config.nick;
                     }
+                    this.messageReceive.emit({
+                      type: payload.command,
+                      sender: payload.prefix,
+                      target,
+                      message,
+                      timestamp: Date.now()
+                    });
+                    break;
+                  case '311': // WHOIS - user address
+                  case '307': // WHOIS - is identified for this nick
+                  case '319': // WHOIS - user channels
+                  case '312': // WHOIS - irc server address
+//                case '301': // WHOIS - user is away
+                  case '671': // WHOIS - user is using a secure connection
+                  case '276': // WHOIS - SSL certificate fingerprint
+                  case '330': // WHOIS - user is logged in as
+                  case '317': // WHOIS - signon and idle time
+                  case '318': // WHOIS - end of WHOIS list
+                    console.log('WHOIS', payload);
+                    message = payload.params.slice(1).join(' ');
                     this.messageReceive.emit({
                       type: payload.command,
                       sender: payload.prefix,

@@ -15,9 +15,16 @@
     </div>
     <span class="flex-fill"></span>
     <div class="right-toolbar">
+      <button mat-icon-button class="icon-big" *ngIf="mediaPlaylistCount > 0"
+              matTooltip="Video condivisi"
+              (click)="onChannelPlaylistButtonClick(chatManager)"
+              [matBadge]="mediaPlaylistCount"
+              matBadgePosition="after" matBadgeColor="primary">
+        <mat-icon [color]="this.mediaPlaylistNotify ? 'accent' : ''">music_note</mat-icon>
+      </button>
       <button mat-icon-button class="icon-big" *ngIf="chatManager.channel()"
               matTooltip="Utenti"
-              (click)="onChannelButtonClick(chatManager)"
+              (click)="onChannelUsersButtonClick(chatManager)"
               [matBadge]="chatManager.channel().users.length"
               matBadgePosition="after" matBadgeColor="primary">
         <mat-icon>people_alt</mat-icon>
@@ -56,21 +63,14 @@
         <mat-icon color="primary">autorenew</mat-icon>
         <span>Cambia nome</span>
       </button>
+
       <button mat-flat-button [disabled]="!chatManager.isLoggedIn" (click)="onUserActionClick(chatManager)">
         <mat-icon color="primary">announcement</mat-icon>
         <span>Azione</span>
       </button>
+
       <mat-checkbox [checked]="isUserAway" [disabled]="!chatManager.isLoggedIn"
                     (change)="onSetAwayClick($event, chatManager)">Assente</mat-checkbox>
-
-      <label>Preferenze interfaccia</label>
-
-      <mat-checkbox [disabled]="chatManager.channel() == null"
-                    [checked]="chatManager.channel() && chatManager.channel().preferences.showChannelActivity"
-                    (change)="onShowJoinPartsChange($event, chatManager)">Mostra in/out</mat-checkbox>
-      <mat-checkbox disabled>Tema scuro</mat-checkbox>
-
-      <label>Server</label>
 
       <button *ngIf="chatManager.client().isConnected()" mat-flat-button (click)="onDisconnectClick(chatManager)">
         <mat-icon color="warn">exit_to_app</mat-icon>
@@ -80,6 +80,13 @@
         <mat-icon color="primary">offline_bolt</mat-icon>
         <span>Connetti</span>
       </button>
+
+      <label>Preferenze interfaccia</label>
+
+      <mat-checkbox [disabled]="chatManager.channel() == null"
+                    [checked]="chatManager.channel() && chatManager.channel().preferences.showChannelActivity"
+                    (change)="onShowJoinPartsChange($event, chatManager)">Mostra in/out</mat-checkbox>
+      <mat-checkbox disabled>Tema scuro</mat-checkbox>
 
     </mat-sidenav>
 

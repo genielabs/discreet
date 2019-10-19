@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit, ViewChild} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import {ChatManagerComponent} from './chat/chat-manager/chat-manager.component';
 import {LoginInfo} from './irc-client/login-info';
@@ -7,14 +7,21 @@ import {ActionPromptComponent} from './chat/dialogs/action-prompt/action-prompt.
 import {AwayPromptComponent} from './chat/dialogs/away-prompt/away-prompt.component';
 import {DeviceDetectorService} from 'ngx-device-detector';
 import {NicknamePromptComponent} from './chat/dialogs/nickname-prompt/nickname-prompt.component';
+import {MediaPlaylistComponent} from './chat/dialogs/media-playlist/media-playlist.component';
+import {ChatUser} from './chat/chat-user';
+import {ActivatedRoute, NavigationStart, Router, RouterEvent} from '@angular/router';
+import {filter, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('sidenav', {static: false}) public sidenav: MatSidenav;
+
+
+  @ViewChild('chatManager', {read: ChatManagerComponent, static: false}) private channelManager: ChatManagerComponent;
 
   title = 'ng-web-irc';
   isUserLogged = false;
@@ -26,10 +33,29 @@ export class AppComponent implements OnInit {
   screenHeight: number;
   sideOverBreakPoint = 768;
 
+  mediaPlaylistCount = 0;
+  mediaPlaylistNotify = false;
+  mediaCountInterval = setInterval(() => {
+    const channelManager = this.channelManager;
+    if (channelManager && channelManager.channel()) {
+        const count = channelManager
+          .channel().users
+          .reduce((a: number, b: ChatUser) => a + b.playlist.length, 0);
+        if (count > this.mediaPlaylistCount) {
+          this.mediaPlaylistNotify = true;
+        }
+        this.mediaPlaylistCount = count;
+      } else {
+        this.mediaPlaylistCount = 0;
+      }
+  }, 2000);
+
   constructor(
     public dialog: MatDialog,
-    public deviceService: DeviceDetectorService
-  ) {}
+    public deviceService: DeviceDetectorService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) { }
 
   @HostListener('window:resize', ['$event'])
   onResize(event?) {
@@ -41,13 +67,43 @@ export class AppComponent implements OnInit {
     this.screenHeight = window.innerHeight;
     this.screenWidth = window.innerWidth;
   }
+  ngOnDestroy() {
+    if (this.mediaCountInterval) {
+      clearInterval(this.mediaCountInterval);
+    }
+  }
 
   onConnectRequest(credentials: LoginInfo) {
     this.loginInfo = credentials;
     this.isUserLogged = true;
   }
-  onChannelButtonClick(chatManager: ChatManagerComponent) {
+  onChannelUsersButtonClick(chatManager: ChatManagerComponent) {
     chatManager.showChatUsers();
+  }
+  onChannelPlaylistButtonClick(chatManager: ChatManagerComponent) {
+    this.mediaPlaylistNotify = false;
+    const dialogRef = this.dialog.open(MediaPlaylistComponent, {
+      panelClass: 'playlist-dialog-container',
+      width: '330px',
+      data: chatManager.channel().users,
+      closeOnNavigation: true
+    });
+    dialogRef.afterClosed().subscribe(media => {
+      this.router.navigate(['.'], { relativeTo: this.route });
+      if (media) {
+        let videoId = '';
+        if (media.url.indexOf('v=') === -1) {
+          videoId = media.url.substring(media.url.lastIndexOf('/') + 1);
+        } else {
+          videoId = media.url.split('v=')[1];
+          const ampersandPosition = videoId.indexOf('&');
+          if (ampersandPosition !== -1) {
+            videoId = videoId.substring(0, ampersandPosition);
+          }
+        }
+        this.channelManager.videoPlayer.loadVideo(videoId);
+      }
+    });
   }
 
   onUserActionClick(chatManager: ChatManagerComponent) {

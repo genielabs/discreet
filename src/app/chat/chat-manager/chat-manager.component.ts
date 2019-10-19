@@ -25,6 +25,9 @@ import {DeviceDetectorService} from 'ngx-device-detector';
 import {LoginInfo} from '../../irc-client/login-info';
 import {MediaPlaylistComponent} from '../dialogs/media-playlist/media-playlist.component';
 import {ChatMessage, ChatMessageType} from '../chat-message';
+import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
+import {ActivatedRoute, NavigationStart, Router, RouterEvent} from '@angular/router';
+import {filter, tap} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -43,6 +46,8 @@ export class ChatManagerComponent implements OnInit {
   videoPlayer: YoutubeVideoComponent;
   @ViewChild('messageInput', {static: true})
   messageInput: ElementRef;
+  @ViewChild('userListScrollView', {static: false})
+  userListScrollView: CdkVirtualScrollViewport;
 
   @Input() loginInfo: LoginInfo;
 
@@ -53,10 +58,11 @@ export class ChatManagerComponent implements OnInit {
   currentMenuChat: ChatData;
 
   userMessage = '';
+  awayMessage = '';
   textInputCaretPosition = 0;
   currentEmojiTextInput;
 
-  awayMessage = '';
+  userSearchValue = '';
 
   // state variables
   showRightPanel = true;
@@ -88,8 +94,11 @@ export class ChatManagerComponent implements OnInit {
     private componentFactoryResolver: ComponentFactoryResolver,
     public ircClient: IrcClient,
     public dialog: MatDialog,
-    public deviceService: DeviceDetectorService
+    public deviceService: DeviceDetectorService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {
+    // listen to IRC events
     this.ircClient.connectionStatus.subscribe((connected) => {
       // TODO:
     });
@@ -114,13 +123,7 @@ export class ChatManagerComponent implements OnInit {
       chat.receive(msg);
       // Show notification popup if message is not coming from the currently opened chat
       if (chat.info !== this.currentChatInfo && !chat.hasUsers()) {
-        const snackBarRef: MatSnackBarRef<SimpleSnackBar> = this.snackBar.open(`${msg.sender}: ${msg.message}`, 'Mostra', {
-          duration: 5000,
-          verticalPosition: 'top'
-        });
-        snackBarRef.onAction().subscribe(() => {
-          this.show(msg.sender);
-        });
+        this.notify(msg.sender, msg.message, msg.sender);
       }
     });
     this.ircClient.usersList.subscribe((msg) => {
@@ -273,9 +276,8 @@ export class ChatManagerComponent implements OnInit {
     }
   }
   onCloseChatClick(c: ChatData) {
-    // TODO:
-    this.show(this.channel().info);
     c.hidden = true;
+    this.show(this.channel().info);
   }
 
   onUserClick(menu: MatMenu, user: ChatUser) {
@@ -291,9 +293,11 @@ export class ChatManagerComponent implements OnInit {
     const dialogRef = this.dialog.open(MediaPlaylistComponent, {
       panelClass: 'playlist-dialog-container',
       width: '330px',
-      data: user
+      data: [ user ],
+      closeOnNavigation: true
     });
     dialogRef.afterClosed().subscribe(media => {
+      this.router.navigate(['.'], { relativeTo: this.route });
       if (media) {
         let videoId = '';
         if (media.url.indexOf('v=') === -1) {
@@ -318,7 +322,7 @@ export class ChatManagerComponent implements OnInit {
     if (message.trim() !== '') {
       let spaceIndex = message.indexOf(' ');
       if (message[0] === '/' && spaceIndex > 0) {
-        const command = message.substring(1, spaceIndex);
+        const command = message.substring(1, spaceIndex).toUpperCase();
         let target = message = message.substring(spaceIndex + 1);
         if (command === 'ME') {
           this.userAction(message);
@@ -331,6 +335,15 @@ export class ChatManagerComponent implements OnInit {
           switch (command) {
             case 'NICK':
               this.ircClient.nick(target);
+              break;
+            case 'WHOIS':
+              this.ircClient.raw(`:1 WHOIS ${target}`);
+              break;
+            case 'JOIN':
+              this.ircClient.raw(`:1 JOIN ${target}`);
+              break;
+            case 'PART':
+              this.ircClient.raw(`:1 PART ${target}`);
               break;
             case 'QUERY':
             case 'MSG':
@@ -347,14 +360,21 @@ export class ChatManagerComponent implements OnInit {
   }
 
   onOpenEmojiClick(e) {
-    const dialogRef = this.dialog.open(EmojiDialogComponent, {panelClass: 'emoji-dialog-container'});
+    const eventEmitter = new EventEmitter<string>();
+    const dialogRef = this.dialog.open(EmojiDialogComponent, {
+      panelClass: 'emoji-dialog-container',
+      closeOnNavigation: true,
+      data: eventEmitter
+    });
+    eventEmitter.subscribe((emoji) => {
+      const leftPart = this.userMessage.substring(0, this.textInputCaretPosition);
+      const rightPart = this.userMessage.substring(this.textInputCaretPosition);
+      this.userMessage = leftPart + emoji.native + rightPart;
+      this.textInputCaretPosition += emoji.native.length;
+    });
     dialogRef.afterClosed().subscribe(emoji => {
-      if (emoji) {
-        const leftPart = this.userMessage.substring(0, this.textInputCaretPosition);
-        const rightPart = this.userMessage.substring(this.textInputCaretPosition);
-        this.userMessage = leftPart + emoji.native + rightPart;
-        this.textInputCaretPosition += emoji.native.length;
-      }
+      eventEmitter.unsubscribe();
+      this.router.navigate(['.'], { relativeTo: this.route });
       this.currentEmojiTextInput.focus();
     });
     e.preventDefault();
@@ -371,6 +391,18 @@ export class ChatManagerComponent implements OnInit {
     setTimeout(() => {
       textInput.selectionStart = textInput.selectionEnd = this.textInputCaretPosition;
     }, 50);
+  }
+
+  onUserSearchChange() {
+    const user = this.userSearchValue.toLowerCase();
+console.log(user)
+    const firstMatch = this.channel().users.find((u) => {
+      return u.name.toLowerCase().startsWith(user);
+    });
+    if (firstMatch) {
+      const firstMatchIndex = this.channel().users.indexOf(firstMatch);
+      this.userListScrollView.scrollToIndex(firstMatchIndex);
+    }
   }
 
   showChatList() {
@@ -391,6 +423,16 @@ export class ChatManagerComponent implements OnInit {
     if (chat) {
       chat.preferences.showChannelActivity = !chat.preferences.showChannelActivity;
     }
+  }
+
+  notify(from, message, target) {
+    const snackBarRef: MatSnackBarRef<SimpleSnackBar> = this.snackBar.open(`${from}: ${message}`, 'Mostra', {
+      duration: 5000,
+      verticalPosition: 'top'
+    });
+    snackBarRef.onAction().subscribe(() => {
+      this.show(target);
+    });
   }
 
   scrollToLast(force?: boolean) {
@@ -503,7 +545,9 @@ console.log(error)
         }
       }
     }
-    chat.hidden = false;
+    if (chat.info !== this.currentChatInfo) {
+      chat.hidden = false;
+    }
     return chat;
   }
 

@@ -90,6 +90,18 @@ export class ChatData {
       message.rendered.flagsIconName = null;
     }
 
+    // find user nick in sentence and make it bold
+    let nickMatched = false;
+    const nick = this.chatManager.client().config.nick;
+    const replacer = new RegExp(`(^|\\b)${nick}(?=\\W|\\w+|$)`, 'ig');
+    message.rendered.message = message.rendered.message.replace(replacer, (match) => {
+      nickMatched = true;
+      return `<strong><u>${nick}</u></strong>`;
+    });
+    if (nickMatched && this.info !== this.chatManager.currentChatInfo) {
+      this.chatManager.notify(message.sender, `[${this.info.name}] ${message.message}`, this.info);
+    }
+
     // keep only 'bufferMaxLines' messages
     if (this.messages.length === this.bufferMaxLines) {
       this.messages.shift();
