@@ -16,6 +16,7 @@
     <span class="flex-fill"></span>
     <div class="right-toolbar">
       <button mat-icon-button class="icon-big" *ngIf="mediaPlaylistCount > 0"
+              [routerLink]="" [queryParams]="{dialog: true}"
               matTooltip="Video condivisi"
               (click)="onChannelPlaylistButtonClick(chatManager)"
               [matBadge]="mediaPlaylistCount"
