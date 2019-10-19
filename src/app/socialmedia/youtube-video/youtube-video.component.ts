@@ -22,6 +22,7 @@ export class YoutubeVideoComponent implements OnInit {
   private player: any;
   private reframed = false;
   private iframe;
+  private maxStartVolume = 20;
 
   public videoId: any;
   public isMinimized = true;
@@ -86,8 +87,7 @@ export class YoutubeVideoComponent implements OnInit {
   }
 
   onMenuControlPlay() {
-    this.player.setVolume(30);
-    this.player.playVideo();
+    this.play();
   }
 
   onMenuControlFullScreen() {
@@ -109,6 +109,11 @@ export class YoutubeVideoComponent implements OnInit {
 
   onMenuControlClose() {
     this.closePlayer();
+  }
+
+  play() {
+    this.player.setVolume(this.maxStartVolume);
+    this.player.playVideo();
   }
 
   closePlayer() {
@@ -149,7 +154,7 @@ export class YoutubeVideoComponent implements OnInit {
   loadVideo(id: string) {
     this.videoId = id;
     this.player.loadVideoById(id);
-    this.player.playVideo();
+    this.play();
   }
 
   private cleanTime() {

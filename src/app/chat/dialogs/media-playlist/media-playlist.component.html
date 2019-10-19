@@ -4,7 +4,7 @@
 </h2>
 <mat-dialog-content class="content">
   <div *ngFor="let user of users | callback: filterCallback">
-    <h3 *ngIf="user.playlist.length > 0">
+    <h3 *ngIf="user.playlist.length > 0" class="playlist-name">
       {{user.name}}
     </h3>
     <div *ngFor="let media of user.playlist" fxLayout="row" fxLayoutAlign="start stretch">

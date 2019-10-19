@@ -2,15 +2,15 @@ import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/co
 
 import {ChatManagerComponent} from './chat/chat-manager/chat-manager.component';
 import {LoginInfo} from './irc-client/login-info';
-import {MatDialog, MatSidenav, MatSidenavContainer} from '@angular/material';
+import {MatDialog, MatSidenav} from '@angular/material';
 import {ActionPromptComponent} from './chat/dialogs/action-prompt/action-prompt.component';
 import {AwayPromptComponent} from './chat/dialogs/away-prompt/away-prompt.component';
 import {DeviceDetectorService} from 'ngx-device-detector';
 import {NicknamePromptComponent} from './chat/dialogs/nickname-prompt/nickname-prompt.component';
 import {MediaPlaylistComponent} from './chat/dialogs/media-playlist/media-playlist.component';
 import {ChatUser} from './chat/chat-user';
-import {ActivatedRoute, NavigationStart, Router, RouterEvent} from '@angular/router';
-import {filter, tap} from 'rxjs/operators';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -54,7 +54,8 @@ export class AppComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     public deviceService: DeviceDetectorService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private locationService: Location
   ) { }
 
   @HostListener('window:resize', ['$event'])
@@ -85,6 +86,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.channelManager.toggleRightPanel();
     }
     this.mediaPlaylistNotify = false;
+    this.router.navigate(['.'], { fragment: 'playlist', relativeTo: this.route });
     const dialogRef = this.dialog.open(MediaPlaylistComponent, {
       panelClass: 'playlist-dialog-container',
       width: '330px',
@@ -92,7 +94,9 @@ export class AppComponent implements OnInit, OnDestroy {
       closeOnNavigation: true
     });
     dialogRef.afterClosed().subscribe(media => {
-      this.router.navigate(['.'], { relativeTo: this.route });
+      if (this.router.url.indexOf('#playlist') > 0) {
+        this.locationService.back();
+      }
       if (media) {
         let videoId = '';
         if (media.url.indexOf('v=') === -1) {
@@ -113,9 +117,11 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.deviceService.isMobile()) {
       this.sidenav.close();
     }
+    this.router.navigate(['.'], { fragment: 'action', relativeTo: this.route });
     const dialogRef = this.dialog.open(ActionPromptComponent, {
       width: '330px',
-      data: chatManager.client().config.nick
+      data: chatManager.client().config.nick,
+      closeOnNavigation: true
     });
     dialogRef.afterClosed().subscribe(res => {
       if (res && res.length > 0) {
@@ -128,11 +134,14 @@ export class AppComponent implements OnInit, OnDestroy {
       this.sidenav.close();
     }
     if (this.isUserAway) {
+      this.router.navigate(['.'], { relativeTo: this.route, replaceUrl: true });
       chatManager.setAway('');
       e.source.checked = this.isUserAway = false;
     } else {
+      this.router.navigate(['.'], { fragment: 'action', relativeTo: this.route });
       const dialogRef = this.dialog.open(AwayPromptComponent, {
-        width: '330px'
+        width: '330px',
+        closeOnNavigation: true
       });
       dialogRef.afterClosed().subscribe(res => {
         if (res !== chatManager.awayMessage) {
@@ -147,11 +156,13 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.deviceService.isMobile()) {
       this.sidenav.close();
     }
+    this.router.navigate(['.'], { fragment: 'action', relativeTo: this.route });
     const dialogRef = this.dialog.open(NicknamePromptComponent,{
       data: {
         nick: chatManager.client().config.nick,
         password: chatManager.client().config.password
-      }
+      },
+      closeOnNavigation: true
     });
     dialogRef.afterClosed().subscribe(res => {
       if (res) {

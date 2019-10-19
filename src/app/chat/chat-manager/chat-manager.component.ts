@@ -294,6 +294,7 @@ export class ChatManagerComponent implements OnInit {
     if (this.screenWidth < 640) {
       this.toggleRightPanel();
     }
+    this.router.navigate(['.'], { fragment: 'playlist', relativeTo: this.route });
     const dialogRef = this.dialog.open(MediaPlaylistComponent, {
       panelClass: 'playlist-dialog-container',
       width: '330px',
@@ -301,7 +302,6 @@ export class ChatManagerComponent implements OnInit {
       closeOnNavigation: true
     });
     dialogRef.afterClosed().subscribe(media => {
-      this.router.navigate(['.'], { relativeTo: this.route });
       if (media) {
         let videoId = '';
         if (media.url.indexOf('v=') === -1) {
@@ -365,6 +365,7 @@ export class ChatManagerComponent implements OnInit {
 
   onOpenEmojiClick(e) {
     const eventEmitter = new EventEmitter<string>();
+    this.router.navigate(['.'], { fragment: 'emoji', relativeTo: this.route });
     const dialogRef = this.dialog.open(EmojiDialogComponent, {
       panelClass: 'emoji-dialog-container',
       closeOnNavigation: true,
@@ -378,7 +379,6 @@ export class ChatManagerComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(emoji => {
       eventEmitter.unsubscribe();
-      this.router.navigate(['.'], { relativeTo: this.route });
       this.currentEmojiTextInput.focus();
     });
     e.preventDefault();

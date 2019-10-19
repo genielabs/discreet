@@ -73,7 +73,7 @@
       <span>Chat</span>
     </button>
     <!-- collection of media links shared by the user -->
-    <a [routerLink]="" [queryParams]="{dialog: true}" *ngIf="currentUser && currentUser.playlist.length > 0"
+    <a *ngIf="currentUser && currentUser.playlist.length > 0"
             mat-menu-item
             [disabled]="!currentUser.hasPlaylist()"
             (click)="onUserPlaylistClick(currentUser)">
@@ -94,6 +94,11 @@
       <button *ngIf="currentMenuChat == null || !currentMenuChat.hasUsers()" mat-menu-item (click)="onCloseChatClick(currentMenuChat)">
         <mat-icon color="primary">close</mat-icon>
         <span>Chiudi</span>
+      </button>
+      <button *ngIf="currentMenuChat != null && currentMenuChat.hasPlaylist()" mat-menu-item (click)="onCloseChatClick(currentMenuChat)">
+        <mat-icon color="primary">music_video</mat-icon>
+        <span>Playlist</span>
+        <span>&nbsp;({{currentMenuChat.playlist.length}})</span>
       </button>
       <button *ngIf="currentMenuChat == null || currentMenuChat.hasUsers()" mat-menu-item (click)="showChatUsers()">
         <mat-icon color="primary">people_alt</mat-icon>
@@ -121,7 +126,7 @@
           (blur)="onTextInputBlur($event)"
           (focus)="onTextInputFocus($event)"
           #messageInput></textarea>
-    <button [routerLink]="" [queryParams]="{dialog: true}" mat-icon-button *ngIf="!deviceService.isMobile()">
+    <button mat-icon-button *ngIf="!deviceService.isMobile()">
       <mat-icon color="primary" (click)="onOpenEmojiClick($event)">sentiment_satisfied_alt</mat-icon>
     </button>
     <button mat-icon-button fxAlign="end" (click)="onEnterKey($event)">

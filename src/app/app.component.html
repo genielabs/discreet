@@ -7,7 +7,7 @@
     <button mat-flat-button color="primary" class="menu-button" (click)="sidenav.toggle()">
       <mat-icon>menu</mat-icon>
     </button>
-    <div fxLayout="row" fxLayoutAlign="center center">
+    <div fxLayout="row" fxLayoutAlign="center center" class="title">
           <span [matBadge]="chatManager.chat().stats.messages.new"
                 matBadgeColor="accent"
                 [matBadgeHidden]="!(chatManager && chatManager.chat().target().name && chatManager.chat().stats.messages.new > 0)"
@@ -16,7 +16,6 @@
     <span class="flex-fill"></span>
     <div class="right-toolbar">
       <button mat-icon-button class="icon-big" *ngIf="mediaPlaylistCount > 0"
-              [routerLink]="" [queryParams]="{dialog: true}"
               matTooltip="Video condivisi"
               (click)="onChannelPlaylistButtonClick(chatManager)"
               [matBadge]="mediaPlaylistCount"

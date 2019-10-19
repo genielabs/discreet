@@ -74,7 +74,11 @@ export class ChatData {
         if (result.mediaInfo) {
           const sender = this.getUser(message.sender);
           if (sender) {
-            sender.playlist.push(result.mediaInfo);
+            const existingItem = sender.playlist
+              .find((item) => item.url === result.mediaInfo.url);
+            if (existingItem == null) {
+              sender.playlist.push(result.mediaInfo);
+            }
           }
         }
         message.rendered.message = result.enriched;
