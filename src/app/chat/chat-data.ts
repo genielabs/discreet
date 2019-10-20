@@ -7,6 +7,7 @@ export class ChatData {
   messages: ChatMessage[] = [];
   stats = new ChatStats();
   timestamp = Date.now();
+  preferences: any = {};
 
   readonly info: ChatInfo;
   private bufferMaxLines = 300;
@@ -64,7 +65,7 @@ export class ChatData {
       nickMatched = true;
       return `<strong><u>${nick}</u></strong>`;
     });
-    if (nickMatched && this.info !== this.chatManager.chat().info) {
+    if (!this.preferences.disableNotifications && nickMatched && this.info !== this.chatManager.chat().info) {
       this.chatManager.notify(message.sender, `[${this.info.name}] ${message.message}`, this.info);
     }
 
@@ -76,7 +77,7 @@ export class ChatData {
     this.messages.push(message);
     // if this is not the current chat, then increase
     // the number of unread messages
-    if (message.type === ChatMessageType.MESSAGE && (
+    if (!this.preferences.disableNotifications && message.type === ChatMessageType.MESSAGE && (
         this.chatManager.chat().info.name === 'localhost' ||
         this.target().name !== this.chatManager.chat().info.name ||
         (this.target().name === this.chatManager.chat().info.name && !this.chatManager.isLastMessageVisible())

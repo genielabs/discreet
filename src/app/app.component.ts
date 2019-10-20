@@ -82,9 +82,12 @@ export class AppComponent implements OnInit, OnDestroy {
   onChannelUsersButtonClick(chatManager: ChatManagerComponent) {
     chatManager.showChatUsers();
   }
+  onChatMessagesButtonClick(chatManager: ChatManagerComponent) {
+    chatManager.showChatList();
+  }
   onChannelPlaylistButtonClick(chatManager: ChatManagerComponent) {
     if (this.screenWidth < 640) {
-      this.channelManager.toggleRightPanel();
+      this.channelManager.closeRightPanel();
     }
     this.mediaPlaylistNotify = false;
     this.router.navigate(['.'], { fragment: 'playlist', relativeTo: this.route });

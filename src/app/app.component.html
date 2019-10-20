@@ -7,13 +7,9 @@
     <button mat-flat-button color="primary" class="menu-button" (click)="sidenav.toggle()">
       <mat-icon>menu</mat-icon>
     </button>
-    <div fxLayout="row" fxLayoutAlign="center center" class="title">
-          <span [matBadge]="chatManager.chat().stats.messages.new > 99 ? '99+' : chatManager.chat().stats.messages.new"
-                matBadgeColor="accent"
-                [matBadgeHidden]="!(chatManager && chatManager.chat().target().name && chatManager.chat().stats.messages.new > 0)"
-                matBadgeOverlap="false">{{ chatManager && chatManager.chat().target().name || 'NgWebIRC' }}</span>
+    <div fxLayout="row" fxLayoutAlign="center center" class="title" fxFlex="1 0 0">
+      <span class="title-text">{{ chatManager && chatManager.chat().target().name || 'NgWebIRC' }}</span>
     </div>
-    <span class="flex-fill"></span>
     <div class="right-toolbar">
       <button mat-icon-button class="icon-big" *ngIf="mediaPlaylistCount > 0"
               matTooltip="Video condivisi"
@@ -31,7 +27,7 @@
       </button>
       <button mat-icon-button class="icon-big"
               matTooltip="Messaggi"
-              (click)="chatManager.showChatList()"
+              (click)="onChatMessagesButtonClick(chatManager)"
               [matBadge]="chatManager.newMessageCount()"
               [matBadgeHidden]="chatManager.newMessageCount() === 0 || (!chatManager.showUserList && chatManager.showRightPanel)"
               matBadgePosition="after" matBadgeColor="accent">
@@ -77,7 +73,7 @@
         <span>Disconnetti</span>
       </button>
       <button *ngIf="!chatManager.client().isConnected()" mat-flat-button (click)="onConnectClick(chatManager)">
-        <mat-icon color="primary">offline_bolt</mat-icon>
+        <mat-icon color="accent">offline_bolt</mat-icon>
         <span>Connetti</span>
       </button>
 

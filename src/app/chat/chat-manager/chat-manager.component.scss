@@ -144,8 +144,37 @@ app-messages-window {
   line-height: 46px;
   vertical-align: middle;
 }
-.conversations-list .title {
-  padding-left: 0;
+.conversations-list {
+  .chat-type {
+    margin-top: 16px;
+    margin-left: 10px;
+    color: $accent;
+    font-weight: 600;
+    font-size: 90%;
+    text-transform: uppercase;
+  }
+  .title {
+    padding-left: 0;
+  }
+  .chat-row {
+    position: relative;
+    .notifications-off-badge {
+      z-index: 10;
+      position: absolute;
+      right: 6px;
+      top: 6px;
+      width: 24px;
+      height: 24px;
+      opacity: 0.35;
+    }
+    .chat-button {
+      margin-top: 16px;
+      margin-right: 16px;
+    }
+    .chat-button-menu {
+      margin-top: 16px;
+    }
+  }
 }
 .users-list .search-field {
   height: 46px;
@@ -168,14 +197,6 @@ app-messages-window {
 }
 .right-panel-hide {
   margin-right: -240px !important;
-}
-
-.chat-button {
-  margin-top: 16px;
-  margin-right: 16px;
-}
-.chat-button-menu {
-  margin-top: 16px;
 }
 
 .hidden {

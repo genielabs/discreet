@@ -9,7 +9,7 @@ export class PublicChat extends ChatData {
   topic = '';
   mode: string;
   users: ChatUser[] = [] as ChatUser[];
-  preferences = {
+  preferences: any = {
     showChannelActivity: false,
     showChannelActivityToggle() {
       this.showChannelActivity = !this.showChannelActivity;

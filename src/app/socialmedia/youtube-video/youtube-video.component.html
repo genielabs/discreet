@@ -7,10 +7,14 @@
 -->
 <div class="video-frame mat-elevation-z6" [ngClass]="{hidden: videoId == null, maximized: !isMinimized, 'no-margin': !hasMargin}">
   <div id="youtube-player"></div>
-  <div class="overlay" *ngIf="!isFullScreen"
+  <div class="overlay" *ngIf="!isFullScreen && isMinimized"
        matRipple matRippleColor="rgba(255,255,255,0.3)"
        [matMenuTriggerFor]="playlistMenu"></div>
 </div>
+<button *ngIf="!isFullScreen && !isMinimized" class="menu-button" color="primary" [ngClass]="{hidden: videoId == null, 'no-margin': !hasMargin}"
+        mat-mini-fab [matMenuTriggerFor]="playlistMenu">
+  <mat-icon>settings</mat-icon>
+</button>
 
 <mat-menu #playlistMenu="matMenu" xPosition="after" yPosition="above">
   <button mat-menu-item *ngIf="playState == PlayState.PLAYING" (click)="onMenuControlPause()">

@@ -75,7 +75,7 @@ export class ChatManagerComponent implements OnInit {
       return chat;
     }
   };
-  boundChatList = {public: [] as PublicChat[], private: [] as PrivateChat[]};
+  boundChatList = new BoundChatList();
 
   currentChat: PrivateChat | PublicChat;
   currentUser: ChatUser;
@@ -104,11 +104,9 @@ export class ChatManagerComponent implements OnInit {
   onResize(event?) {
     if (this.screenWidth !== window.innerWidth) {
       if (this.screenWidth < 640) {
-        this.showRightPanel = false;
-        this.videoPlayer.toggleRightMargin(false);
+        this.closeRightPanel();
       } else {
-        this.showRightPanel = true;
-        this.videoPlayer.toggleRightMargin(true);
+        this.openRightPanel();
       }
     }
     this.screenHeight = window.innerHeight;
@@ -148,7 +146,7 @@ export class ChatManagerComponent implements OnInit {
       const chat = this.chat(msg.target);
       chat.receive(msg);
       // Show notification popup if message is not coming from the currently opened chat
-      if (chat !== this.currentChat && !(chat instanceof PublicChat)) {
+      if (!chat.preferences.disableNotifications && chat !== this.currentChat && !(chat instanceof PublicChat)) {
         this.notify(msg.sender, msg.message, msg.sender);
       }
     });
@@ -292,8 +290,9 @@ export class ChatManagerComponent implements OnInit {
   }
   onChatButtonClick(c: ChatData) {
     const chat = this.show(c.target());
+    // close right panel on smaller screen when a chat is opened
     if (this.screenWidth < 640) {
-      this.toggleRightPanel();
+      this.closeRightPanel();
     }
   }
   onCloseChatClick(c: ChatData) {
@@ -309,10 +308,15 @@ export class ChatManagerComponent implements OnInit {
     this.showUserList = false;
     this.show(this.currentUser.name);
   }
+  onToggleNotificationClick(chat: PrivateChat | PublicChat) {
+    chat.preferences.disableNotifications = !chat.preferences.disableNotifications;
+    // reset message count when toggling notifications
+    chat.stats.messages.new = 0;
+  }
 
   onUserPlaylistClick(user: ChatUser) {
     if (this.screenWidth < 640) {
-      this.toggleRightPanel();
+      this.closeRightPanel();
     }
     this.router.navigate(['.'], { fragment: 'playlist', relativeTo: this.route });
     const dialogRef = this.dialog.open(MediaPlaylistComponent, {
@@ -430,15 +434,24 @@ console.log(user)
   }
 
   showChatList() {
-    this.showUserList = false;
-    this.showRightPanel = true;
-    this.videoPlayer.toggleRightMargin(true);
+    if (!this.showUserList && this.isRightPanelOpen()) {
+      this.closeRightPanel();
+    } else {
+      this.showUserList = false;
+      this.openRightPanel();
+    }
   }
-  showChatUsers() {
-    this.show(this.channel().info);
-    this.showUserList = true;
-    this.showRightPanel = true;
-    this.videoPlayer.toggleRightMargin(true);
+  // TODO: 'PrivateChat' should not be a valid argument type here
+  //       it's left as a work-around for 'not assignable' error
+  //       when used in template.
+  showChatUsers(chat?: PublicChat | PrivateChat) {
+    if (this.showUserList && this.isRightPanelOpen()) {
+      this.closeRightPanel();
+    } else {
+      this.show(chat ? chat.info : this.channel().info);
+      this.showUserList = true;
+      this.openRightPanel();
+    }
   }
 
   // hide/show join/part/kick/quit messages
@@ -490,9 +503,16 @@ console.log(user)
     return newMessages > 99 ? '99+' : newMessages;
   }
 
-  toggleRightPanel() {
+  isRightPanelOpen() {
+    return this.showRightPanel;
+  }
+  openRightPanel() {
+    this.showRightPanel = true;
+    this.videoPlayer.setRightMargin(true);
+  }
+  closeRightPanel() {
     this.showRightPanel = false;
-    this.videoPlayer.toggleRightMargin(false);
+    this.videoPlayer.setRightMargin(false);
   }
 
   connect() {
@@ -505,14 +525,14 @@ console.log(user)
 console.log(error)
       this.isLoggedIn = false;
       this.snackBar.open('Connessione interrotta.','Connetti', {
-        verticalPosition: 'top'
+        verticalPosition: 'bottom'
       }).onAction().subscribe(() => {
         this.connect();
       });
     }, () => {
       this.isLoggedIn = false;
       this.snackBar.open('Connessione interrotta.','Connetti', {
-        verticalPosition: 'top'
+        verticalPosition: 'bottom'
       }).onAction().subscribe(() => {
         this.connect();
       });
@@ -566,18 +586,16 @@ console.log(error)
       chat = this.chatList.add(target, this);
       if (target) {
         // force *ngFor refresh by re-assigning chatList
-        this.boundChatList = {
-          public: this.chatList.public.slice(),
-          private: this.chatList.private.slice()
-        };
+        this.boundChatList = new BoundChatList();
+        this.boundChatList.public = this.chatList.public;
+        this.boundChatList.private = this.chatList.private;
         // automatically open chat if it's a channel
         if (chat instanceof PublicChat) { // TODO: add facility 'chat.isChannel()'
           this.showUserList = true;
           this.chatOpen.emit(chat);
           this.show(target);
         } else if (this.screenWidth <= 640) {
-          this.showRightPanel = false;
-          this.videoPlayer.toggleRightMargin(false);
+          this.closeRightPanel();
         }
       }
     }
@@ -791,5 +809,16 @@ console.log(error)
 
   isLastMessageVisible() {
     return this.messageWindow.isLastMessageVisible;
+  }
+}
+
+export class BoundChatList {
+  public: PublicChat[] = [];
+  private: PrivateChat[] = [];
+  hasActivePublicChats(): boolean {
+    return this.public.reduce((a, b) => a + (!b.hidden ? 1 : 0), 0) > 0;
+  }
+  hasActivePrivateChats(): boolean {
+    return this.private.reduce((a, b) => a + (!b.hidden ? 1 : 0), 0) > 0;
   }
 }

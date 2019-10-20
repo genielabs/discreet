@@ -58,10 +58,10 @@ export class YoutubeVideoComponent implements OnInit {
           modestbranding: 1, // no youtube logo
           wmode: 'transparent',
           autoplay: 1,
-          controls: 0,
+          controls: 1,
           fs: 0, // no full screen
           rel: 0, // no similar video list at the end
-          showinfo: 0, // no video info at start
+          showinfo: 1, // no video info at start
         },
         width: '100%', // 100 // 240
         height: '100%', // 56 // 135
@@ -148,7 +148,7 @@ export class YoutubeVideoComponent implements OnInit {
 
   //utility
 
-  toggleRightMargin(hasMargin: boolean) {
+  setRightMargin(hasMargin: boolean) {
     this.hasMargin = hasMargin;
   }
   loadVideo(id: string) {
