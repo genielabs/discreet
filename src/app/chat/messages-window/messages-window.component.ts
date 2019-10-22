@@ -1,9 +1,10 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {ScrollEvent} from 'ngx-scroll-event';
-import {ChatData} from '../chat-data';
 import {ChatMessageType, ChatMessage} from '../chat-message';
 import {PrivateChat} from '../private-chat';
 import {PublicChat} from '../public-chat';
+
+import * as smoothScroll from '../../../../node_modules/smoothscroll-polyfill';
 
 @Component({
   selector: 'app-messages-window',
@@ -24,7 +25,9 @@ export class MessagesWindowComponent implements OnInit {
   MessageType = ChatMessageType;
   isLastMessageVisible = true;
 
-  constructor() {}
+  constructor() {
+    smoothScroll.polyfill();
+  }
 
   ngOnInit() {
   }

@@ -18,7 +18,7 @@
               matBadgePosition="after" matBadgeColor="primary">
         <mat-icon [color]="this.mediaPlaylistNotify ? 'accent' : ''">music_note</mat-icon>
       </button>
-      <button mat-icon-button class="icon-big" *ngIf="chatManager.channel()"
+      <button mat-icon-button class="icon-big" *ngIf="chatManager.channel() && chatManager.currentChat"
               matTooltip="Utenti"
               (click)="onChannelUsersButtonClick(chatManager)"
               [matBadge]="chatManager.channel().users.length"
@@ -67,6 +67,13 @@
 
       <mat-checkbox [checked]="isUserAway" [disabled]="!chatManager.isLoggedIn"
                     (change)="onSetAwayClick($event, chatManager)">Assente</mat-checkbox>
+
+      <br />
+
+      <button *ngIf="chatManager.client().isConnected()" mat-flat-button (click)="onChannelListClick(chatManager)">
+        <mat-icon color="primary">group</mat-icon>
+        <span>Elenco Gruppi</span>
+      </button>
 
       <button *ngIf="chatManager.client().isConnected()" mat-flat-button (click)="onDisconnectClick(chatManager)">
         <mat-icon color="warn">exit_to_app</mat-icon>

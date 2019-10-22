@@ -136,7 +136,8 @@
   font-family: monospace;
   opacity: 0.3;
   width: 100%;
-  text-align: right;
+  text-align: right; /* IE / Edge compatibility */
+  text-align: end;
 }
 
 .message-notification {

@@ -29,7 +29,8 @@
     width: 100%;
     margin-top: 2px !important;
     margin-bottom: 2px !important;
-    text-align: start !important;
+    text-align: left; /* IE / Edge compatibility */
+    text-align: start;
 
     & .mat-icon {
       margin-right: 8px;
@@ -75,6 +76,7 @@ mat-toolbar {
   .title-text {
     padding: 6px 16px;
     border-radius: 24px;
+    border: solid 2px;
     background-color: rgba(255,255,255,0.2);
   }
 }

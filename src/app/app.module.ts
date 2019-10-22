@@ -19,7 +19,7 @@ import {
   MatMenuModule,
   MatProgressSpinnerModule,
   MatSnackBarModule,
-  MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS, MatCardModule, MatTooltipModule
+  MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS, MatCardModule, MatTooltipModule, MatProgressBarModule
 } from '@angular/material';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatRippleModule } from '@angular/material/core';
@@ -46,6 +46,7 @@ import { AwayPromptComponent } from './chat/dialogs/away-prompt/away-prompt.comp
 import { NicknamePromptComponent } from './chat/dialogs/nickname-prompt/nickname-prompt.component';
 import {CallbackPipe} from './chat/pipes/callback.pipe';
 import {RouterModule} from '@angular/router';
+import { ChannelsListComponent } from './chat/dialogs/channels-list/channels-list.component';
 
 @NgModule({
   declarations: [
@@ -62,7 +63,8 @@ import {RouterModule} from '@angular/router';
     MediaPlaylistComponent,
     ActionPromptComponent,
     AwayPromptComponent,
-    NicknamePromptComponent
+    NicknamePromptComponent,
+    ChannelsListComponent
   ],
   imports: [
     // angular
@@ -84,6 +86,7 @@ import {RouterModule} from '@angular/router';
     MatIconModule,
     MatTabsModule,
     MatMenuModule,
+    MatProgressBarModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     ScrollingModule,
@@ -98,7 +101,14 @@ import {RouterModule} from '@angular/router';
     DeviceDetectorModule.forRoot(),
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
-  entryComponents: [ EmojiDialogComponent, MediaPlaylistComponent, ActionPromptComponent, AwayPromptComponent, NicknamePromptComponent ],
+  entryComponents: [
+    EmojiDialogComponent,
+    MediaPlaylistComponent,
+    ActionPromptComponent,
+    AwayPromptComponent,
+    NicknamePromptComponent,
+    ChannelsListComponent
+  ],
   providers: [
     HttpClientModule,
     IrcClientService,

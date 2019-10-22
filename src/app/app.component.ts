@@ -12,6 +12,7 @@ import {ChatUser} from './chat/chat-user';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
 import {IrcClientService} from './irc-client-service/irc-client-service';
+import {ChannelsListComponent} from './chat/dialogs/channels-list/channels-list.component';
 
 @Component({
   selector: 'app-root',
@@ -175,6 +176,22 @@ export class AppComponent implements OnInit, OnDestroy {
           chatManager.client().config.password = res.password;
           chatManager.client().identify();
         }
+      }
+    });
+  }
+  onChannelListClick(chatManager: ChatManagerComponent) {
+    if (this.deviceService.isMobile()) {
+      this.sidenav.close();
+    }
+    this.router.navigate(['.'], { fragment: 'channels', relativeTo: this.route });
+    const dialogRef = this.dialog.open(ChannelsListComponent, {
+      width: '330px',
+      closeOnNavigation: true
+    });
+    dialogRef.afterClosed().subscribe(res => {
+      if (res && res.length > 0) {
+        this.ircClientService.join(res);
+        chatManager.show(res);
       }
     });
   }

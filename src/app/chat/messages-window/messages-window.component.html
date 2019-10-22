@@ -85,6 +85,7 @@
       </div>
 
       <div *ngIf="!isLastMessageVisible && boundChat.stats.messages.new > 0"
+           matRipple
            class="message-notification mat-elevation-z5"
            (click)="scrollLast(true, true)"
            fxLayout="row" fxLayoutAling="center center">

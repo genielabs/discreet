@@ -27,6 +27,7 @@ import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {ActivatedRoute, Router} from '@angular/router';
 import {PublicChat} from '../public-chat';
 import {PrivateChat} from '../private-chat';
+import {ChannelsListComponent} from '../dialogs/channels-list/channels-list.component';
 
 @Injectable({
   providedIn: 'root',
@@ -150,6 +151,10 @@ export class ChatManagerComponent implements OnInit {
         this.notify(msg.sender, msg.message, msg.sender);
       }
     });
+    this.ircClient.channelsList.subscribe((channelsList) => {
+      console.log('Channels List', channelsList);
+      // TODO: ....
+    });
     this.ircClient.usersList.subscribe((msg) => {
       let eventDescription;
       let eventType;
@@ -269,6 +274,11 @@ export class ChatManagerComponent implements OnInit {
         }
       }
     });
+    this.ircClient.versionReply.subscribe((msg) => {
+      //const existingUser = usersList.find((eu) => eu.name === user.name);
+      // TODO: implement global users list
+      console.log(msg.sender, msg.version);
+    });
   }
 
   ngOnInit() {
@@ -295,9 +305,8 @@ export class ChatManagerComponent implements OnInit {
       this.closeRightPanel();
     }
   }
-  onCloseChatClick(c: ChatData) {
-    c.hidden = true;
-    this.show(this.channel().info);
+  onCloseChatClick(c: PrivateChat | PublicChat) {
+    this.closeChat(c);
   }
 
   onUserClick(menu: MatMenu, user: ChatUser) {
@@ -313,7 +322,11 @@ export class ChatManagerComponent implements OnInit {
     // reset message count when toggling notifications
     chat.stats.messages.new = 0;
   }
-
+  onLeaveChannelClick(chat: PrivateChat | PublicChat) {
+    // TODO: should ask for confirmation
+    this.ircClient.raw(`:1 PART ${chat.info.name}`);
+    this.closeChat(chat);
+  }
   onUserPlaylistClick(user: ChatUser) {
     if (this.screenWidth < 640) {
       this.closeRightPanel();
@@ -365,13 +378,19 @@ export class ChatManagerComponent implements OnInit {
               this.ircClient.nick(target);
               break;
             case 'WHOIS':
-              this.ircClient.raw(`:1 WHOIS ${target}`);
+              this.ircClient.whois(target);
+              break;
+            case 'CTCP':
+              this.ircClient.ctcp(target, message);
               break;
             case 'JOIN':
-              this.ircClient.raw(`:1 JOIN ${target}`);
+              this.ircClient.join(target);
               break;
             case 'PART':
-              this.ircClient.raw(`:1 PART ${target}`);
+              this.ircClient.part(target);
+              break;
+            case 'LIST':
+              this.ircClient.list();
               break;
             case 'QUERY':
             case 'MSG':
@@ -423,7 +442,6 @@ export class ChatManagerComponent implements OnInit {
 
   onUserSearchChange() {
     const user = this.userSearchValue.toLowerCase();
-console.log(user)
     const firstMatch = this.channel().users.find((u) => {
       return u.name.toLowerCase().startsWith(user);
     });
@@ -431,6 +449,28 @@ console.log(user)
       const firstMatchIndex = this.channel().users.indexOf(firstMatch);
       this.userListScrollView.scrollToIndex(firstMatchIndex);
     }
+  }
+
+  onChannelJoinClick() {
+    this.router.navigate(['.'], { fragment: 'channels', relativeTo: this.route });
+    const dialogRef = this.dialog.open(ChannelsListComponent, {
+      width: '330px',
+      closeOnNavigation: true
+    });
+    dialogRef.afterClosed().subscribe(res => {
+      if (res && res.length > 0) {
+        this.ircClient.join(res);
+        this.show(res);
+      }
+    });
+  }
+
+  closeChat(c: PrivateChat | PublicChat) {
+    if (this.currentChat === c) {
+      this.currentChat = null;
+    }
+    // TODO: maybe a setTimeout is required for this to work properly
+    c.hidden = true;
   }
 
   showChatList() {
@@ -470,6 +510,8 @@ console.log(user)
     snackBarRef.onAction().subscribe(() => {
       this.show(target);
     });
+    const audio = new Audio('https://raw.githubusercontent.com/genielabs/chat/master/docs/assets/audio/notifications.mp3');
+    audio.play();
   }
 
   scrollToLast(force?: boolean) {
@@ -522,16 +564,17 @@ console.log(user)
       c.users = [] as ChatUser[];
     });
     this.ircClient.connect().subscribe(null, (error) => {
-console.log(error)
+      this.chatLoading.emit(false);
       this.isLoggedIn = false;
-      this.snackBar.open('Connessione interrotta.','Connetti', {
+      this.snackBar.open('Connessione interrotta.', 'Connetti', {
         verticalPosition: 'bottom'
       }).onAction().subscribe(() => {
         this.connect();
       });
     }, () => {
+      this.chatLoading.emit(false);
       this.isLoggedIn = false;
-      this.snackBar.open('Connessione interrotta.','Connetti', {
+      this.snackBar.open('Connessione interrotta.', 'Connetti', {
         verticalPosition: 'bottom'
       }).onAction().subscribe(() => {
         this.connect();
@@ -579,7 +622,7 @@ console.log(error)
       return this.currentChat;
     } else if (target == null) {
       // default loopback chat
-      return new PrivateChat('server', this);
+      return new PrivateChat('MediaChat', this);
     }
     let chat = this.chatList.find(target);
     if (chat == null) {

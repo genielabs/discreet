@@ -3,6 +3,7 @@ import { webSocket } from 'rxjs/webSocket';
 import {Subject} from 'rxjs';
 
 import {LoginInfo} from './login-info';
+import {IrcChannel} from './irc-channel';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +11,7 @@ import {LoginInfo} from './login-info';
 export class IrcClientService {
   private ircClientSubject: Subject<any>;
 
+  // events
   loggedIn = new EventEmitter<any>();
   messageReceive = new EventEmitter<any>();
   usersList = new EventEmitter<any>();
@@ -19,8 +21,13 @@ export class IrcClientService {
   userChannelMode = new EventEmitter<any>();
   connectionStatus = new EventEmitter<boolean>();
   awayReply = new EventEmitter<any>();
+  versionReply = new EventEmitter<any>();
+  channelsList = new EventEmitter<IrcChannel[]>();
 
-  testChannelName = '#chatover40';
+  private channels: IrcChannel[];
+  // TODO: remove and deprecate the following (testChannelName)
+  //       (put join channels in a config.json file along with other options)
+  private testChannelName = '#chatover40';
 
   //  const webIrcInfo = 'http://localhost:8080/webirc/kiwiirc/info?t=1569095871028';
   //  wss://webchat.chattaora.it:7779/webirc/kiwiirc/963/bft5iqad/websocket
@@ -32,9 +39,9 @@ export class IrcClientService {
     nick: 'Wall`e',
     password: '',
     host: 'localhost',
-    user: 'Mibbit',
-    info: 'https://ng-web-irc.com/',
-    version: 'Ng-Web-IRC 1.0 by Zen46 - https://ng-web-irc.com/'
+    user: 'mediairc',
+    info: 'MediaIRC',
+    version: 'MediaIRC 1.0 by Zen46 - https://genielabs.github.io/chat/'
   };
 
   constructor() { }
@@ -145,6 +152,21 @@ export class IrcClientService {
                     timestamp: Date.now()
                   });
                   break;
+                case '321': // START channel list (reply to LIST)
+                  this.channels = [];
+                  break;
+                case '322': // ITEM channel list item (reply to LIST)
+                  const ch = new IrcChannel();
+                  ch.name = payload.params[1];
+                  ch.users = payload.params[2];
+                  const modesIndex =  payload.params[3].indexOf(' ');
+                  ch.modes = payload.params[3].substring(0, modesIndex);
+                  ch.topic = payload.params[3].substring(modesIndex + 1);
+                  this.channels.push(ch);
+                  break;
+                case '323': // END channel list item (reply to LIST)
+                  this.channelsList.emit(this.channels);
+                  break;
                 case 'KICK':
                   this.usersList.emit({
                     action: payload.command,
@@ -240,9 +262,18 @@ export class IrcClientService {
                 case '305': // You are no longer marked as being away
                 case '306': // You have been marked as being away
                 case 'NOTICE':
+                  if (message.startsWith('\x01VERSION ') && message.endsWith('\x01')) {
+                    const version = message.slice(message.indexOf(' '), -1);
+                    this.versionReply.emit({
+                      sender: payload.prefix,
+                      version,
+                      timestamp: Date.now()
+                    });
+                    break;
+                  }
                 case 'PRIVMSG':
                   const c = this.config;
-                  if (payload.command === 'PRIVMSG' && message === '\u0001VERSION\u0001') {
+                  if (payload.command === 'PRIVMSG' && message === '\x01VERSION\x01') {
                     const replyTo = this.parseUserAddress(payload.prefix).nick;
                     const versionReply = `:1 :${c.nick}!${c.user}@localhost NOTICE ${replyTo} :\x01VERSION ${c.version}\x01`;
                     subject.next([ versionReply ]);
@@ -316,7 +347,29 @@ export class IrcClientService {
     return this.ircClientSubject != null;
   }
 
-  nick(nick) {
+  list(filter?: string) {
+    if (filter) {
+      this.raw(`:1 LIST ${filter}`);
+    } else {
+      this.raw(`:1 LIST`);
+    }
+  }
+  join(channel: string) {
+    this.raw(`:1 JOIN ${channel}`);
+  }
+  part(channel: string) {
+    this.raw(`:1 PART ${channel}`);
+  }
+
+  whois(nick: string) {
+    this.raw(`:1 WHOIS ${nick}`);
+  }
+
+  ctcp(nick: string, command: string) {
+    this.send(nick, `\x01${command}\x01`);
+  }
+
+  nick(nick?: string) {
     if (nick) {
       this.raw(`:1 NICK ${nick}`);
     }
@@ -344,7 +397,6 @@ export class IrcClientService {
     }
   }
   send(target: string, message: string) {
-console.log(this.ircClientSubject, target, message);
     if (this.ircClientSubject) {
       this.ircClientSubject.next([`:1 PRIVMSG ${target} :${message}`]);
     }

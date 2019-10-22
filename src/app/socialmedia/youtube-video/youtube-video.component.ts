@@ -62,9 +62,10 @@ export class YoutubeVideoComponent implements OnInit {
           fs: 0, // no full screen
           rel: 0, // no similar video list at the end
           showinfo: 1, // no video info at start
+          playsinline: 1, // prevent auto-fullscreen when rotating to landscape mode (fix only iOS)
         },
-        width: '100%', // 100 // 240
-        height: '100%', // 56 // 135
+        width: '100%', // 100 // 156 // 240
+        height: '100%', // 56 // 80 // 135
         events: {
           onStateChange: this.onPlayerStateChange.bind(this),
           onError: this.onPlayerError.bind(this),

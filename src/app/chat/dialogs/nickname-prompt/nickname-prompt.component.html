@@ -2,7 +2,7 @@
   Nome utente
 </h2>
 <mat-dialog-content fxLayout="column" fxLayoutAlign="center center">
-  <div fxFlex="0 0 0" fxLayout="column">
+  <div style="display: block">
     <mat-form-field>
       <input matInput placeholder="Scegli un nome"
              required
@@ -17,7 +17,9 @@
         Inserire almeno 3 caratteri.
       </mat-error>
     </mat-form-field>
-    <mat-checkbox #registered>Utente registrato</mat-checkbox>
+    <div>
+      <mat-checkbox #registered>Utente registrato</mat-checkbox>
+    </div>
     <mat-form-field *ngIf="registered.checked">
       <input matInput type="password" placeholder="Password"
              #nickpass="ngModel"

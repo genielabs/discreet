@@ -10,6 +10,10 @@
   height: calc(100% - 96px); /* 160px = top bar height 64 + bottom bar height 96 */
 }
 
+.hidden {
+  display: none !important;
+}
+
 cdk-virtual-scroll-viewport button mat-icon.first {
   margin-left: 6px;
 }
@@ -27,8 +31,19 @@ cdk-virtual-scroll-viewport button span {
   position: relative;
 }
 
+.cover {
+  width: 100%;
+  margin-right: 240px;
+  .face {
+    margin: 32px;
+    width: auto;
+    height: auto;
+    font-size: 1000%;
+    opacity: 0.2;
+  }
+}
+
 app-messages-window {
-  transition: all .3s ease-in-out;
   width: 100%;
   margin-right: 240px;
 }
@@ -121,6 +136,7 @@ app-messages-window {
   padding-right: 2px;
   width: 100%;
   font-size: 100%;
+  text-align: left; /* IE / Edge compatibility */
   text-align: start;
   .mat-icon {
     margin-left: 4px;
