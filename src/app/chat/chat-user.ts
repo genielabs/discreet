@@ -11,6 +11,9 @@ export class ChatUser {
       user.channels[channel].playlist = [] as MediaInfo[];
     }
   }
+  get online(): boolean {
+    return this.user.online;
+  }
   get name(): string {
     return this.user ? this.user.name : '';
   }

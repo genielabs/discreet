@@ -528,7 +528,7 @@ export class IrcClientService {
   private handleChannelUsersList(msg: any) {
     switch (msg.action) {
       case 'LIST':
-        this.addChatUser(msg.target, ...msg.users.filter((u) => {
+        this.addChatUser(msg, msg.target, ...msg.users.filter((u) => {
           return u !== '';
         }));
         break;
@@ -540,42 +540,29 @@ export class IrcClientService {
         }
         break;
       case 'NICK':
-        this.renChatUser(msg.user, msg.nick);
+        this.renChatUser(msg, msg.user, msg.nick);
         break;
       case 'JOIN':
-        this.addChatUser(msg.target, msg.user);
+        this.addChatUser(msg, msg.target, msg.user);
         break;
       case 'PART':
-        this.delChatUser(msg.target, msg.user);
+        this.delChatUser(msg, msg.target, msg.user);
         break;
       case 'KICK':
-        this.delChatUser(msg.target, msg.user, true);
+        this.delChatUser(msg, msg.target, msg.user);
         break;
       case 'QUIT':
         msg.target = null; // delete user from all channels
-        this.delChatUser(msg.target, msg.user);
+        this.delChatUser(msg, msg.target, msg.user);
         break;
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   removeUserNameFlags(name: string): string {
     return name.replace(/[~&@%+]/g,'');
   }
 
-  private addChatUser(channel: string, ...users: string[]) {
+  private addChatUser(msg, channel: string, ...users: string[]) {
     users.map((u) => {
       let user = this.getUser(u);
       if (!user) {
@@ -586,28 +573,24 @@ export class IrcClientService {
       user.name = this.removeUserNameFlags(u);
       user.prefix = u;
       user.channels[channel] = { flags: this.getUserNameFlags(u) };
-      this.userJoin.emit({channel, user});
+      this.userJoin.emit({channel, user, msg});
       return user;
     });
   }
-  private renChatUser(user: string, nick: string) {
+  private renChatUser(msg, user: string, nick: string) {
     const u = this.getUser(user);
     if (u != null) {
       const oldNick = u.name;
       u.name = nick;
-      this.userNick.emit({oldNick, u});
+      this.userNick.emit({oldNick, u, msg});
     }
   }
-  private delChatUser(channel: string, u: string, kicked?: boolean) {
+  private delChatUser(msg, channel: string, u: string) {
     const user = this.getUser(u);
     user.online = false;
-//    const ui = this.userList.indexOf(user);
-//    if (ui !== -1) {
-//      this.userList.splice(ui, 1);
-//    }
-    (channel == null) ? this.userQuit.emit(user)
-      : kicked  ? this.userKick.emit({channel, user})
-                : this.userPart.emit({channel, user});
+    (channel == null) ? this.userQuit.emit({user, msg})
+      : msg.command === 'KICK'  ? this.userKick.emit({channel, user, msg})
+                                : this.userPart.emit({channel, user, msg});
   }
 
   private addUser(user: IrcUser) {

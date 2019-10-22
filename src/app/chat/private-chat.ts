@@ -33,4 +33,7 @@ export class PrivateChat extends ChatData{
       });
     return message;
   }
+  getUser(name?: string) {
+    return this.user;
+  }
 }

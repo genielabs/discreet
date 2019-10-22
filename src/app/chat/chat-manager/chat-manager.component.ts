@@ -81,7 +81,7 @@ export class ChatManagerComponent implements OnInit {
 
   currentChat: PrivateChat | PublicChat;
   currentUser: ChatUser;
-  currentMenuChat: PrivateChat | PublicChat;
+  currentMenuChat: PrivateChat | PublicChat | any;
 
   userMessage = '';
   awayMessage = '';
@@ -152,43 +152,43 @@ export class ChatManagerComponent implements OnInit {
         this.notify(msg.sender, msg.message, msg.sender);
       }
     });
-    this.ircClient.userJoin.subscribe(({channel, user}) => {
+    this.ircClient.userJoin.subscribe(({channel, user, msg}) => {
       this.addChatUser(channel, user);
       this.addServiceEvent(
         channel, user.name,
         ChatMessageType.JOIN,
         'è entrato.',
-        { description: '// TODO: ...'}
+        {description: msg.message}
       );
     });
-    this.ircClient.userKick.subscribe(({channel, user}) => {
+    this.ircClient.userKick.subscribe(({channel, user, msg}) => {
       this.delChatUser(channel, user);
       this.addServiceEvent(
         channel, user.name,
         ChatMessageType.KICK,
         'è stato espulso.',
-        { description: '// TODO: ...'}
+        {description: msg.message}
       );
     });
-    this.ircClient.userPart.subscribe(({channel, user}) => {
+    this.ircClient.userPart.subscribe(({channel, user, msg}) => {
       this.delChatUser(channel, user);
       this.addServiceEvent(
         channel, user.name,
         ChatMessageType.PART,
         'è uscito.',
-        { description: '// TODO: ...'}
+        {description: msg.message}
       );
     });
-    this.ircClient.userQuit.subscribe((user) => {
+    this.ircClient.userQuit.subscribe(({user, msg}) => {
       this.delChatUser(null, user);
       this.addServiceEvent(
         null, user.name,
         ChatMessageType.QUIT,
         'si è disconnesso.',
-        { description: '// TODO: ...'}
+        {description: msg.message}
       );
     });
-    this.ircClient.userNick.subscribe(({oldNick, u}) => {
+    this.ircClient.userNick.subscribe(({oldNick, u, msg}) => {
       this.renChatUser((u as IrcUser).name);
     });
     this.ircClient.joinChannel.subscribe(this.show.bind(this));
@@ -222,7 +222,7 @@ export class ChatManagerComponent implements OnInit {
     this.ircClient.versionReply.subscribe((msg) => {
       //const existingUser = usersList.find((eu) => eu.name === user.name);
       // TODO: implement global users list
-      console.log(msg.sender, msg.version);
+      console.log('#####', 'VERSION', msg.sender, msg.version);
     });
   }
 
@@ -312,6 +312,10 @@ export class ChatManagerComponent implements OnInit {
         this.videoPlayer.loadVideo(videoId);
       }
     });
+  }
+  onUserInfoClick(user: ChatUser) {
+    this.ircClient.whois(user.name);
+    this.ircClient.ctcp(user.name, 'VERSION');
   }
 
   onEnterKey(e) {
