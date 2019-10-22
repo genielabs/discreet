@@ -13,6 +13,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Location} from '@angular/common';
 import {IrcClientService} from './irc-client-service/irc-client-service';
 import {ChannelsListComponent} from './chat/dialogs/channels-list/channels-list.component';
+import {PrivateChat} from './chat/private-chat';
 
 @Component({
   selector: 'app-root',
@@ -38,14 +39,22 @@ export class AppComponent implements OnInit, OnDestroy {
   mediaPlaylistNotify = false;
   mediaCountInterval = setInterval(() => {
     const channelManager = this.channelManager;
-    if (channelManager && channelManager.channel()) {
-        const count = channelManager
-          .channel().users
-          .reduce((a: number, b: ChatUser) => a + b.playlist.length, 0);
-        if (count > this.mediaPlaylistCount) {
-          this.mediaPlaylistNotify = true;
+    if (channelManager && channelManager.currentChat) {
+        if (channelManager.isPublicChat(channelManager.currentChat.info)) {
+          const count = channelManager
+            .channel().users
+            .reduce((a: number, b: ChatUser) => a + b.playlist.length, 0);
+          if (count > this.mediaPlaylistCount) {
+            this.mediaPlaylistNotify = true;
+          }
+          this.mediaPlaylistCount = count;
+        } else {
+          const count = (channelManager.currentChat as PrivateChat).user.playlist.length;
+          if (count > this.mediaPlaylistCount) {
+            this.mediaPlaylistNotify = true;
+          }
+          this.mediaPlaylistCount = count;
         }
-        this.mediaPlaylistCount = count;
       } else {
         this.mediaPlaylistCount = 0;
       }
@@ -95,7 +104,9 @@ export class AppComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(MediaPlaylistComponent, {
       panelClass: 'playlist-dialog-container',
       width: '330px',
-      data: chatManager.channel().users,
+      data: chatManager.isPublicChat(chatManager.currentChat.info)
+              ? chatManager.channel().users
+              : [(chatManager.currentChat as  PrivateChat).user],
       closeOnNavigation: true
     });
     dialogRef.afterClosed().subscribe(media => {

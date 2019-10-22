@@ -4,6 +4,8 @@ import {Subject} from 'rxjs';
 
 import {LoginInfo} from './login-info';
 import {IrcChannel} from './irc-channel';
+import {ChatMessageType} from '../chat/chat-message';
+import {IrcUser} from './irc-user';
 
 @Injectable({
   providedIn: 'root',
@@ -14,17 +16,24 @@ export class IrcClientService {
   // events
   loggedIn = new EventEmitter<any>();
   messageReceive = new EventEmitter<any>();
-  usersList = new EventEmitter<any>();
   joinChannel = new EventEmitter<any>();
   chanMode = new EventEmitter<any>();
   userMode = new EventEmitter<any>();
+  userNick = new EventEmitter<any>();
+  userJoin = new EventEmitter<any>();
+  userPart = new EventEmitter<any>();
+  userKick = new EventEmitter<any>();
+  userQuit = new EventEmitter<any>();
+  userAway = new EventEmitter<any>();
   userChannelMode = new EventEmitter<any>();
   connectionStatus = new EventEmitter<boolean>();
   awayReply = new EventEmitter<any>();
   versionReply = new EventEmitter<any>();
   channelsList = new EventEmitter<IrcChannel[]>();
 
-  private channels: IrcChannel[];
+  private channelList: IrcChannel[];
+  private userList: IrcUser[] = [];
+
   // TODO: remove and deprecate the following (testChannelName)
   //       (put join channels in a config.json file along with other options)
   private testChannelName = '#chatover40';
@@ -124,7 +133,7 @@ export class IrcClientService {
                   this.config.host = payload.params[1];
                   break;
                 case '353': // START USERS LIST
-                  this.usersList.emit({
+                  this.handleChannelUsersList({
                     action: 'LIST',
                     target: payload.params[2],
                     users: payload.params[3].split(' ')
@@ -153,7 +162,7 @@ export class IrcClientService {
                   });
                   break;
                 case '321': // START channel list (reply to LIST)
-                  this.channels = [];
+                  this.channelList = [];
                   break;
                 case '322': // ITEM channel list item (reply to LIST)
                   const ch = new IrcChannel();
@@ -162,13 +171,13 @@ export class IrcClientService {
                   const modesIndex =  payload.params[3].indexOf(' ');
                   ch.modes = payload.params[3].substring(0, modesIndex);
                   ch.topic = payload.params[3].substring(modesIndex + 1);
-                  this.channels.push(ch);
+                  this.channelList.push(ch);
                   break;
                 case '323': // END channel list item (reply to LIST)
-                  this.channelsList.emit(this.channels);
+                  this.channelsList.emit(this.channelList);
                   break;
                 case 'KICK':
-                  this.usersList.emit({
+                  this.handleChannelUsersList({
                     action: payload.command,
                     target: payload.params[0],
                     user: payload.params[1],
@@ -179,13 +188,13 @@ export class IrcClientService {
                   // check if it's' the local user
                   const userInfo = this.parseUserAddress(payload.prefix);
                   if (userInfo.nick === this.config.nick) {
-                    const ch = payload.params[0];
-                    this.joinChannel.emit(ch);
+                    const channel = payload.params[0];
+                    this.joinChannel.emit(channel);
                     break;
                   }
                   // otherwise threat this JOIN message as "userList" message
                 case 'PART':
-                  this.usersList.emit({
+                  this.handleChannelUsersList({
                     action: payload.command,
                     target: payload.params[0],
                     user: this.parseUserAddress(payload.prefix).nick,
@@ -202,13 +211,13 @@ export class IrcClientService {
                   if (nickData.user === this.config.nick) {
                     this.config.nick = nickData.nick;
                   }
-                  this.usersList.emit(nickData);
+                  this.handleChannelUsersList(nickData);
                   break;
                 case 'AWAY':
                 case 'QUIT':
                   // other users actions
                   if (message !== '*') {
-                    this.usersList.emit({
+                    this.handleChannelUsersList({
                       action: payload.command,
                       user: this.parseUserAddress(payload.prefix).nick,
                       message: payload.params[1] || payload.params[0]
@@ -226,7 +235,7 @@ export class IrcClientService {
                       users.push(payload.params[u]);
                       u++;
                     }
-                    this.userChannelMode.emit({
+                    this.handleUserChannelMode({
                       channel,
                       mode,
                       users
@@ -252,7 +261,7 @@ export class IrcClientService {
                   break;
                 case '376': // MOTD END
                 case '422': // MOTD MISSING
-                  this.joinChannels.forEach((ch) => subject.next([ `:1 JOIN ${ch}` ]));
+                  this.joinChannels.forEach((channel) => subject.next([ `:1 JOIN ${channel}` ]));
                   this.loggedIn.emit(true);
                   break;
                 case '433': // Nickname already in use
@@ -514,5 +523,142 @@ export class IrcClientService {
   setCredentials(credentials: LoginInfo) {
     this.config.nick = credentials.nick;
     this.config.password = credentials.password;
+  }
+
+  private handleChannelUsersList(msg: any) {
+    switch (msg.action) {
+      case 'LIST':
+        this.addChatUser(msg.target, ...msg.users.filter((u) => {
+          return u !== '';
+        }));
+        break;
+      case 'AWAY':
+        const user = this.getUser(msg.user);
+        if (user) {
+          user.away = msg.message;
+          this.userAway.emit(user);
+        }
+        break;
+      case 'NICK':
+        this.renChatUser(msg.user, msg.nick);
+        break;
+      case 'JOIN':
+        this.addChatUser(msg.target, msg.user);
+        break;
+      case 'PART':
+        this.delChatUser(msg.target, msg.user);
+        break;
+      case 'KICK':
+        this.delChatUser(msg.target, msg.user, true);
+        break;
+      case 'QUIT':
+        msg.target = null; // delete user from all channels
+        this.delChatUser(msg.target, msg.user);
+        break;
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  removeUserNameFlags(name: string): string {
+    return name.replace(/[~&@%+]/g,'');
+  }
+
+  private addChatUser(channel: string, ...users: string[]) {
+    users.map((u) => {
+      let user = this.getUser(u);
+      if (!user) {
+        user = new IrcUser();
+        this.addUser(user);
+      }
+      user.online = true;
+      user.name = this.removeUserNameFlags(u);
+      user.prefix = u;
+      user.channels[channel] = { flags: this.getUserNameFlags(u) };
+      this.userJoin.emit({channel, user});
+      return user;
+    });
+  }
+  private renChatUser(user: string, nick: string) {
+    const u = this.getUser(user);
+    if (u != null) {
+      const oldNick = u.name;
+      u.name = nick;
+      this.userNick.emit({oldNick, u});
+    }
+  }
+  private delChatUser(channel: string, u: string, kicked?: boolean) {
+    const user = this.getUser(u);
+    user.online = false;
+//    const ui = this.userList.indexOf(user);
+//    if (ui !== -1) {
+//      this.userList.splice(ui, 1);
+//    }
+    (channel == null) ? this.userQuit.emit(user)
+      : kicked  ? this.userKick.emit({channel, user})
+                : this.userPart.emit({channel, user});
+  }
+
+  private addUser(user: IrcUser) {
+    this.userList.push(user);
+  }
+  getUser(nick: string): IrcUser {
+    return this.userList.find((u) => u.name === nick);
+  }
+
+  private getUserNameFlags(user: string): string {
+    let flags = '';
+    const chars = ['~', '&', '@', '%', '+'];
+    while (chars.indexOf(user[0]) !== -1) {
+      flags += user[0];
+      user = user.substring(1);
+    }
+    return flags;
+  }
+
+  private handleUserChannelMode(m) {
+    m.mode = m.mode.split('');
+    const mode = m.mode.shift();
+    let flag = '';
+    m.mode.forEach((userMode, i) => {
+      switch (userMode) {
+        case 'q':
+          flag = '~';
+          break;
+        case 'a':
+          flag = '&';
+          break;
+        case 'o':
+          flag = '@';
+          break;
+        case 'h':
+          flag = '%';
+          break;
+        case 'v':
+          flag = '+';
+          break;
+      }
+      const user = this.getUser(m.users[i]);
+      if (user) {
+        const userChannel = user.channels[m.channel];
+        const oldFlags = userChannel.flags;
+        userChannel.flags = userChannel.flags.replace(flag, '');
+        if (mode === '+') {
+          userChannel.flags += flag;
+        }
+        this.userChannelMode.emit({channel: m.channel, user, oldFlags});
+      }
+    });
   }
 }

@@ -32,7 +32,7 @@ export class PublicChat extends ChatData {
         }
         message.rendered.message = result.enriched;
         if (senderUser) {
-          message.rendered.musicIcon = senderUser.playlist.length > 0 ? 'music_video' : '';
+          message.rendered.musicIcon = senderUser.hasPlaylist() ? 'music_video' : '';
         }
       });
 

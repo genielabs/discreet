@@ -28,6 +28,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {PublicChat} from '../public-chat';
 import {PrivateChat} from '../private-chat';
 import {ChannelsListComponent} from '../dialogs/channels-list/channels-list.component';
+import {IrcUser} from '../../irc-client-service/irc-user';
 
 @Injectable({
   providedIn: 'root',
@@ -151,121 +152,65 @@ export class ChatManagerComponent implements OnInit {
         this.notify(msg.sender, msg.message, msg.sender);
       }
     });
-    this.ircClient.channelsList.subscribe((channelsList) => {
-      console.log('Channels List', channelsList);
-      // TODO: ....
+    this.ircClient.userJoin.subscribe(({channel, user}) => {
+      this.addChatUser(channel, user);
+      this.addServiceEvent(
+        channel, user.name,
+        ChatMessageType.JOIN,
+        'è entrato.',
+        { description: '// TODO: ...'}
+      );
     });
-    this.ircClient.usersList.subscribe((msg) => {
-      let eventDescription;
-      let eventType;
-      switch (msg.action) {
-        case 'LIST':
-          this.addChatUser(msg.target, ...msg.users.filter((u) => {
-            return u !== '';
-          }));
-          break;
-        case 'AWAY':
-          // TODO: flag the sender user as marked away
-          // TODO: this require a global users list to be implemented
-          const channel = this.channel();
-          if (channel) {
-            const user = channel.getUser(msg.user);
-            if (user) {
-              user.away = msg.message;
-            }
-          }
-          break;
-        case 'NICK':
-          this.renChatUser(msg.user, msg.nick);
-          break;
-        case 'JOIN':
-          eventType = ChatMessageType.JOIN;
-          eventDescription = 'è entrato.';
-          this.addChatUser(msg.target, msg.user);
-          break;
-        case 'PART':
-          eventType = ChatMessageType.PART;
-          eventDescription = 'è uscito.';
-          this.delChatUser(msg.target, msg.user);
-          break;
-        case 'KICK':
-          eventType = ChatMessageType.KICK;
-          eventDescription = 'è stato espulso.';
-          this.delChatUser(msg.target, msg.user);
-          break;
-        case 'QUIT':
-          msg.target = null; // delete user from all channels
-          eventType = ChatMessageType.QUIT;
-          eventDescription = 'si è disconnesso.';
-          this.delChatUser(msg.target, msg.user);
-          break;
-      }
-      if (eventDescription) {
-        // add join message to the chat buffer
-        const chat = this.channel();
-        if (chat) {
-          const eventMessage = new ChatMessage();
-          eventMessage.type = eventType;
-          eventMessage.message = eventDescription;
-          eventMessage.data = { description: msg.message };
-          eventMessage.sender = msg.user;
-          eventMessage.target = msg.target;
-          chat.receive(eventMessage);
-        }
-      }
+    this.ircClient.userKick.subscribe(({channel, user}) => {
+      this.delChatUser(channel, user);
+      this.addServiceEvent(
+        channel, user.name,
+        ChatMessageType.KICK,
+        'è stato espulso.',
+        { description: '// TODO: ...'}
+      );
+    });
+    this.ircClient.userPart.subscribe(({channel, user}) => {
+      this.delChatUser(channel, user);
+      this.addServiceEvent(
+        channel, user.name,
+        ChatMessageType.PART,
+        'è uscito.',
+        { description: '// TODO: ...'}
+      );
+    });
+    this.ircClient.userQuit.subscribe((user) => {
+      this.delChatUser(null, user);
+      this.addServiceEvent(
+        null, user.name,
+        ChatMessageType.QUIT,
+        'si è disconnesso.',
+        { description: '// TODO: ...'}
+      );
+    });
+    this.ircClient.userNick.subscribe(({oldNick, u}) => {
+      this.renChatUser((u as IrcUser).name);
     });
     this.ircClient.joinChannel.subscribe(this.show.bind(this));
     this.ircClient.userMode.subscribe((m) => {
-      // TODO: .... (for better perfs, this should be implemented
-      //    via keeping a global list of users instead of instances
-      //    for each channel)
+      // TODO: ......................
       console.log('SERVER MODE', m.user, m.mode);
     });
     this.ircClient.chanMode.subscribe((m) => {
       // TODO: ...
+      console.log('CHAN MODE', m.user, m.mode);
     });
     this.ircClient.userChannelMode.subscribe((m) => {
       const chat = this.chatList.public.find((c) => c.target().name === m.channel || c.target().prefix === m.channel);
-      if (chat) {
-        m.mode = m.mode.split('');
-        const mode = m.mode.shift();
-        let flag = '';
-        m.mode.forEach((userMode, i) => {
-          switch (userMode) {
-            case 'q':
-              flag = '~';
-              break;
-            case 'a':
-              flag = '&';
-              break;
-            case 'o':
-              flag = '@';
-              break;
-            case 'h':
-              flag = '%';
-              break;
-            case 'v':
-              flag = '+';
-              break;
-          }
-          const user = chat.users.find((u) => u.name === m.users[i]);
-          if (user) {
-            user.flags.replace(flag, '');
-            if (mode === '+') {
-              user.flags += flag;
-            }
-            user.icon = this.getIcon(user.flags);
-            user.color = this.getColor(user.flags);
-          }
-        });
+      const user = chat && chat.getUser(m.user.name);
+      if (user) {
+        user.icon = this.getIcon(user.flags);
+        user.color = this.getColor(user.flags);
       }
     });
     this.ircClient.awayReply.subscribe((msg) => {
       msg.type = ChatMessageType.MESSAGE;
-      const chat = this.chat(msg.sender).receive(msg);
-      // Mark the sender user as AWAY
-      // TODO: flag the sender user as marked away
-      // TODO: this require a global users list to be implemented
+      this.chat(msg.sender).receive(msg);
       const channel = this.channel();
       if (channel) {
         const user = channel.getUser(msg.sender);
@@ -279,6 +224,20 @@ export class ChatManagerComponent implements OnInit {
       // TODO: implement global users list
       console.log(msg.sender, msg.version);
     });
+  }
+
+  private addServiceEvent(channel: string, sender: string, eventType: ChatMessageType, eventDescription: string, data: any) {
+    const chat = this.channel(channel);
+    if (chat) {
+      const eventMessage = new ChatMessage();
+      eventMessage.type = eventType;
+      eventMessage.message = eventDescription;
+      eventMessage.data = data;
+      //eventMessage.data = { description: msg.message };
+      eventMessage.sender = sender;
+      eventMessage.target = channel;
+      chat.receive(eventMessage);
+    }
   }
 
   ngOnInit() {
@@ -659,18 +618,6 @@ export class ChatManagerComponent implements OnInit {
     return !chat.hidden;
   }
 
-  /*
-
-  IRC User Roles
-  --------------
-  ~ for owners – to get this, you need to be +q in the channel
-  & for admins – to get this, you need to be +a in the channel
-  @ for full operators – to get this, you need to be +o in the channel
-  % for half operators – to get this, you need to be +h in the channel
-  + for voiced users – to get this, you need to be +v in the channel
-
-  */
-
   getColor(c: ChatData | string): string {
     if (c == null) {
       return 'error';
@@ -727,6 +674,19 @@ export class ChatManagerComponent implements OnInit {
     return 'person';
   }
 
+  // TODO: move the following methods th IrcUtil
+
+  /*
+
+  IRC User Roles
+  --------------
+  ~ for owners – to get this, you need to be +q in the channel
+  & for admins – to get this, you need to be +a in the channel
+  @ for full operators – to get this, you need to be +o in the channel
+  % for half operators – to get this, you need to be +h in the channel
+  + for voiced users – to get this, you need to be +v in the channel
+
+  */
   isOwner(name) {
     return name.indexOf('~') >= 0;
   }
@@ -756,44 +716,35 @@ export class ChatManagerComponent implements OnInit {
     return chat && (chat as PublicChat).users;
   }
 
-  private addChatUser(target: string, ...users: string[]) {
+  private addChatUser(target: string, u: IrcUser) {
     // TODO: should check chatList.isPublic(target) and throw an exception if not
     const usersList = this.getUsersList(target);
-    users.map((u) => {
-      const user = new ChatUser();
-      user.name = this.removeUserNameFlags(u);
-      user.color = this.getColor(u);
-      user.icon = this.getIcon(u);
-      user.flags = this.getUserNameFlags(u);
-      const existingUser = usersList.find((eu) => eu.name === user.name);
-      if (existingUser == null) {
-        usersList.push(user);
-      }
-      return user;
-    });
+    const user = new ChatUser(target, u);
+    user.color = this.getColor(u.prefix);
+    user.icon = this.getIcon(u.prefix);
+    // TODO: this duplicate check could be removed
+    // const existingUser = usersList.find((eu) => eu.name === user.name);
+    // if (existingUser == null) {
+    //   usersList.push(user);
+    // }
+    usersList.push(user);
     this.sortUsersList(target);
+    // TODO: if this is not for forcing user list (virtual-scroll) refresh, remove it
     const chat = this.chatList.find(target);
     (chat as PublicChat).users = [...usersList];
   }
-  private renChatUser(user: string, nick: string) {
-    // TODO: store user in a global list and rename from that!!
+  private renChatUser(user: string) {
     this.chatList.public.forEach((c) => {
-      const userList = c.users;
-      const u = userList.find((n) => n.name === user);
-      if (u != null) {
-        u.name = nick;
+      if (c.getUser(user)) {
         this.sortUsersList(c.info.name);
       }
     });
   }
-  private delChatUser(target: string, user: string) {
+  private delChatUser(target: string, user: IrcUser) {
     if (target == null) {
-      // TODO: .... (for better perfs, this should be implemented
-      //    via keeping a global list of users instead of instances
-      //    for each channel)
       this.chatList.public.forEach((c) => {
         const userList = c.users;
-        const u = userList.find((n) => n.name === user);
+        const u = userList.find((n) => n.user === user);
         const ui = userList.indexOf(u);
         if (ui !== -1) {
           userList.splice(ui, 1);
@@ -801,7 +752,7 @@ export class ChatManagerComponent implements OnInit {
       });
     } else {
       const userList = this.getUsersList(target);
-      const u = userList.find((n) => n.name === user);
+      const u = userList.find((n) => n.user === user);
       const ui = userList.indexOf(u);
       if (ui !== -1) {
         userList.splice(ui, 1);
@@ -838,16 +789,6 @@ export class ChatManagerComponent implements OnInit {
     }
     user = this.removeUserNameFlags(user);
     return user;
-  }
-
-  private getUserNameFlags(user: string): string {
-    let flags = '';
-    const chars = ['~', '&', '@', '%', '+'];
-    while (chars.indexOf(user[0]) !== -1) {
-      flags += user[0];
-      user = user.substring(1);
-    }
-    return flags;
   }
 
   isLastMessageVisible() {
