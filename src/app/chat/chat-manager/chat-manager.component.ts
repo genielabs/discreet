@@ -29,6 +29,7 @@ import {PublicChat} from '../public-chat';
 import {PrivateChat} from '../private-chat';
 import {ChannelsListComponent} from '../dialogs/channels-list/channels-list.component';
 import {IrcUser} from '../../irc-client-service/irc-user';
+import {UserInfoDialogComponent} from '../dialogs/user-info-dialog/user-info-dialog.component';
 
 @Injectable({
   providedIn: 'root',
@@ -139,7 +140,7 @@ export class ChatManagerComponent implements OnInit {
       if (ni > 0) {
         msg.sender = msg.sender.substring(0, ni);
       }
-      // the message is for the local user
+      // the message is for the local chatUser
       if (this.ircClient.config.nick === msg.target) {
         msg.target = msg.sender;
       }
@@ -154,12 +155,14 @@ export class ChatManagerComponent implements OnInit {
     });
     this.ircClient.userJoin.subscribe(({channel, user, msg}) => {
       this.addChatUser(channel, user);
-      this.addServiceEvent(
-        channel, user.name,
-        ChatMessageType.JOIN,
-        'è entrato.',
-        {description: msg.message}
-      );
+      if (msg.action !== 'LIST') {
+        this.addServiceEvent(
+          channel, user.name,
+          ChatMessageType.JOIN,
+          'è entrato.',
+          {description: msg.message}
+        );
+      }
     });
     this.ircClient.userKick.subscribe(({channel, user, msg}) => {
       this.delChatUser(channel, user);
@@ -191,7 +194,22 @@ export class ChatManagerComponent implements OnInit {
     this.ircClient.userNick.subscribe(({oldNick, u, msg}) => {
       this.renChatUser((u as IrcUser).name);
     });
-    this.ircClient.joinChannel.subscribe(this.show.bind(this));
+    this.ircClient.channelJoin.subscribe((channel) => {
+      const chat = (this.show(channel) as PublicChat);
+      // reset channel users list
+      chat.users.length = 0;
+    });
+    this.ircClient.channelTopic.subscribe(({channel, topic}) => {
+      const chat = (this.show(channel) as PublicChat);
+      // set the topic
+      chat.topic = topic;
+      const msg = new ChatMessage();
+      msg.sender = '';
+      msg.target = chat.info.name;
+      msg.type = ChatMessageType.MESSAGE;
+      msg.message = `<strong>${topic}</strong>`;
+      chat.receive(msg);
+    });
     this.ircClient.userMode.subscribe((m) => {
       // TODO: ......................
       console.log('SERVER MODE', m.user, m.mode);
@@ -201,12 +219,12 @@ export class ChatManagerComponent implements OnInit {
       console.log('CHAN MODE', m.user, m.mode);
     });
     this.ircClient.userChannelMode.subscribe((m) => {
-      const chat = this.chatList.public.find((c) => c.target().name === m.channel || c.target().prefix === m.channel);
-      const user = chat && chat.getUser(m.user.name);
-      if (user) {
-        user.icon = this.getIcon(user.flags);
-        user.color = this.getColor(user.flags);
-      }
+      const chat = this.chatList.find(m.channel) as PublicChat;
+      const user = chat.getUser(m.user.name);
+      user.icon = this.getIcon(user.flags);
+      user.color = this.getColor(user.flags);
+      const deleteUser = chat.users.splice(chat.users.indexOf(user), 1);
+      this.insertionSortUser(chat.users, user);
     });
     this.ircClient.awayReply.subscribe((msg) => {
       msg.type = ChatMessageType.MESSAGE;
@@ -218,11 +236,6 @@ export class ChatManagerComponent implements OnInit {
           user.away = msg.message;
         }
       }
-    });
-    this.ircClient.versionReply.subscribe((msg) => {
-      //const existingUser = usersList.find((eu) => eu.name === user.name);
-      // TODO: implement global users list
-      console.log('#####', 'VERSION', msg.sender, msg.version);
     });
   }
 
@@ -292,7 +305,6 @@ export class ChatManagerComponent implements OnInit {
     }
     this.router.navigate(['.'], { fragment: 'playlist', relativeTo: this.route });
     const dialogRef = this.dialog.open(MediaPlaylistComponent, {
-      panelClass: 'playlist-dialog-container',
       width: '330px',
       data: [ user ],
       closeOnNavigation: true
@@ -313,9 +325,24 @@ export class ChatManagerComponent implements OnInit {
       }
     });
   }
-  onUserInfoClick(user: ChatUser) {
-    this.ircClient.whois(user.name);
-    this.ircClient.ctcp(user.name, 'VERSION');
+  onUserInfoClick(u: ChatUser | PrivateChat | PublicChat) {
+    let user;
+    if (u instanceof ChatUser) {
+      user = (u as ChatUser);
+    } else if (u instanceof PrivateChat) {
+      user = (u as PrivateChat).user;
+    } else if (u instanceof PublicChat) {
+      // TODO: not implemented yet
+      return;
+    }
+    this.router.navigate(['.'], { fragment: 'emoji', relativeTo: this.route });
+    const dialogRef = this.dialog.open(UserInfoDialogComponent, {
+      closeOnNavigation: true,
+      data: user
+    });
+    dialogRef.afterClosed().subscribe(res => {
+      // TODO: implement 'chat' button
+    });
   }
 
   onEnterKey(e) {
@@ -429,11 +456,17 @@ export class ChatManagerComponent implements OnInit {
   }
 
   closeChat(c: PrivateChat | PublicChat) {
-    if (this.currentChat === c) {
-      this.currentChat = null;
-    }
-    // TODO: maybe a setTimeout is required for this to work properly
     c.hidden = true;
+    if (this.currentChat === c) {
+      let chat: any = this.chatList.public.find((nc) => !nc.hidden);
+      if (chat == null) {
+        chat = this.chatList.private.find((nc) => !nc.hidden);
+      }
+      this.currentChat = chat;
+      if (chat) {
+        this.show(chat.info);
+      }
+    }
   }
 
   showChatList() {
@@ -523,9 +556,10 @@ export class ChatManagerComponent implements OnInit {
   connect() {
     this.isLoggedIn = false;
     this.chatLoading.emit(true);
-    this.chatList.public.forEach((c) => {
-      c.users = [] as ChatUser[];
-    });
+    // // reset channels users list
+    // this.chatList.public.forEach((c) => {
+    //   c.users.length = 0;
+    // });
     this.ircClient.connect().subscribe(null, (error) => {
       this.chatLoading.emit(false);
       this.isLoggedIn = false;
@@ -576,7 +610,7 @@ export class ChatManagerComponent implements OnInit {
       return (this.currentChat as PublicChat);
     }
     return this.chatList.public.find((c) => {
-      return (target == null || c.target() === target || c.target().name === target || c.target().prefix === target);
+      return ((target == null && !c.hidden) || c.target() === target || c.target().name === target || c.target().prefix === target);
     });
   }
   chat(target?: string | ChatInfo): PublicChat | PrivateChat {
@@ -727,52 +761,46 @@ export class ChatManagerComponent implements OnInit {
     user.color = this.getColor(u.prefix);
     user.icon = this.getIcon(u.prefix);
     // TODO: this duplicate check could be removed
-    // const existingUser = usersList.find((eu) => eu.name === user.name);
+    // const existingUser = usersList.find((eu) => eu.name === chatUser.name);
     // if (existingUser == null) {
-    //   usersList.push(user);
+    //   usersList.push(chatUser);
     // }
-    usersList.push(user);
-    this.sortUsersList(target);
-    // TODO: if this is not for forcing user list (virtual-scroll) refresh, remove it
+    this.insertionSortUser(usersList, user);
+    // TODO: if this is not for forcing chatUser list (virtual-scroll) refresh, remove it
     const chat = this.chatList.find(target);
     (chat as PublicChat).users = [...usersList];
   }
   private renChatUser(user: string) {
     this.chatList.public.forEach((c) => {
-      if (c.getUser(user)) {
-        this.sortUsersList(c.info.name);
+      const channelUser = c.getUser(user);
+      if (channelUser) {
+        const usersList = this.getUsersList(c.info.name);
+        usersList.splice(usersList.indexOf(channelUser), 1);
+        this.insertionSortUser(usersList, channelUser);
       }
     });
   }
   private delChatUser(target: string, user: IrcUser) {
     if (target == null) {
       this.chatList.public.forEach((c) => {
-        const userList = c.users;
-        const u = userList.find((n) => n.user === user);
-        const ui = userList.indexOf(u);
-        if (ui !== -1) {
-          userList.splice(ui, 1);
-        }
+        const u = c.getUser(user.name);
+        c.users.splice(c.users.indexOf(u), 1);
       });
     } else {
-      const userList = this.getUsersList(target);
-      const u = userList.find((n) => n.user === user);
-      const ui = userList.indexOf(u);
-      if (ui !== -1) {
-        userList.splice(ui, 1);
-      }
+      const c = (this.chatList.find(target) as PublicChat);
+      const u = c.getUser(user.name);
+      c.users.splice(c.users.indexOf(u), 1);
     }
   }
-  private sortUsersList(target: string) {
-    this.getUsersList(target).sort((a, b) => {
-      if (this.getUsersSortValue(a) < this.getUsersSortValue(b)) {
-        return -1;
+  private insertionSortUser(usersList: ChatUser[], user: ChatUser) {
+    let insertIndex = 0;
+    for (const item of usersList) {
+      if (this.getUsersSortValue(item) > this.getUsersSortValue(user)) {
+        break;
       }
-      if (this.getUsersSortValue(a) > this.getUsersSortValue(b)) {
-        return 1;
-      }
-      return 0;
-    });
+      insertIndex++;
+    }
+    usersList.splice(insertIndex, 0, user);
   }
   private getUsersSortValue(u: ChatUser) {
     let user = u.flags + u.name.toLowerCase();
@@ -786,8 +814,8 @@ export class ChatManagerComponent implements OnInit {
       user = user.replace('%', '3:');
     } else if (this.isVoice(user)) {
       user = user.replace('+', '4:');
-//    } else if (u.hasPlaylist()) {
-//      user = '5:' + user;
+//    } else if (chatUser.hasPlaylist()) {
+//      chatUser = '5:' + chatUser;
     } else {
       user = '6:' + user;
     }

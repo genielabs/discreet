@@ -5,6 +5,7 @@ import {PrivateChat} from '../private-chat';
 import {PublicChat} from '../public-chat';
 
 import * as smoothScroll from '../../../../node_modules/smoothscroll-polyfill';
+import {TextFormatting} from '../text-formatting';
 
 @Component({
   selector: 'app-messages-window',
@@ -12,6 +13,7 @@ import * as smoothScroll from '../../../../node_modules/smoothscroll-polyfill';
   styleUrls: ['./messages-window.component.scss']
 })
 export class MessagesWindowComponent implements OnInit {
+  private textFormatting = new TextFormatting();
   private scrollTimeout;
 
   @ViewChild('chatBuffer', {static: true})

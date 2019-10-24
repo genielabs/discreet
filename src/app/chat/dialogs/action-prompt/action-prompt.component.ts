@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA} from '@angular/material';
 
 @Component({
@@ -6,15 +6,11 @@ import {MAT_DIALOG_DATA} from '@angular/material';
   templateUrl: './action-prompt.component.html',
   styleUrls: ['./action-prompt.component.scss']
 })
-export class ActionPromptComponent implements OnInit {
+export class ActionPromptComponent {
   actionText = 'saluta tutti!';
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public username: string
   ) { }
-
-  ngOnInit() {
-    console.log(this.username);
-  }
 
 }

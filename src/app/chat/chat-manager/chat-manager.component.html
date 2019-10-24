@@ -19,7 +19,7 @@
         &nbsp;
         <span>Entra in un gruppo</span>
       </button>
-
+<!--
       <button [disabled]="!(client().isConnected() && (showUserList || !showRightPanel))"
               color="primary" mat-flat-button
               (click)="showChatList()">
@@ -27,7 +27,7 @@
         &nbsp;
         <span>Vai alle conversazioni</span>
       </button>
-
+-->
       <!--
       // TODO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       // TODO: Add info summary & statistics !!
@@ -112,18 +112,24 @@
 
   <mat-menu #userMenu="matMenu" xPosition="after">
     <div class="user-menu-title" *ngIf="currentUser">{{currentUser.user.name}}</div>
-    <!-- open a chat with this user -->
+    <!-- open a chat with this chatUser -->
     <button *ngIf="currentUser == null || !currentUser.online" disabled mat-menu-item>
       <mat-icon>speaker_notes_off</mat-icon>
       <span>Offline</span>
     </button>
-    <!-- open a chat with this user -->
+    <!-- reply this message (will insert this user nick in the input text) -->
+    <button *ngIf="currentUser && isPublicChat(currentChat)"
+            mat-menu-item disabled>
+      <mat-icon color="primary">reply</mat-icon>
+      <span>Rispondi</span>
+    </button>
+    <!-- open a chat with this chatUser -->
     <button *ngIf="currentUser && isPublicChat(currentChat)"
             mat-menu-item (click)="onUserMenuChat()">
       <mat-icon color="primary">message</mat-icon>
       <span>Chat</span>
     </button>
-    <!-- collection of media links shared by the user -->
+    <!-- collection of media links shared by the chatUser -->
     <button *ngIf="currentUser && currentUser.playlist.length > 0"
             mat-menu-item
             [disabled]="currentUser.playlist.length === 0"
@@ -132,9 +138,9 @@
       <span>Playlist</span>
       <span>&nbsp;({{currentUser.playlist.length}})</span>
     </button>
-    <!-- channel info (topic) / user whois -->
+    <!-- channel info (topic) / chatUser whois -->
     <button *ngIf="currentUser" mat-menu-item (click)="onUserInfoClick(currentUser)">
-      <mat-icon>info</mat-icon>
+      <mat-icon color="primary">info</mat-icon>
       <span>Info</span>
     </button>
   </mat-menu>
@@ -148,16 +154,16 @@
           <span>Playlist</span>
           <span>&nbsp;({{currentMenuChat.user.playlist.length}})</span>
         </button>
-        <!-- turn on/off notifications for messages from this user -->
+        <!-- turn on/off notifications for messages from this chatUser -->
         <button mat-menu-item (click)="onToggleNotificationClick(currentMenuChat)">
           <mat-icon *ngIf="!currentMenuChat.preferences.disableNotifications" color="primary">notifications_off</mat-icon>
           <span *ngIf="!currentMenuChat.preferences.disableNotifications">Disabilita notifiche</span>
           <mat-icon *ngIf="currentMenuChat.preferences.disableNotifications" color="primary">notifications</mat-icon>
           <span *ngIf="currentMenuChat.preferences.disableNotifications">Abilita notifiche</span>
         </button>
-        <!-- channel info (topic) / user whois -->
-        <button mat-menu-item disabled>
-          <mat-icon>info</mat-icon>
+        <!-- channel info (topic) / chatUser whois -->
+        <button mat-menu-item (click)="onUserInfoClick(currentMenuChat)">
+          <mat-icon color="primary">info</mat-icon>
           <span>Info</span>
         </button>
         <!-- close this chat -->
@@ -171,14 +177,14 @@
         <mat-icon color="primary">people_alt</mat-icon>
         <span>Elenco utenti</span>
       </button>
-      <!-- turn on/off notifications for messages from this user -->
+      <!-- turn on/off notifications for messages from this chatUser -->
       <button mat-menu-item (click)="onToggleNotificationClick(currentMenuChat)">
         <mat-icon *ngIf="!currentMenuChat.preferences.disableNotifications" color="primary">notifications_off</mat-icon>
         <span *ngIf="!currentMenuChat.preferences.disableNotifications">Disabilita notifiche</span>
         <mat-icon *ngIf="currentMenuChat.preferences.disableNotifications" color="primary">notifications</mat-icon>
         <span *ngIf="currentMenuChat.preferences.disableNotifications">Abilita notifiche</span>
       </button>
-      <!-- channel info (topic) / user whois -->
+      <!-- channel info (topic) -->
       <button mat-menu-item disabled>
         <mat-icon>info</mat-icon>
         <span>Info</span>

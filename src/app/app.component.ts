@@ -102,7 +102,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.mediaPlaylistNotify = false;
     this.router.navigate(['.'], { fragment: 'playlist', relativeTo: this.route });
     const dialogRef = this.dialog.open(MediaPlaylistComponent, {
-      panelClass: 'playlist-dialog-container',
       width: '330px',
       data: chatManager.isPublicChat(chatManager.currentChat.info)
               ? chatManager.channel().users
@@ -226,7 +225,6 @@ export class AppComponent implements OnInit, OnDestroy {
     chatManager.connect();
   }
   onChatLoading(loading) {
-    console.log('LOADING', loading);
     this.isLoadingChat = loading;
   }
 }

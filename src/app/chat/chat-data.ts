@@ -57,7 +57,7 @@ export class ChatData {
     message.rendered.message = message.message
       .replace(/(\u0002+)|(\u0003+)(\d{1,2})?(,(\d{1,2}))?/g, '');
 
-    // find user nick in sentence and make it bold
+    // find chatUser nick in sentence and make it bold
     let nickMatched = false;
     const nick = this.chatManager.client().config.nick; // <--- TODO: create an @Injectable IrcClientService
     const replacer = new RegExp(`(^|\\b)${nick}(?=\\W|\\w+|$)`, 'ig');

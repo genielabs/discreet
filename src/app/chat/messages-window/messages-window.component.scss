@@ -26,7 +26,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   padding: 8px;
-  font-size: 120%;
+  font-size: 105%;
 }
 .message-buffer:first-child {
   display: block;
@@ -60,6 +60,8 @@
   white-space: nowrap;
   font-weight: 600;
   margin-right: 6px;
+  margin-bottom: 2px;
+  font-size: 90%;
   cursor: pointer;
 }
 .message-sender .info {

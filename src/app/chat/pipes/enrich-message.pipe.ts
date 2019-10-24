@@ -44,7 +44,6 @@ export class EnrichMessage implements PipeTransform {
         const o = httpClient.get(`https://noembed.com/embed?url=${url}`);
         pending.push(o);
         o.subscribe((res: MediaInfo) => {
-          console.log(res);
           if (res && res.title) {
             res.originalUrl = url;
             EnrichMessage.mediaUrlsCache.push(res);

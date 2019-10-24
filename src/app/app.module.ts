@@ -47,6 +47,10 @@ import { NicknamePromptComponent } from './chat/dialogs/nickname-prompt/nickname
 import {CallbackPipe} from './chat/pipes/callback.pipe';
 import {RouterModule} from '@angular/router';
 import { ChannelsListComponent } from './chat/dialogs/channels-list/channels-list.component';
+import { UserInfoDialogComponent } from './chat/dialogs/user-info-dialog/user-info-dialog.component';
+
+import {MomentModule} from 'ngx-moment';
+import 'moment/locale/it';
 
 @NgModule({
   declarations: [
@@ -64,7 +68,8 @@ import { ChannelsListComponent } from './chat/dialogs/channels-list/channels-lis
     ActionPromptComponent,
     AwayPromptComponent,
     NicknamePromptComponent,
-    ChannelsListComponent
+    ChannelsListComponent,
+    UserInfoDialogComponent
   ],
   imports: [
     // angular
@@ -75,6 +80,8 @@ import { ChannelsListComponent } from './chat/dialogs/channels-list/channels-lis
     FlexLayoutModule,
     FormsModule,
     ReactiveFormsModule,
+    // moment.js
+    MomentModule,
     // material
     MatFormFieldModule,
     MatButtonModule,
@@ -107,7 +114,8 @@ import { ChannelsListComponent } from './chat/dialogs/channels-list/channels-lis
     ActionPromptComponent,
     AwayPromptComponent,
     NicknamePromptComponent,
-    ChannelsListComponent
+    ChannelsListComponent,
+    UserInfoDialogComponent
   ],
   providers: [
     HttpClientModule,

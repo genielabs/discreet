@@ -25,6 +25,11 @@
               matBadgePosition="after" matBadgeColor="primary">
         <mat-icon>people_alt</mat-icon>
       </button>
+      <button mat-icon-button class="icon-big" *ngIf="!chatManager.channel()"
+              matTooltip="Entra in un gruppo"
+              (click)="onChannelListClick(chatManager)">
+        <mat-icon>group_add</mat-icon>
+      </button>
       <button mat-icon-button class="icon-big"
               matTooltip="Messaggi"
               (click)="onChatMessagesButtonClick(chatManager)"
@@ -70,8 +75,8 @@
 
       <br />
 
-      <button *ngIf="chatManager.client().isConnected()" mat-flat-button (click)="onChannelListClick(chatManager)">
-        <mat-icon color="primary">group</mat-icon>
+      <button [disabled]="!chatManager.isLoggedIn" mat-flat-button (click)="onChannelListClick(chatManager)">
+        <mat-icon color="primary">group_add</mat-icon>
         <span>Elenco Gruppi</span>
       </button>
 

@@ -1,0 +1,59 @@
+<h2 mat-dialog-title class="title">
+  <mat-icon>info</mat-icon>
+  {{u.name}}
+</h2>
+<mat-dialog-content class="content">
+  <label *ngIf="u.whois.address">{{u.whois.address[3]}}</label>
+  <div class="address" *ngIf="u.whois.address">{{u.whois.address[0]}}@{{u.whois.address[1]}}</div>
+  <div class="date" *ngIf="u.whois.time">
+    Connesso {{ (u.whois.time[1] | amFromUnix) | amLocale:'it' | amCalendar }},
+    inattivo da {{ +u.whois.time[0] | amDuration:'seconds' }}
+    <span *ngIf="u.whois.identified">({{ u.whois.identified }})</span>.
+  </div>
+  <label>Canali</label>
+  <div>{{ u.whois.channels }}</div>
+  <label>Server</label>
+  <div *ngIf="u.whois.server">{{ u.whois.server[0] }} <span *ngIf="u.whois.secure">(SSL)</span></div>
+  <div *ngIf="u.whois.server"><em>{{ u.whois.server[1] }}</em></div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close cdkFocusInitial disabled>Versione</button>
+  <button mat-button mat-dialog-close cdkFocusInitial disabled>Chat</button>
+  <button mat-button mat-dialog-close cdkFocusInitial>Chiudi</button>
+</mat-dialog-actions>
+<!--
+{
+  "chatUser": "Zen46",
+  "address": [
+    "zen46",
+    "704D09E5.736615C1.E1B53B6B.IP",
+    "*",
+    "Zen46"
+  ],
+  "identified": [
+    "is identified for this nick"
+  ],
+  "channels": [
+    "+#chatover40"
+  ],
+  "server": [
+    "venere.ircgate.it",
+    "IRCGate Server by Anto"
+  ],
+  "secure": [
+    "is using a Secure Connection"
+  ],
+  "certificate": [
+    "has client certificate fingerprint 6a8c12f0e69fa253abda8422047db40ed671a7273829da53e9999179d4760823"
+  ],
+  "logged": [
+    "Zen46",
+    "is logged in as"
+  ],
+  "time": [
+    "2762",
+    "1571777829",
+    "seconds idle, signon time"
+  ]
+}
+-->

@@ -2,13 +2,13 @@ import {MediaInfo} from './text-formatting';
 import {IrcUser} from '../irc-client-service/irc-user';
 
 export class ChatUser {
-  // volatile data that will be lost if user leaves the channel
+  // volatile data that will be lost if chatUser leaves the channel
   color: string;
   icon: string;
   constructor(public channel: string, public user: IrcUser) {
     // persisted data to ircClientService global users list
     if (user) {
-      user.channels[channel].playlist = [] as MediaInfo[];
+      user.channels[channel].playlist = user.channels[channel].playlist || [] as MediaInfo[];
     }
   }
   get online(): boolean {

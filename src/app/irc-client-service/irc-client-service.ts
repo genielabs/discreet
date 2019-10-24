@@ -16,7 +16,8 @@ export class IrcClientService {
   // events
   loggedIn = new EventEmitter<any>();
   messageReceive = new EventEmitter<any>();
-  joinChannel = new EventEmitter<any>();
+  channelJoin = new EventEmitter<any>();
+  channelTopic = new EventEmitter<any>();
   chanMode = new EventEmitter<any>();
   userMode = new EventEmitter<any>();
   userNick = new EventEmitter<any>();
@@ -29,9 +30,10 @@ export class IrcClientService {
   connectionStatus = new EventEmitter<boolean>();
   awayReply = new EventEmitter<any>();
   versionReply = new EventEmitter<any>();
+  whoisReply = new EventEmitter<any>();
   channelsList = new EventEmitter<IrcChannel[]>();
 
-  private channelList: IrcChannel[];
+  private channelList: IrcChannel[] = [];
   private userList: IrcUser[] = [];
 
   // TODO: remove and deprecate the following (testChannelName)
@@ -41,7 +43,7 @@ export class IrcClientService {
   //  const webIrcInfo = 'http://localhost:8080/webirc/kiwiirc/info?t=1569095871028';
   //  wss://webchat.chattaora.it:7779/webirc/kiwiirc/963/bft5iqad/websocket
   // 'ws://localhost:8080/webirc/kiwiirc/304/0zze4wtr/websocket';
-  private webIrcUrl = 'wss://webchat.chattaora.it:7779/webirc/kiwiirc/963/bft5iqad/websocket';
+  private webIrcUrl = 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/005/atwsvwfx/websocket?sid=21k1d7bnxrtw0&p=4';
   private joinChannels = [ this.testChannelName ];
 
   config = {
@@ -52,6 +54,8 @@ export class IrcClientService {
     info: 'MediaIRC',
     version: 'MediaIRC 1.0 by Zen46 - https://genielabs.github.io/chat/'
   };
+
+  private whoisData: any = {};
 
   constructor() { }
 
@@ -75,7 +79,7 @@ export class IrcClientService {
     });
     subject.subscribe(
       msg => {
-        console.log('>> ' + msg.data)
+console.log('>> ' + msg.data)
         // control command codes
         switch (msg.data) {
           // Just connected
@@ -88,7 +92,7 @@ export class IrcClientService {
             subject.next([ ':1 PING *' ]);
             break;
           case 'a[":1"]':
-            subject.next([ ':1 HOST default:6667' ]);
+            subject.next([ ':1 HOST irc.freenode.net:6667' ]);
             subject.next([ ':1 ENCODING utf8' ]);
             subject.next([ ':1 CAP LS 302' ]);
             subject.next([ `:1 NICK ${this.config.nick}` ]);
@@ -111,6 +115,7 @@ export class IrcClientService {
             if (payload) {
               let target = payload.params[0];
               let message = payload.params[1];
+              let user: IrcUser;
               // irc message payload
               switch (payload.command) {
                 case 'PING':
@@ -131,6 +136,11 @@ export class IrcClientService {
                 case '396': // DISPLAYED USER NAME+ADDRESS
                   this.config.nick = payload.params[0];
                   this.config.host = payload.params[1];
+                  break;
+                case '332': // CHANNEL JOIN
+                  const channel = payload.params[1];
+                  const topic = payload.params[2];
+                  this.channelTopic.emit({channel, topic});
                   break;
                 case '353': // START USERS LIST
                   this.handleChannelUsersList({
@@ -162,7 +172,7 @@ export class IrcClientService {
                   });
                   break;
                 case '321': // START channel list (reply to LIST)
-                  this.channelList = [];
+                  this.channelList.length = 0;
                   break;
                 case '322': // ITEM channel list item (reply to LIST)
                   const ch = new IrcChannel();
@@ -185,11 +195,11 @@ export class IrcClientService {
                   });
                   break;
                 case 'JOIN':
-                  // check if it's' the local user
+                  // check if it's' the local chatUser
                   const userInfo = this.parseUserAddress(payload.prefix);
                   if (userInfo.nick === this.config.nick) {
-                    const channel = payload.params[0];
-                    this.joinChannel.emit(channel);
+                    const joinChannel = payload.params[0];
+                    this.channelJoin.emit(joinChannel);
                     break;
                   }
                   // otherwise threat this JOIN message as "userList" message
@@ -207,7 +217,7 @@ export class IrcClientService {
                     user: this.parseUserAddress(payload.prefix).nick,
                     nick: payload.params[0]
                   };
-                  // local user changed the nick, so update config
+                  // local chatUser changed the nick, so update config
                   if (nickData.user === this.config.nick) {
                     this.config.nick = nickData.nick;
                   }
@@ -226,8 +236,8 @@ export class IrcClientService {
                   break;
                 case 'MODE':
                   if (payload.params.length >= 3) {
-                    // user modes on channel
-                    const channel = payload.params[0];
+                    // chatUser modes on channel
+                    const modeChannel = payload.params[0];
                     const mode = payload.params[1]; // eg. "+oao", "+b", "-bbv", +"ao"
                     const users = [];
                     let u = 2;
@@ -236,12 +246,12 @@ export class IrcClientService {
                       u++;
                     }
                     this.handleUserChannelMode({
-                      channel,
+                      channel: modeChannel,
                       mode,
                       users
                     });
                   } else {
-                    // channel or local user modes
+                    // channel or local chatUser modes
                     const modeTarget = payload.params[0];
                     const mode = payload.params[1]; // eg. "+iwxz" (channel)
                     if (modeTarget[0] === '#') {
@@ -266,13 +276,17 @@ export class IrcClientService {
                   break;
                 case '433': // Nickname already in use
                   message = payload.params[1] += ': ' + payload.params[2];
-                  console.log('NICKNAME ALREADY IN USE', payload);
+                  // TODO: emit event nickAlreadyInUse (or nickTaken)
+console.log('NICKNAME ALREADY IN USE', payload);
                 case '372': // MOTD TEXT
                 case '305': // You are no longer marked as being away
                 case '306': // You have been marked as being away
                 case 'NOTICE':
-                  if (message.startsWith('\x01VERSION ') && message.endsWith('\x01')) {
-                    const version = message.slice(message.indexOf(' '), -1);
+                  if (message.startsWith('\x01VERSION ')) {
+                    let version = message.slice(message.indexOf(' ') + 1, -1);
+                    if (version.endsWith('\x01')) {
+                      version = version.slice(0, -1);
+                    }
                     this.versionReply.emit({
                       sender: payload.prefix,
                       version,
@@ -304,25 +318,54 @@ export class IrcClientService {
                     timestamp: Date.now()
                   });
                   break;
-                case '311': // WHOIS - user address
+                case '311': // WHOIS - chatUser address
+                  user = this.putUser(payload.params[1]);
+                  user.whois.address = payload.params.slice(2);
+                  break;
                 case '307': // WHOIS - is identified for this nick
-                case '319': // WHOIS - user channels
+                  user = this.putUser(payload.params[1]);
+                  user.whois.identified = payload.params.slice(2);
+                  break;
+                case '319': // WHOIS - chatUser channels
+                  user = this.putUser(payload.params[1]);
+                  user.whois.channels = payload.params[2]
+                    .split(' ')
+                    .filter((cn) => cn.length > 0);
+                  break;
                 case '312': // WHOIS - irc server address
-//                case '301': // WHOIS - user is away
-                case '671': // WHOIS - user is using a secure connection
+                  user = this.putUser(payload.params[1]);
+                  user.whois.server = payload.params.slice(2);
+                  break;
+//                case '301': // WHOIS - chatUser is away
+//                  break;
+                case '671': // WHOIS - chatUser is using a secure connection
+                  user = this.putUser(payload.params[1]);
+                  user.whois.secure = payload.params.slice(2);
+                  break;
                 case '276': // WHOIS - SSL certificate fingerprint
-                case '330': // WHOIS - user is logged in as
+                  user = this.putUser(payload.params[1]);
+                  user.whois.certificate = payload.params.slice(2);
+                  break;
+                case '330': // WHOIS - chatUser is logged in as
+                  user = this.putUser(payload.params[1]);
+                  user.whois.logged = payload.params.slice(2);
+                  break;
                 case '317': // WHOIS - signon and idle time
+                  user = this.putUser(payload.params[1]);
+                  user.whois.time = payload.params.slice(2);
+                  break;
                 case '318': // WHOIS - end of WHOIS list
-                  console.log('WHOIS', payload);
-                  message = payload.params.slice(1).join(' ');
-                  this.messageReceive.emit({
-                    type: payload.command,
-                    sender: payload.prefix,
-                    target,
-                    message,
-                    timestamp: Date.now()
-                  });
+                  this.whoisReply.emit(user);
+                  this.whoisData = {};
+                  // console.log('WHOIS', payload);
+                  // message = payload.params.slice(1).join(' ');
+                  // this.messageReceive.emit({
+                  //   type: payload.command,
+                  //   sender: payload.prefix,
+                  //   target,
+                  //   message,
+                  //   timestamp: Date.now()
+                  // });
                   break;
               }
             } else {
@@ -552,7 +595,7 @@ export class IrcClientService {
         this.delChatUser(msg, msg.target, msg.user);
         break;
       case 'QUIT':
-        msg.target = null; // delete user from all channels
+        msg.target = null; // delete chatUser from all channels
         this.delChatUser(msg, msg.target, msg.user);
         break;
     }
@@ -562,16 +605,23 @@ export class IrcClientService {
     return name.replace(/[~&@%+]/g,'');
   }
 
+  getUser(nick: string): IrcUser {
+    return this.userList.find((u) => u.name === nick);
+  }
+  private putUser(nick: string): IrcUser {
+    let user = this.getUser(nick);
+    if (!user) {
+      user = new IrcUser();
+      user.online = true;
+      user.name = this.removeUserNameFlags(nick);
+      user.prefix = nick;
+      this.userList.push(user);
+    }
+    return user;
+  }
   private addChatUser(msg, channel: string, ...users: string[]) {
     users.map((u) => {
-      let user = this.getUser(u);
-      if (!user) {
-        user = new IrcUser();
-        this.addUser(user);
-      }
-      user.online = true;
-      user.name = this.removeUserNameFlags(u);
-      user.prefix = u;
+      const user = this.putUser(u);
       user.channels[channel] = { flags: this.getUserNameFlags(u) };
       this.userJoin.emit({channel, user, msg});
       return user;
@@ -591,13 +641,6 @@ export class IrcClientService {
     (channel == null) ? this.userQuit.emit({user, msg})
       : msg.command === 'KICK'  ? this.userKick.emit({channel, user, msg})
                                 : this.userPart.emit({channel, user, msg});
-  }
-
-  private addUser(user: IrcUser) {
-    this.userList.push(user);
-  }
-  getUser(nick: string): IrcUser {
-    return this.userList.find((u) => u.name === nick);
   }
 
   private getUserNameFlags(user: string): string {
@@ -634,13 +677,15 @@ export class IrcClientService {
       }
       const user = this.getUser(m.users[i]);
       if (user) {
-        const userChannel = user.channels[m.channel];
+        const userChannel = user.channels[m.channel] || { flags: '' };
         const oldFlags = userChannel.flags;
         userChannel.flags = userChannel.flags.replace(flag, '');
         if (mode === '+') {
           userChannel.flags += flag;
         }
         this.userChannelMode.emit({channel: m.channel, user, oldFlags});
+      } else {
+        // TODO: handle other channel modes like +b ...
       }
     });
   }

@@ -123,25 +123,24 @@ export class YoutubeVideoComponent implements OnInit {
   }
 
   onPlayerStateChange(event) {
-    console.log('PLAYER STATE', event);
     switch (event.data) {
       case window['YT'].PlayerState.PLAYING:
         this.playState = PlayStateEnum.PLAYING;
         if (this.cleanTime() === 0) {
-          console.log('started ' + this.cleanTime());
+          //console.log('started ' + this.cleanTime());
         } else {
-          console.log('playing ' + this.cleanTime())
+          //console.log('playing ' + this.cleanTime())
         }
         break;
       case window['YT'].PlayerState.PAUSED:
         this.playState = PlayStateEnum.PAUSED;
         if (this.player.getDuration() - this.player.getCurrentTime() != 0) {
-          console.log('paused' + ' @ ' + this.cleanTime());
+          //console.log('paused' + ' @ ' + this.cleanTime());
         }
         break;
       case window['YT'].PlayerState.ENDED:
         this.playState = PlayStateEnum.ENDED;
-        console.log('ended ');
+        //console.log('ended ');
         this.closePlayer();
         break;
     }
@@ -163,7 +162,7 @@ export class YoutubeVideoComponent implements OnInit {
   }
 
   private onPlayerError(event) {
-    console.log('YOUTUBE PLAYER ERROR!!', event);
+console.log('YOUTUBE PLAYER ERROR!!', event);
     switch (event.data) {
       case 2:
         console.log('' + this.videoId)

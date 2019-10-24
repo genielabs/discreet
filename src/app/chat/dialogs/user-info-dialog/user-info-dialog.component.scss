@@ -1,0 +1,30 @@
+@import "../../../../variables";
+
+:host {
+  max-width: 320px;
+  word-break: break-all;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: $primary;
+  margin: 0;
+}
+.title .mat-icon {
+  margin-right: 8px;
+}
+label {
+  font-weight: bold;
+  margin-top: 8px;
+  display: block;
+}
+.address {
+  opacity: 0.5;
+  font-size: 85%;
+}
+.date {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}

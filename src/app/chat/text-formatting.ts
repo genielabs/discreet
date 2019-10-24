@@ -1,7 +1,6 @@
-import {Observable, Observer, zip} from 'rxjs';
+import {Observable, Observer} from 'rxjs';
 import {MediaInfo} from './pipes/enrich-message.pipe';
 import {HttpClient, HttpXhrBackend} from '@angular/common/http';
-import {DomSanitizer} from '@angular/platform-browser';
 
 export interface MediaInfo {
   //
