@@ -1,7 +1,7 @@
 <div fxLayout="column" fxLayoutAlign="center center" class="page dark-theme mat-app-background">
 
-  <mat-card class="mat-elevation-z20">
-    <h1>#ChatOver40</h1>
+  <mat-card class="content mat-elevation-z20" fxLayout="column" fxLayoutAlign="center center">
+    <h1>Discreet&nbsp;<mat-icon color="accent">chat_bubble</mat-icon></h1>
     <div style="display: block">
       <mat-form-field>
         <input matInput placeholder="Scegli un nome"
@@ -18,7 +18,7 @@
         </mat-error>
       </mat-form-field>
       <div>
-        <mat-checkbox #registered>Utente registrato</mat-checkbox>
+        <mat-checkbox #registered style="margin-top: 16px;">Utente registrato</mat-checkbox>
       </div>
       <mat-form-field *ngIf="registered.checked">
         <input matInput type="password" placeholder="Password"

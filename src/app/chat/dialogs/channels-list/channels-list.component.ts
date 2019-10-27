@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {IrcClientService} from '../../../irc-client-service/irc-client-service';
 import {IrcChannel} from '../../../irc-client-service/irc-channel';
 
@@ -7,22 +7,45 @@ import {IrcChannel} from '../../../irc-client-service/irc-channel';
   templateUrl: './channels-list.component.html',
   styleUrls: ['./channels-list.component.scss']
 })
-export class ChannelsListComponent implements OnInit {
+export class ChannelsListComponent implements OnInit, OnDestroy {
   isLoadingData = true;
-  channelList: IrcChannel[] = [];
+  channelList = [] as IrcChannel[];
   searchFilter = '';
+
+  private list = [] as IrcChannel[];
+  private updateInterval;
 
   constructor(private ircClientService: IrcClientService) { }
 
   ngOnInit() {
-    this.ircClientService.channelsList.subscribe((channels) => {
-      this.channelList = channels.slice();
-      this.channelList.sort((a, b) => {
-        return +a.users < +b.users ? 1 : -1;
-      });
-      this.isLoadingData = false;
+    let ci = 0;
+    this.ircClientService.channelsList.subscribe((channel: IrcChannel) => {
+      if (channel == null) {
+        this.isLoadingData = false;
+      } else {
+        this.list.push(channel);
+        if (this.updateInterval == null) {
+          this.updateInterval = setInterval(() => {
+            if (ci < this.list.length) {
+              this.channelList.push(this.list[ci++]);
+            } else {
+              clearInterval(this.updateInterval);
+              this.channelList.sort((a, b) => {
+                return +a.users < +b.users ? 1 : -1;
+              });
+              this.channelList = this.channelList.slice();
+            }
+          }, 1);
+        }
+      }
     });
     this.ircClientService.list();
+  }
+
+  ngOnDestroy(): void {
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+    }
   }
 
 }

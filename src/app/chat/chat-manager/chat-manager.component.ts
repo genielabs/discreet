@@ -46,10 +46,18 @@ export class ChatManagerComponent implements OnInit {
   userMenu: MatMenu;
   @ViewChild(YoutubeVideoComponent, {static: true})
   videoPlayer: YoutubeVideoComponent;
-  @ViewChild('messageInput', {static: true})
+  @ViewChild('messageInput', {static: false})
   messageInput: ElementRef;
   @ViewChild('userListScrollView', {static: false})
   userListScrollView: CdkVirtualScrollViewport;
+
+  tributeOptions = {
+    values: [ ],
+    positionMenu: false,
+    selectTemplate(item) {
+      return item.original.value;
+    }
+  };
 
   private chatList = {
     public: [] as PublicChat[],
@@ -82,12 +90,9 @@ export class ChatManagerComponent implements OnInit {
 
   currentChat: PrivateChat | PublicChat;
   currentUser: ChatUser;
-  currentMenuChat: PrivateChat | PublicChat | any;
+  currentMenuChat: PrivateChat | any;
 
-  userMessage = '';
   awayMessage = '';
-  textInputCaretPosition = 0;
-  currentEmojiTextInput;
 
   userSearchValue = '';
 
@@ -272,10 +277,6 @@ export class ChatManagerComponent implements OnInit {
   }
   onChatButtonClick(c: ChatData) {
     const chat = this.show(c.target());
-    // close right panel on smaller screen when a chat is opened
-    if (this.screenWidth < 640) {
-      this.closeRightPanel();
-    }
   }
   onCloseChatClick(c: PrivateChat | PublicChat) {
     this.closeChat(c);
@@ -285,6 +286,10 @@ export class ChatManagerComponent implements OnInit {
     this.currentUser = user;
   }
 
+  onUserMenuReply() {
+    this.insertTextInput(this.currentUser.name + ', ');
+    this.focusTextInput();
+  }
   onUserMenuChat() {
     this.showUserList = false;
     this.show(this.currentUser.name);
@@ -297,7 +302,9 @@ export class ChatManagerComponent implements OnInit {
   onLeaveChannelClick(chat: PrivateChat | PublicChat) {
     // TODO: should ask for confirmation
     this.ircClient.raw(`:1 PART ${chat.info.name}`);
-    this.closeChat(chat);
+    this.currentChat.hidden = true;
+    this.currentChat = null;
+    this.showUserList = false;
   }
   onUserPlaylistClick(user: ChatUser) {
     if (this.screenWidth < 640) {
@@ -349,7 +356,7 @@ export class ChatManagerComponent implements OnInit {
     e.preventDefault();
     // TODO: make a method 'sendMessage' out of this
     // strip unwanted characters codes from string
-    let message = this.userMessage.replace(/[\x00-\x1F\x7F]/gu, '');
+    let message = this.currentChat.input.text.replace(/[\x00-\x1F\x7F]/gu, '');
     if (message.trim() !== '') {
       let spaceIndex = message.indexOf(' ');
       if (message[0] === '/' && spaceIndex > 0) {
@@ -392,7 +399,7 @@ export class ChatManagerComponent implements OnInit {
         this.chat().send(message);
       }
     }
-    this.userMessage = '';
+    this.currentChat.input.text = '';
     this.scrollToLast(true);
   }
 
@@ -405,29 +412,44 @@ export class ChatManagerComponent implements OnInit {
       data: eventEmitter
     });
     eventEmitter.subscribe((emoji) => {
-      const leftPart = this.userMessage.substring(0, this.textInputCaretPosition);
-      const rightPart = this.userMessage.substring(this.textInputCaretPosition);
-      this.userMessage = leftPart + emoji.native + rightPart;
-      this.textInputCaretPosition += emoji.native.length;
+      this.insertTextInput(emoji.native);
     });
     dialogRef.afterClosed().subscribe(emoji => {
       eventEmitter.unsubscribe();
-      this.currentEmojiTextInput.focus();
+      this.messageInput.nativeElement.focus();
     });
     e.preventDefault();
   }
 
   onTextInputBlur(e) {
-    const textInput = this.currentEmojiTextInput = e.target;
-    if (textInput.selectionStart || textInput.selectionStart == '0') {
-      this.textInputCaretPosition = textInput.selectionStart;
+    // save text input of currently open chat before switching to the new one
+    if (this.currentChat) {
+      const input = this.messageInput.nativeElement as HTMLInputElement;
+      this.currentChat.input.text = input.value;
+      this.currentChat.input.selectionStart = input.selectionStart;
+      this.currentChat.input.selectionEnd = input.selectionEnd;
     }
   }
   onTextInputFocus(e) {
-    const textInput = e.target;
+    const input = this.messageInput.nativeElement as HTMLInputElement;
     setTimeout(() => {
-      textInput.selectionStart = textInput.selectionEnd = this.textInputCaretPosition;
+      input.selectionStart = this.currentChat.input.selectionStart;
+      input.selectionEnd = this.currentChat.input.selectionEnd;
     }, 50);
+  }
+  onTextInputKeyDown(e) {
+    if (e.key.toString() === '@') {
+      // build list of names for zurb tribute
+      if (this.channel()) {
+        this.tributeOptions.values.length = 0;
+        this.channel().users.map((u) => {
+          this.tributeOptions.values.push({
+            key: u.name,
+            value: u.name
+          });
+        });
+      }
+    }
   }
 
   onUserSearchChange() {
@@ -455,12 +477,24 @@ export class ChatManagerComponent implements OnInit {
     });
   }
 
+  focusTextInput() {
+    const input = this.messageInput.nativeElement as HTMLInputElement;
+    input.focus();
+  }
+  insertTextInput(text: string) {
+    const chatInput = this.currentChat.input;
+    const leftPart = chatInput.text.substring(0, chatInput.selectionStart);
+    const rightPart = chatInput.text.substring(chatInput.selectionEnd);
+    chatInput.text = leftPart + text + rightPart;
+    chatInput.selectionEnd = chatInput.selectionStart = chatInput.selectionStart + text.length;
+  }
+
   closeChat(c: PrivateChat | PublicChat) {
     c.hidden = true;
     if (this.currentChat === c) {
-      let chat: any = this.chatList.public.find((nc) => !nc.hidden);
+      let chat: any = this.chatList.private.find((nc) => !nc.hidden);
       if (chat == null) {
-        chat = this.chatList.private.find((nc) => !nc.hidden);
+        chat = this.chatList.public.find((nc) => !nc.hidden);
       }
       this.currentChat = chat;
       if (chat) {
@@ -593,15 +627,26 @@ export class ChatManagerComponent implements OnInit {
     setTimeout(() => {
       chat.stats.messages.new = 0;
       this.messageWindow.bind(chat);
-      if (!chat.info.name.startsWith('#')) {
+      if (chat instanceof PrivateChat) {
         this.showUserList = false;
       }
+      // restore text input of new open chat
+      const input: HTMLInputElement = this.messageInput.nativeElement;
+      input.value = chat.input.text;
       if (!this.deviceService.isMobile()) {
         // TODO: focus input text
-        (this.messageInput.nativeElement as HTMLElement).focus();
+        input.focus();
       }
       this.chatLoading.emit(false);
     });
+    if (chat instanceof PublicChat) {
+      this.showUserList = true;
+      this.openRightPanel();
+    }
+    // close right panel on smaller screen when a chat is opened
+    if (this.screenWidth < 640) {
+      this.closeRightPanel();
+    }
     return chat;
   }
 

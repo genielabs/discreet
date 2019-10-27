@@ -3,15 +3,18 @@
   <mat-icon>people</mat-icon>
 </h2>
 <mat-dialog-content class="content">
-  <mat-progress-bar *ngIf="isLoadingData" mode="buffer"></mat-progress-bar>
-  <div *ngFor="let channel of channelList">
-    <div class="row"
-         [mat-dialog-close]="channel.name"
-         fxLayout="row" fxLayoutAlign="start center" matRipple>
-      <strong fxFlex="1 0 0">{{ channel.name }}</strong>
-      <span>{{channel.users}}</span>
+  <cdk-virtual-scroll-viewport itemSize="40" class="v-scroll"
+                               minBufferPx="200" maxBufferPx="400">
+    <div *cdkVirtualFor="let channel of channelList">
+      <div class="row"
+           [mat-dialog-close]="channel.name"
+           fxLayout="row" fxLayoutAlign="start center" matRipple>
+        <strong fxFlex="1 0 0">{{ channel.name }}</strong>
+        <span>{{channel.users}}</span>
+      </div>
     </div>
-  </div>
+  </cdk-virtual-scroll-viewport>
+  <mat-progress-bar *ngIf="isLoadingData" mode="buffer"></mat-progress-bar>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <mat-icon>search</mat-icon>
@@ -22,6 +25,7 @@
     </button>
   </mat-form-field>
   <div fxFlexFill>
+    <button mat-button>Aggiorna</button>
     <button mat-button mat-dialog-close cdkFocusInitial>Chiudi</button>
   </div>
 </mat-dialog-actions>

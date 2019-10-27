@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
 import {LoginInfo} from '../irc-client-service/login-info';
 
 @Component({

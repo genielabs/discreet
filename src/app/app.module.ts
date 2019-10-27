@@ -51,6 +51,8 @@ import { UserInfoDialogComponent } from './chat/dialogs/user-info-dialog/user-in
 
 import {MomentModule} from 'ngx-moment';
 import 'moment/locale/it';
+import {NgxTributeModule} from 'ngx-tribute';
+import {PouchDBService} from './services/pouchdb.service';
 
 @NgModule({
   declarations: [
@@ -102,6 +104,7 @@ import 'moment/locale/it';
     MatCardModule,
     MatTooltipModule,
     // third party
+    NgxTributeModule,
     ScrollEventModule,
     PickerModule,
     RouterModule.forRoot([], {useHash: true}),
@@ -122,7 +125,8 @@ import 'moment/locale/it';
     IrcClientService,
     ChatManagerComponent,
     {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: true}},
-    {provide: LOCALE_ID, useValue: 'it-IT'}
+    {provide: LOCALE_ID, useValue: 'it-IT'},
+    PouchDBService
   ],
   bootstrap: [ AppComponent ]
 })

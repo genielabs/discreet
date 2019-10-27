@@ -11,6 +11,7 @@ import {IrcUser} from '../../../irc-client-service/irc-user';
 })
 export class UserInfoDialogComponent implements OnInit {
   u: IrcUser;
+  isLoadingData = true;
   constructor(
     @Inject(MAT_DIALOG_DATA) public chatUser: ChatUser,
     private ircClientService: IrcClientService
@@ -18,7 +19,8 @@ export class UserInfoDialogComponent implements OnInit {
 
   ngOnInit() {
     this.u = this.chatUser.user;
-console.log(this.u, this.chatUser)
+    this.ircClientService.whoisReply
+      .subscribe(reply => this.isLoadingData = false);
     this.ircClientService.whois(this.chatUser.name);
   }
 

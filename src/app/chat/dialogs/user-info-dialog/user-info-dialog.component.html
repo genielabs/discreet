@@ -15,6 +15,7 @@
   <label>Server</label>
   <div *ngIf="u.whois.server">{{ u.whois.server[0] }} <span *ngIf="u.whois.secure">(SSL)</span></div>
   <div *ngIf="u.whois.server"><em>{{ u.whois.server[1] }}</em></div>
+  <mat-progress-bar *ngIf="isLoadingData" mode="buffer"></mat-progress-bar>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close cdkFocusInitial disabled>Versione</button>

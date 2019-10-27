@@ -2,3 +2,8 @@
   cursor: pointer;
   height: 40px;
 }
+.v-scroll {
+  height: 420px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}

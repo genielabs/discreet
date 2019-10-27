@@ -4,7 +4,6 @@ import {Subject} from 'rxjs';
 
 import {LoginInfo} from './login-info';
 import {IrcChannel} from './irc-channel';
-import {ChatMessageType} from '../chat/chat-message';
 import {IrcUser} from './irc-user';
 
 @Injectable({
@@ -31,28 +30,25 @@ export class IrcClientService {
   awayReply = new EventEmitter<any>();
   versionReply = new EventEmitter<any>();
   whoisReply = new EventEmitter<any>();
-  channelsList = new EventEmitter<IrcChannel[]>();
+  channelsList = new EventEmitter<IrcChannel>();
 
-  private channelList: IrcChannel[] = [];
   private userList: IrcUser[] = [];
-
-  // TODO: remove and deprecate the following (testChannelName)
-  //       (put join channels in a config.json file along with other options)
-  private testChannelName = '#chatover40';
 
   //  const webIrcInfo = 'http://localhost:8080/webirc/kiwiirc/info?t=1569095871028';
   //  wss://webchat.chattaora.it:7779/webirc/kiwiirc/963/bft5iqad/websocket
   // 'ws://localhost:8080/webirc/kiwiirc/304/0zze4wtr/websocket';
-  private webIrcUrl = 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/005/atwsvwfx/websocket?sid=21k1d7bnxrtw0&p=4';
-  private joinChannels = [ this.testChannelName ];
+  //
+  //private webIrcUrl = 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/005/atwsvwfx/websocket?sid=21k1d7bnxrtw0&p=4';
+  private webIrcUrl = 'wss://webchat.chattaora.it:7779/webirc/kiwiirc/963/bft5iqad/websocket';
 
   config = {
     nick: 'Wall`e',
     password: '',
     host: 'localhost',
-    user: 'mediairc',
-    info: 'MediaIRC',
-    version: 'MediaIRC 1.0 by Zen46 - https://genielabs.github.io/chat/'
+    user: 'discreet',
+    info: 'Discreet',
+    version: 'Discreet 1.0 by genielabs - https://genielabs.github.io/chat/',
+    joinChannels: []
   };
 
   private whoisData: any = {};
@@ -100,6 +96,10 @@ console.log('>> ' + msg.data)
             break;
           default:
 
+            if (msg.data.toString().startsWith('a[:1 control closed')) {
+              this.disconnect();
+              break;
+            }
 // TODO: things to implement and handle:
 //       - a[":1 control closed err_unknown_host"]
 
@@ -172,7 +172,6 @@ console.log('>> ' + msg.data)
                   });
                   break;
                 case '321': // START channel list (reply to LIST)
-                  this.channelList.length = 0;
                   break;
                 case '322': // ITEM channel list item (reply to LIST)
                   const ch = new IrcChannel();
@@ -181,10 +180,10 @@ console.log('>> ' + msg.data)
                   const modesIndex =  payload.params[3].indexOf(' ');
                   ch.modes = payload.params[3].substring(0, modesIndex);
                   ch.topic = payload.params[3].substring(modesIndex + 1);
-                  this.channelList.push(ch);
+                  this.channelsList.emit(ch);
                   break;
                 case '323': // END channel list item (reply to LIST)
-                  this.channelsList.emit(this.channelList);
+                  this.channelsList.emit(null);
                   break;
                 case 'KICK':
                   this.handleChannelUsersList({
@@ -199,6 +198,11 @@ console.log('>> ' + msg.data)
                   const userInfo = this.parseUserAddress(payload.prefix);
                   if (userInfo.nick === this.config.nick) {
                     const joinChannel = payload.params[0];
+                    // add joined channel to the 'joinChannels' list
+                    const ci = this.config.joinChannels.indexOf(joinChannel);
+                    if (ci < 0) {
+                      this.config.joinChannels.push(joinChannel);
+                    }
                     this.channelJoin.emit(joinChannel);
                     break;
                   }
@@ -271,7 +275,7 @@ console.log('>> ' + msg.data)
                   break;
                 case '376': // MOTD END
                 case '422': // MOTD MISSING
-                  this.joinChannels.forEach((channel) => subject.next([ `:1 JOIN ${channel}` ]));
+                  this.config.joinChannels.forEach((jchan) => subject.next([ `:1 JOIN ${jchan}` ]));
                   this.loggedIn.emit(true);
                   break;
                 case '433': // Nickname already in use
@@ -410,6 +414,11 @@ console.log('NICKNAME ALREADY IN USE', payload);
     this.raw(`:1 JOIN ${channel}`);
   }
   part(channel: string) {
+    // delete channel from 'joinChannels' list
+    const ci = this.config.joinChannels.indexOf(channel);
+    if (ci >= 0) {
+      this.config.joinChannels.splice(ci, 1);
+    }
     this.raw(`:1 PART ${channel}`);
   }
 
@@ -609,14 +618,15 @@ console.log('NICKNAME ALREADY IN USE', payload);
     return this.userList.find((u) => u.name === nick);
   }
   private putUser(nick: string): IrcUser {
-    let user = this.getUser(nick);
+    const name = this.removeUserNameFlags(nick);
+    let user = this.getUser(name);
     if (!user) {
       user = new IrcUser();
-      user.online = true;
-      user.name = this.removeUserNameFlags(nick);
-      user.prefix = nick;
+      user.name = name;
       this.userList.push(user);
     }
+    user.prefix = nick;
+    user.online = true;
     return user;
   }
   private addChatUser(msg, channel: string, ...users: string[]) {

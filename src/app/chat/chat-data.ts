@@ -8,6 +8,11 @@ export class ChatData {
   stats = new ChatStats();
   timestamp = Date.now();
   preferences: any = {};
+  input = {
+    text: '',
+    selectionStart: 0,
+    selectionEnd: 0
+  };
 
   readonly info: ChatInfo;
   private bufferMaxLines = 300;

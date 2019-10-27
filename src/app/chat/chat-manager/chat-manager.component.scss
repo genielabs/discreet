@@ -52,6 +52,7 @@ app-messages-window {
 }
 
 .input-bar {
+  position: relative;
   z-index: 1;
   background-color: $backgroundColor;
   max-width: 100vw;
@@ -197,7 +198,6 @@ app-messages-window {
   line-height: 46px;
   width: 100%;
   border-bottom: 1px solid $primary;
-  padding-left: 40px;
   input[type="text"] {
     border: 0;
     font-size: 100%;
