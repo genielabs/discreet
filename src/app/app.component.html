@@ -77,7 +77,7 @@
 
       <button [disabled]="!chatManager.isLoggedIn" mat-flat-button (click)="onChannelListClick(chatManager)">
         <mat-icon color="primary">group_add</mat-icon>
-        <span>Elenco Gruppi</span>
+        <span>Entra in un gruppo</span>
       </button>
 
       <button *ngIf="chatManager.client().isConnected()" mat-flat-button (click)="onDisconnectClick(chatManager)">

@@ -35,7 +35,7 @@
        *ngIf="!showUserList || !showRightPanel"
        [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
-    <!-- strong class="title">Conversazioni</strong -->
+    <!-- strong class="title">Messaggi</strong -->
     <div *ngIf="boundChatList.hasActivePublicChats()" class="chat-type">I tuoi gruppi</div>
     <div class="chat-row" *ngFor="let c of boundChatList.public | callback: filterChat" fxLayout="row"> <!--  | sortBy:'desc':'timestamp' -->
       <button class="chat-button-menu" mat-icon-button (click)="onChatButtonClick(c)">
@@ -51,7 +51,7 @@
       </button>
       <mat-icon *ngIf="c.preferences.disableNotifications" class="notifications-off-badge">notifications_off</mat-icon>
     </div>
-    <div *ngIf="boundChatList.hasActivePrivateChats()" class="chat-type">Conversazioni private</div>
+    <div *ngIf="boundChatList.hasActivePrivateChats()" class="chat-type">Messaggi privati</div>
     <div class="chat-row" *ngFor="let c of boundChatList.private | callback: filterChat" fxLayout="row"> <!--  | sortBy:'desc':'timestamp' -->
       <button class="chat-button-menu" mat-icon-button (click)="onChatMenuButtonClick(c)"
               [matMenuTriggerFor]="userChatMenu">
@@ -73,22 +73,26 @@
        *ngIf="showUserList || !showRightPanel"
        [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
-    <div class="search-field"
-         fxLayout="row" fxLayoutAlign="start stretch">
-        <button class="chat-button-menu" mat-icon-button
-                [matMenuTriggerFor]="channelMenu">
-          <mat-icon color="primary">menu</mat-icon>
-        </button>
-        <input type="text" placeholder="Cerca utente..."
+    <div class="search-field" fxLayout="row" fxLayoutAlign="start stretch">
+      <button class="chat-button-menu"
+              mat-icon-button [matMenuTriggerFor]="channelMenu">
+        <mat-icon color="primary">menu</mat-icon>
+      </button>
+      <div *ngIf="userSearchMode">
+        <input type="text" placeholder="Cerca utente..." autofocus
                fxFlex="1 0 0"
                [(ngModel)]="userSearchValue"
                (input)="onUserSearchChange()"
                tabindex="0">
-        <button mat-button *ngIf="userSearchValue"
+        <button mat-button
                 mat-icon-button aria-label="Clear"
-                (click)="userSearchValue=''">
+                (click)="userSearchValue=''; userSearchMode = false">
           <mat-icon>close</mat-icon>
         </button>
+      </div>
+      <div *ngIf="currentChat && !userSearchMode" style="height: 42px;">
+        <strong class="title">{{ currentChat.info.name }}</strong>
+      </div>
     </div>
     <cdk-virtual-scroll-viewport *ngIf="this.channel()" #userListScrollView class="v-scroll"
                                  itemSize="38" minBufferPx="200" maxBufferPx="400">
@@ -142,7 +146,7 @@
   <mat-menu #channelMenu="matMenu" xPosition="after">
     <ng-container *ngIf="currentChat">
       <div class="user-menu-title">{{ currentChat.info.name }}</div>
-      <button mat-menu-item disabled>
+      <button mat-menu-item (click)="userSearchMode = true" [disabled]="userSearchMode">
         <mat-icon color="primary">search</mat-icon>
         <span>Cerca utente</span>
       </button>
@@ -160,7 +164,7 @@
       </button>
       <!-- leave the chat room and close this chat -->
       <button mat-menu-item (click)="onLeaveChannelClick(currentChat)">
-        <mat-icon color="warn">exit_to_app</mat-icon>
+        <mat-icon color="warn">close</mat-icon>
         <span>Esci dal gruppo</span>
       </button>
     </ng-container>

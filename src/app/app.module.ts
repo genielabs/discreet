@@ -19,7 +19,7 @@ import {
   MatMenuModule,
   MatProgressSpinnerModule,
   MatSnackBarModule,
-  MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS, MatCardModule, MatTooltipModule, MatProgressBarModule
+  MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS, MatCardModule, MatTooltipModule, MatProgressBarModule, MatSelectModule
 } from '@angular/material';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatRippleModule } from '@angular/material/core';
@@ -94,6 +94,7 @@ import {PouchDBService} from './services/pouchdb.service';
     MatBadgeModule,
     MatIconModule,
     MatTabsModule,
+    MatSelectModule,
     MatMenuModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,

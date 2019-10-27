@@ -94,11 +94,12 @@ export class ChatManagerComponent implements OnInit {
 
   awayMessage = '';
 
+  userSearchMode = false;
   userSearchValue = '';
 
   // state variables
   showRightPanel = true;
-  showUserList = true;
+  showUserList = false;
   isLoggedIn = false;
 
   screenHeight = window.innerHeight;
@@ -209,7 +210,7 @@ export class ChatManagerComponent implements OnInit {
       // set the topic
       chat.topic = topic;
       const msg = new ChatMessage();
-      msg.sender = '';
+      msg.sender = '<strong>ARGOMENTO</strong>';
       msg.target = chat.info.name;
       msg.type = ChatMessageType.MESSAGE;
       msg.message = `<strong>${topic}</strong>`;
@@ -228,7 +229,7 @@ export class ChatManagerComponent implements OnInit {
       const user = chat.getUser(m.user.name);
       user.icon = this.getIcon(user.flags);
       user.color = this.getColor(user.flags);
-      const deleteUser = chat.users.splice(chat.users.indexOf(user), 1);
+      chat.users.splice(chat.users.indexOf(user), 1);
       this.insertionSortUser(chat.users, user);
     });
     this.ircClient.awayReply.subscribe((msg) => {
@@ -664,7 +665,7 @@ export class ChatManagerComponent implements OnInit {
       return this.currentChat;
     } else if (target == null) {
       // default loopback chat
-      return new PrivateChat('MediaChat', this);
+      return new PrivateChat('Discreet', this);
     }
     let chat = this.chatList.find(target);
     if (chat == null) {
@@ -805,6 +806,7 @@ export class ChatManagerComponent implements OnInit {
     const user = new ChatUser(target, u);
     user.color = this.getColor(u.prefix);
     user.icon = this.getIcon(u.prefix);
+    user.user.online = true;
     // TODO: this duplicate check could be removed
     // const existingUser = usersList.find((eu) => eu.name === chatUser.name);
     // if (existingUser == null) {
@@ -820,6 +822,7 @@ export class ChatManagerComponent implements OnInit {
       const channelUser = c.getUser(user);
       if (channelUser) {
         const usersList = this.getUsersList(c.info.name);
+        // remove and re-insert user in order to keep list sorted
         usersList.splice(usersList.indexOf(channelUser), 1);
         this.insertionSortUser(usersList, channelUser);
       }

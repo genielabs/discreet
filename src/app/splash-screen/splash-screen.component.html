@@ -4,6 +4,18 @@
     <h1>Discreet&nbsp;<mat-icon color="accent">chat_bubble</mat-icon></h1>
     <div style="display: block">
       <mat-form-field>
+        <mat-label>Server</mat-label>
+        <mat-select (selectionChange)="onServerSelectChange($event)"
+                    required #server="ngModel"
+                    [(ngModel)]="serverId">
+          <mat-option *ngFor="let server of ircClientService.serverList | callback: filterCallback" [value]="server.id">
+            {{server.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div style="display: block">
+      <mat-form-field>
         <input matInput placeholder="Scegli un nome"
                required
                maxlength="30"
@@ -30,7 +42,7 @@
       <button mat-raised-button
               color="primary"
               (click)="onConnectClick()"
-              [disabled]="nickname.invalid">Entra in Chat</button>
+              [disabled]="nickname.invalid || server.invalid">Entra in Chat</button>
     </div>
   </mat-card>
 </div>

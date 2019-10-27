@@ -8,44 +8,44 @@ import {IrcChannel} from '../../../irc-client-service/irc-channel';
   styleUrls: ['./channels-list.component.scss']
 })
 export class ChannelsListComponent implements OnInit, OnDestroy {
-  isLoadingData = true;
+  isLoadingData = false;
   channelList = [] as IrcChannel[];
-  searchFilter = '';
-
-  private list = [] as IrcChannel[];
-  private updateInterval;
+  channelsCount = 0;
+  channelName = '';
 
   constructor(private ircClientService: IrcClientService) { }
 
   ngOnInit() {
-    let ci = 0;
+    this.channelList = this.ircClientService.config.server.channels.slice();
+    this.channelList.sort((a, b) => {
+      return +a.users < +b.users ? 1 : -1;
+    });
+    this.channelsCount = this.channelList.length;
     this.ircClientService.channelsList.subscribe((channel: IrcChannel) => {
+      this.channelsCount++;
+      // channels list end signal (channel == null)
       if (channel == null) {
+        const list = this.ircClientService.config.server.channels.slice();
+        list.sort((a, b) => {
+          return +a.users < +b.users ? 1 : -1;
+        });
+        this.channelList = list;
         this.isLoadingData = false;
-      } else {
-        this.list.push(channel);
-        if (this.updateInterval == null) {
-          this.updateInterval = setInterval(() => {
-            if (ci < this.list.length) {
-              this.channelList.push(this.list[ci++]);
-            } else {
-              clearInterval(this.updateInterval);
-              this.channelList.sort((a, b) => {
-                return +a.users < +b.users ? 1 : -1;
-              });
-              this.channelList = this.channelList.slice();
-            }
-          }, 1);
-        }
       }
     });
-    this.ircClientService.list();
   }
 
   ngOnDestroy(): void {
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
-    }
   }
 
+  onListDownloadClick() {
+    this.isLoadingData = true;
+    this.channelList.length = this.channelsCount = 0;
+    this.ircClientService.list();
+  }
+
+  elapsedFromListDownload() {
+    const fromLastUpdate = (Date.now() - this.ircClientService.config.server.timestamp) / 1000;
+    return Math.round(fromLastUpdate);
+  }
 }

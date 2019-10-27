@@ -10,7 +10,7 @@ export class PouchDBService {
 
     public constructor() {
         if(!this.isInstantiated) {
-            this.database = new PouchDB('MediaChat');
+            this.database = new PouchDB('Discreet');
             this.isInstantiated = true;
         }
     }

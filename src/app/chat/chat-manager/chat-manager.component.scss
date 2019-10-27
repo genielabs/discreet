@@ -150,15 +150,14 @@ app-messages-window {
 }
 
 .users-list .title, .conversations-list .title {
-  padding-left: 40px;
-  border-bottom: 1px solid $primary;
+  color: $primary;
   text-align: center;
   width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  height: 46px;
-  line-height: 46px;
+  height: 42px;
+  line-height: 42px;
   vertical-align: middle;
 }
 .conversations-list {

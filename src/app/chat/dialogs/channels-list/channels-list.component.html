@@ -1,12 +1,17 @@
 <h2 mat-dialog-title class="title" fxLayout="row" fxLayoutAlign="start center">
-  <span fxFlex="1 0 0">Elenco Gruppi</span>
+  <span>Gruppi</span>
+  <div fxFlex="1 0 0">
+    <span *ngIf="channelsCount > 0" class="channels-count">&nbsp;({{ channelsCount }})</span>
+  </div>
   <mat-icon>people</mat-icon>
 </h2>
 <mat-dialog-content class="content">
   <cdk-virtual-scroll-viewport itemSize="40" class="v-scroll"
-                               minBufferPx="200" maxBufferPx="400">
+                               minBufferPx="200" maxBufferPx="400"
+                               [ngClass]="{ 'list-height': channelsCount > 0 }">
     <div *cdkVirtualFor="let channel of channelList">
       <div class="row"
+           (click)="channelName = channel.name"
            [mat-dialog-close]="channel.name"
            fxLayout="row" fxLayoutAlign="start center" matRipple>
         <strong fxFlex="1 0 0">{{ channel.name }}</strong>
@@ -14,18 +19,24 @@
       </div>
     </div>
   </cdk-virtual-scroll-viewport>
-  <mat-progress-bar *ngIf="isLoadingData" mode="buffer"></mat-progress-bar>
+  <mat-spinner *ngIf="isLoadingData" class="loader">Loading...</mat-spinner>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <mat-icon>search</mat-icon>
+  <mat-icon>people</mat-icon>
+  &nbsp;
   <mat-form-field fxFlex="1 0 0">
-    <input matInput type="text" placeholder="Cerca..." [(ngModel)]="searchFilter">
-    <button mat-button *ngIf="searchFilter" matSuffix mat-icon-button aria-label="Clear" (click)="searchFilter=''">
+    <input matInput type="text" placeholder="Nome gruppo (e.g. #chat)"
+           [(ngModel)]="channelName" #channel="ngModel" pattern="([#&][^\x07\x2C\s]{0,200})" required minlength="2">
+    <button mat-button *ngIf="channelName" matSuffix mat-icon-button aria-label="Clear" (click)="channelName=''">
       <mat-icon>close</mat-icon>
     </button>
   </mat-form-field>
-  <div fxFlexFill>
-    <button mat-button>Aggiorna</button>
-    <button mat-button mat-dialog-close cdkFocusInitial>Chiudi</button>
+  <div fxFlexFill fxLayout="row" fxLayoutAlign="space-between">
+    <button mat-button mat-dialog-close cdkFocusInitial mat-dialog-close>Chiudi</button>
+    <button mat-button [disabled]="elapsedFromListDownload() < 60" (click)="onListDownloadClick()">
+      Elenco
+      <span *ngIf="elapsedFromListDownload() < 60">({{ 60 - elapsedFromListDownload() }})</span>
+    </button>
+    <button mat-button [disabled]="channel.invalid" [color]="channel.invalid ? '' : 'accent'" [mat-dialog-close]="channelName">Entra</button>
   </div>
 </mat-dialog-actions>

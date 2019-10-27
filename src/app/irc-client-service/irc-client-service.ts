@@ -5,6 +5,7 @@ import {Subject} from 'rxjs';
 import {LoginInfo} from './login-info';
 import {IrcChannel} from './irc-channel';
 import {IrcUser} from './irc-user';
+import {IrcServer} from './irc-server';
 
 @Injectable({
   providedIn: 'root',
@@ -34,14 +35,60 @@ export class IrcClientService {
 
   private userList: IrcUser[] = [];
 
-  //  const webIrcInfo = 'http://localhost:8080/webirc/kiwiirc/info?t=1569095871028';
-  //  wss://webchat.chattaora.it:7779/webirc/kiwiirc/963/bft5iqad/websocket
-  // 'ws://localhost:8080/webirc/kiwiirc/304/0zze4wtr/websocket';
-  //
-  //private webIrcUrl = 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/005/atwsvwfx/websocket?sid=21k1d7bnxrtw0&p=4';
-  private webIrcUrl = 'wss://webchat.chattaora.it:7779/webirc/kiwiirc/963/bft5iqad/websocket';
+  serverList: IrcServer[] = [
+    {
+      id: 'dev',
+      name: 'localhost',
+      address: 'localhost:6667',
+      webSocketUrl: 'ws://localhost:8080/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
+      channels: [] as IrcChannel[],
+      timestamp: 0,
+      hidden: true
+    },
+    {
+      id: 'dal.net',
+      address: 'irc.dal.net:6667',
+      name: 'DALnet (International)',
+      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
+      channels: [] as IrcChannel[],
+      timestamp: 0
+    },
+    {
+      id: 'freenode.net',
+      address: 'irc.freenode.net:6667',
+      name: 'FreeNode (International)',
+      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
+      channels: [] as IrcChannel[],
+      timestamp: 0
+    },
+    {
+      id: 'ircgate.it',
+      address: 'irc.ircgate.it:6667',
+      name: 'IRCGate (Italy)',
+      webSocketUrl: 'wss://webchat.chattaora.it:7779/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
+      channels: [] as IrcChannel[],
+      timestamp: 0
+    },
+    {
+      id: 'rizon.net',
+      address: 'irc.rizon.net:6667',
+      name: 'Rizon (International)',
+      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
+      channels: [] as IrcChannel[],
+      timestamp: 0
+    },
+/*    {
+      id: 'undernet.org',
+      address: 'irc.undernet.org:6667',
+      name: 'UnderNet (International)',
+      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
+      channels: [] as IrcChannel[],
+      timestamp: 0
+    }*/
+  ];
 
   config = {
+    server: this.serverList[1],
     nick: 'Wall`e',
     password: '',
     host: 'localhost',
@@ -57,7 +104,10 @@ export class IrcClientService {
 
   connect(): Subject<any> {
     const subject = this.ircClientSubject = webSocket<any>({
-      url: this.webIrcUrl,
+      url: this.config.server.webSocketUrl
+        .replace('{apath}', this.generateId(3, true))
+        .replace('{bpath}', this.generateId(8))
+        .replace('{sid}', this.generateId(13)),
       binaryType: 'arraybuffer',
       // just let the message raw, unparsed
       deserializer: (msg) => msg,
@@ -88,7 +138,7 @@ console.log('>> ' + msg.data)
             subject.next([ ':1 PING *' ]);
             break;
           case 'a[":1"]':
-            subject.next([ ':1 HOST irc.freenode.net:6667' ]);
+            subject.next([ `:1 HOST ${this.config.server.address}` ]);
             subject.next([ ':1 ENCODING utf8' ]);
             subject.next([ ':1 CAP LS 302' ]);
             subject.next([ `:1 NICK ${this.config.nick}` ]);
@@ -118,6 +168,10 @@ console.log('>> ' + msg.data)
               let user: IrcUser;
               // irc message payload
               switch (payload.command) {
+                case 'ERROR':
+                  // TODO: verify 'Closing Link' argument
+                  this.disconnect();
+                  break;
                 case 'PING':
                   subject.next([ `:1 PONG ${payload.params[0]}` ]);
                   break;
@@ -141,6 +195,9 @@ console.log('>> ' + msg.data)
                   const channel = payload.params[1];
                   const topic = payload.params[2];
                   this.channelTopic.emit({channel, topic});
+                  break;
+                case 'TOPIC':
+                  this.channelTopic.emit({channel: target, topic: message});
                   break;
                 case '353': // START USERS LIST
                   this.handleChannelUsersList({
@@ -180,6 +237,8 @@ console.log('>> ' + msg.data)
                   const modesIndex =  payload.params[3].indexOf(' ');
                   ch.modes = payload.params[3].substring(0, modesIndex);
                   ch.topic = payload.params[3].substring(modesIndex + 1);
+                  this.config.server.channels.push(ch);
+                  this.config.server.timestamp = Date.now();
                   this.channelsList.emit(ch);
                   break;
                 case '323': // END channel list item (reply to LIST)
@@ -282,6 +341,9 @@ console.log('>> ' + msg.data)
                   message = payload.params[1] += ': ' + payload.params[2];
                   // TODO: emit event nickAlreadyInUse (or nickTaken)
 console.log('NICKNAME ALREADY IN USE', payload);
+                case '465': // Automatically banned from server
+                  // TODO: ...
+                  //break;
                 case '372': // MOTD TEXT
                 case '305': // You are no longer marked as being away
                 case '306': // You have been marked as being away
@@ -316,7 +378,7 @@ console.log('NICKNAME ALREADY IN USE', payload);
                   }
                   this.messageReceive.emit({
                     type: payload.command,
-                    sender: payload.prefix,
+                    sender: payload.prefix ? payload.prefix : '*',
                     target,
                     message,
                     timestamp: Date.now()
@@ -361,15 +423,6 @@ console.log('NICKNAME ALREADY IN USE', payload);
                 case '318': // WHOIS - end of WHOIS list
                   this.whoisReply.emit(user);
                   this.whoisData = {};
-                  // console.log('WHOIS', payload);
-                  // message = payload.params.slice(1).join(' ');
-                  // this.messageReceive.emit({
-                  //   type: payload.command,
-                  //   sender: payload.prefix,
-                  //   target,
-                  //   message,
-                  //   timestamp: Date.now()
-                  // });
                   break;
               }
             } else {
@@ -404,6 +457,7 @@ console.log('NICKNAME ALREADY IN USE', payload);
   }
 
   list(filter?: string) {
+    this.config.server.channels.length = 0;
     if (filter) {
       this.raw(`:1 LIST ${filter}`);
     } else {
@@ -573,6 +627,7 @@ console.log('NICKNAME ALREADY IN USE', payload);
   }
 
   setCredentials(credentials: LoginInfo) {
+    this.config.server = credentials.server;
     this.config.nick = credentials.nick;
     this.config.password = credentials.password;
   }
@@ -698,5 +753,15 @@ console.log('NICKNAME ALREADY IN USE', payload);
         // TODO: handle other channel modes like +b ...
       }
     });
+  }
+
+  private generateId(length: number, numbersOnly?: boolean) {
+    let result = '';
+    const characters = numbersOnly ? '0123456789' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
   }
 }

@@ -216,7 +216,6 @@ export class AppComponent implements OnInit, OnDestroy {
       this.sidenav.close();
     }
     chatManager.disconnect();
-    //window.document.location.reload();
   }
   onConnectClick(chatManager: ChatManagerComponent) {
     if (this.deviceService.isMobile()) {
