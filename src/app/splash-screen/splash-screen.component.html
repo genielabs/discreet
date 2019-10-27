@@ -2,9 +2,9 @@
 
   <mat-card class="content mat-elevation-z20" fxLayout="column" fxLayoutAlign="center center">
     <h1>Discreet&nbsp;<mat-icon color="accent">chat_bubble</mat-icon></h1>
-    <div style="display: block">
+    <div style="display: block" [ngClass]="{ hidden: singleServerMode }">
       <mat-form-field>
-        <mat-label>Server</mat-label>
+        <mat-label>Server {{singleServerMode}}</mat-label>
         <mat-select (selectionChange)="onServerSelectChange($event)"
                     required #server="ngModel"
                     [(ngModel)]="serverId">

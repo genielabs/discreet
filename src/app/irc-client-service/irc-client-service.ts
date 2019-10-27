@@ -630,6 +630,7 @@ console.log('NICKNAME ALREADY IN USE', payload);
     this.config.server = credentials.server;
     this.config.nick = credentials.nick;
     this.config.password = credentials.password;
+    this.config.joinChannels = credentials.autoJoin;
   }
 
   private handleChannelUsersList(msg: any) {
