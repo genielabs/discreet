@@ -7,5 +7,5 @@ import {MAT_DIALOG_DATA} from '@angular/material';
   styleUrls: ['./away-prompt.component.scss']
 })
 export class AwayPromptComponent {
-  awayText = 'Ora devo andare ma tornerò presto!';
+  awayText = 'Non ci sono, ma tornerò presto!';
 }

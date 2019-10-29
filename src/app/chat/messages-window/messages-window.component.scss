@@ -45,8 +45,8 @@
 }
 .message-sender {
   color: $primary;
-  opacity: 0.7;
-  font-weight: 600;
+  opacity: 1.0;
+  font-weight: 500;
 }
 .message-sender .icon {
   margin-left: 4px;
@@ -58,10 +58,10 @@
 .message-sender span {
   word-break: keep-all;
   white-space: nowrap;
-  font-weight: 600;
+  font-weight: 400;
   margin-right: 6px;
   margin-bottom: 2px;
-  font-size: 90%;
+  font-size: 105%;
   cursor: pointer;
 }
 .message-sender .info {
@@ -119,7 +119,10 @@
 
 
 .message-body {
-  font-family: 'Delius', monospace;
+  font-family: 'Space Mono', monospace;
+  /*font-family: 'Fira Mono', monospace !important;*/
+  /*font-family: 'Nova Mono', monospace;*/
+  /*font-family: 'Delius', monospace;*/
   line-height: 150%;
   vertical-align: middle;
   word-break: break-word;
@@ -128,7 +131,7 @@
 .local-user {
   text-decoration: underline;
   font-weight: bolder;
-  opacity: 0.5;
+  opacity: 0.75;
 }
 
 .message-date {

@@ -1,5 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import PouchDB from 'pouchdb';
+import { EncrDecrService } from './encr-decr.service';
 
 @Injectable()
 export class PouchDBService {
@@ -8,11 +9,11 @@ export class PouchDBService {
     private database: any;
     private listener: EventEmitter<any> = new EventEmitter();
 
-    public constructor() {
-        if(!this.isInstantiated) {
-            this.database = new PouchDB('Discreet');
-            this.isInstantiated = true;
-        }
+    public constructor(private cryptoService: EncrDecrService) {
+      if (!this.isInstantiated) {
+          this.database = new PouchDB('Discreet');
+          this.isInstantiated = true;
+      }
     }
 
     public fetch() {
@@ -40,7 +41,7 @@ export class PouchDBService {
     }
 
     public sync(remote: string) {
-        let remoteDatabase = new PouchDB(remote);
+        const remoteDatabase = new PouchDB(remote);
         this.database.sync(remoteDatabase, {
             live: true
         }).on('change', change => {
@@ -52,6 +53,13 @@ export class PouchDBService {
 
     public getChangeListener() {
         return this.listener;
+    }
+
+    encrypt(unencrypted: string) {
+      return this.cryptoService.set('1a3b5c$#@$^@MARS', unencrypted);
+    }
+    decrypt(encrypted: string) {
+      return this.cryptoService.get('1a3b5c$#@$^@MARS', encrypted);
     }
 
 }

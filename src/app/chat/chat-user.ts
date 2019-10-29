@@ -12,7 +12,7 @@ export class ChatUser {
     }
   }
   get online(): boolean {
-    return this.user.online;
+    return this.user && this.user.online;
   }
   get name(): string {
     return this.user ? this.user.name : '';

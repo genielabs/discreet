@@ -53,6 +53,7 @@ import {MomentModule} from 'ngx-moment';
 import 'moment/locale/it';
 import {NgxTributeModule} from 'ngx-tribute';
 import {PouchDBService} from './services/pouchdb.service';
+import {EncrDecrService} from './services/encr-decr.service';
 
 @NgModule({
   declarations: [
@@ -127,7 +128,8 @@ import {PouchDBService} from './services/pouchdb.service';
     ChatManagerComponent,
     {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: true}},
     {provide: LOCALE_ID, useValue: 'it-IT'},
-    PouchDBService
+    PouchDBService,
+    EncrDecrService
   ],
   bootstrap: [ AppComponent ]
 })

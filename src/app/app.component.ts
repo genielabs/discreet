@@ -14,6 +14,7 @@ import {Location} from '@angular/common';
 import {IrcClientService} from './irc-client-service/irc-client-service';
 import {ChannelsListComponent} from './chat/dialogs/channels-list/channels-list.component';
 import {PrivateChat} from './chat/private-chat';
+import {PouchDBService} from './services/pouchdb.service';
 
 @Component({
   selector: 'app-root',
@@ -66,7 +67,8 @@ export class AppComponent implements OnInit, OnDestroy {
     public ircClientService: IrcClientService,
     private router: Router,
     private route: ActivatedRoute,
-    private locationService: Location
+    private locationService: Location,
+    private pouchDbService: PouchDBService
   ) { }
 
   @HostListener('window:resize', ['$event'])
@@ -87,6 +89,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onConnectRequest(credentials: LoginInfo) {
     this.ircClientService.setCredentials(credentials);
+    this.pouchDbService.put('client.config', this.ircClientService.config);
     this.isUserLogged = true;
   }
   onChannelUsersButtonClick(chatManager: ChatManagerComponent) {

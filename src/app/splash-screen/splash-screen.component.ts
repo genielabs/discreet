@@ -41,6 +41,11 @@ export class SplashScreenComponent implements OnInit {
         }
       }
     });
+    this.ircClientService.loadConfiguration((c) => {
+      this.nick = c.nick;
+      this.password = c.password;
+      this.serverId = c.server.id;
+    });
   }
 
   onConnectClick() {
@@ -50,7 +55,7 @@ export class SplashScreenComponent implements OnInit {
       nick: this.nick,
       password: this.password,
       autoJoin: this.autoJoin
-    });
+    } as LoginInfo);
   }
 
   onServerSelectChange(e) {

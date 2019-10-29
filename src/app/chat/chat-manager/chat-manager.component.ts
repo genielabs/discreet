@@ -69,9 +69,13 @@ export class ChatManagerComponent implements OnInit {
     },
     find(target: string | ChatInfo): PublicChat | PrivateChat {
       if (this.isPublic(target)) {
-        return this.public.find((c) => c.target() === target || c.target().name === target || c.target().prefix === target);
+        return this.public.find((c) => c.target() === target
+          || c.target().name.toLowerCase() === target.toString().toLowerCase()
+          || c.target().prefix.toLowerCase() === target.toString().toLowerCase());
       } else {
-        return this.private.find((c) => c.target() === target || c.target().name === target || c.target().prefix === target);
+        return this.private.find((c) => c.target() === target
+          || c.target().name.toLowerCase() === target.toString().toLowerCase()
+          || c.target().prefix.toLowerCase() === target.toString().toLowerCase());
       }
     },
     add(target: string | ChatInfo, chatManager: ChatManagerComponent): PublicChat | PrivateChat {
@@ -656,7 +660,11 @@ export class ChatManagerComponent implements OnInit {
       return (this.currentChat as PublicChat);
     }
     return this.chatList.public.find((c) => {
-      return ((target == null && !c.hidden) || c.target() === target || c.target().name === target || c.target().prefix === target);
+      return ((target == null && !c.hidden) || (target != null && (
+        c.target() === target
+        || c.target().name.toLowerCase() === target.toString().toLowerCase()
+        || c.target().prefix.toLowerCase() === target.toString().toLowerCase())
+      ));
     });
   }
   chat(target?: string | ChatInfo): PublicChat | PrivateChat {

@@ -6,6 +6,7 @@ import {LoginInfo} from './login-info';
 import {IrcChannel} from './irc-channel';
 import {IrcUser} from './irc-user';
 import {IrcServer} from './irc-server';
+import {PouchDBService} from '../services/pouchdb.service';
 
 @Injectable({
   providedIn: 'root',
@@ -94,13 +95,13 @@ export class IrcClientService {
     host: 'localhost',
     user: 'discreet',
     info: 'Discreet',
-    version: 'Discreet 1.0 by genielabs - https://genielabs.github.io/chat/',
+    version: 'Discreet 1.0 by genielabs - https://github.com/genielabs/discreet',
     joinChannels: []
   };
 
   private whoisData: any = {};
 
-  constructor() { }
+  constructor(private pouchDbService: PouchDBService) {}
 
   connect(): Subject<any> {
     const subject = this.ircClientSubject = webSocket<any>({
@@ -263,6 +264,7 @@ console.log('>> ' + msg.data)
                       this.config.joinChannels.push(joinChannel);
                     }
                     this.channelJoin.emit(joinChannel);
+                    this.saveConfiguration();
                     break;
                   }
                   // otherwise threat this JOIN message as "userList" message
@@ -474,6 +476,7 @@ console.log('NICKNAME ALREADY IN USE', payload);
       this.config.joinChannels.splice(ci, 1);
     }
     this.raw(`:1 PART ${channel}`);
+    this.saveConfiguration();
   }
 
   whois(nick: string) {
@@ -630,7 +633,8 @@ console.log('NICKNAME ALREADY IN USE', payload);
     this.config.server = credentials.server;
     this.config.nick = credentials.nick;
     this.config.password = credentials.password;
-    this.config.joinChannels = credentials.autoJoin;
+    this.config.joinChannels.push(...credentials.autoJoin);
+    this.saveConfiguration();
   }
 
   private handleChannelUsersList(msg: any) {
@@ -764,5 +768,23 @@ console.log('NICKNAME ALREADY IN USE', payload);
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+  }
+
+  public loadConfiguration(callback?: any) {
+    this.pouchDbService.get('client.config').then(config => {
+      config.password = this.pouchDbService.decrypt(config.password);
+      this.config = config;
+      if (callback) {
+        callback(config);
+      }
+    }).catch(err => {
+      console.log('Error loading config.', err);
+    });
+  }
+  public saveConfiguration() {
+    const config = Object.assign({}, this.config, {
+      password: this.pouchDbService.encrypt(this.config.password)
+    });
+    this.pouchDbService.put('client.config', config);
   }
 }

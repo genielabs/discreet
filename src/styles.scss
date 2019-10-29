@@ -26,6 +26,10 @@ $theme: mat-light-theme($primary, $accent, $warn);
 }
 */
 
+/*@import url('https://fonts.googleapis.com/css?family=Nova+Mono&display=swap');*/
+/*@import url('https://fonts.googleapis.com/css?family=Fira+Mono:400,700&display=swap&subset=latin-ext');*/
+/*@import url('https://fonts.googleapis.com/css?family=Space+Mono:400,700&display=swap&subset=latin-ext');*/
+
 @import '~@angular/material/theming';
 $custom-typography: mat-typography-config(
   $font-family: 'Hind Madurai'

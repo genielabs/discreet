@@ -109,7 +109,7 @@
   </div>
 
   <mat-menu #userMenu="matMenu" xPosition="after">
-    <div class="user-menu-title" *ngIf="currentUser">{{currentUser.user.name}}</div>
+    <div class="user-menu-title" *ngIf="currentUser && currentUser.user">{{currentUser.user.name}}</div>
     <!-- open a chat with this chatUser -->
     <button *ngIf="currentUser == null || !currentUser.online" disabled mat-menu-item>
       <mat-icon>speaker_notes_off</mat-icon>
@@ -137,7 +137,7 @@
       <span>&nbsp;({{currentUser.playlist.length}})</span>
     </button>
     <!-- channel info (topic) / chatUser whois -->
-    <button *ngIf="currentUser" mat-menu-item (click)="onUserInfoClick(currentUser)">
+    <button *ngIf="currentUser && currentUser.user" mat-menu-item (click)="onUserInfoClick(currentUser)">
       <mat-icon color="primary">info</mat-icon>
       <span>Info</span>
     </button>
