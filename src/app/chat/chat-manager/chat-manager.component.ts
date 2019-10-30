@@ -361,7 +361,7 @@ export class ChatManagerComponent implements OnInit {
     e.preventDefault();
     // TODO: make a method 'sendMessage' out of this
     // strip unwanted characters codes from string
-    let message = this.currentChat.input.text.replace(/[\x00-\x1F\x7F]/gu, '');
+    let message = this.currentChat.input.text.replace(/[\x00-\x1F\x7F]/g, '');
     if (message.trim() !== '') {
       let spaceIndex = message.indexOf(' ');
       if (message[0] === '/' && spaceIndex > 0) {

@@ -770,21 +770,25 @@ console.log('NICKNAME ALREADY IN USE', payload);
     return result;
   }
 
-  public loadConfiguration(callback?: any) {
-    this.pouchDbService.get('client.config').then(config => {
+  public loadConfiguration(id?: string, callback?: any) {
+    id = id || this.config.server.id;
+    this.pouchDbService.get(id).then(config => {
       config.password = this.pouchDbService.decrypt(config.password);
       this.config = config;
       if (callback) {
         callback(config);
       }
     }).catch(err => {
+      callback(null, err);
       console.log('Error loading config.', err);
     });
   }
-  public saveConfiguration() {
-    const config = Object.assign({}, this.config, {
-      password: this.pouchDbService.encrypt(this.config.password)
+  public saveConfiguration(id?: string, config?: any) {
+    config = config || this.config;
+    id = id || this.config.server.id;
+    config = Object.assign({}, config, {
+      password: this.pouchDbService.encrypt(config.password)
     });
-    this.pouchDbService.put('client.config', config);
+    this.pouchDbService.put(id, config);
   }
 }

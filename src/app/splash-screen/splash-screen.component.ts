@@ -10,8 +10,8 @@ import {ActivatedRoute} from '@angular/router';
 })
 export class SplashScreenComponent implements OnInit {
   @Output() connectRequest = new EventEmitter<LoginInfo>();
-  serverId = 'freenode.net';
-  nick = 'Ospite-' + Math.ceil(Math.random() * 1000);
+  serverId: string;
+  nick = 'Guest-' + Math.ceil(Math.random() * 1000);
   password = '';
 
   singleServerMode = false;
@@ -41,11 +41,7 @@ export class SplashScreenComponent implements OnInit {
         }
       }
     });
-    this.ircClientService.loadConfiguration((c) => {
-      this.nick = c.nick;
-      this.password = c.password;
-      this.serverId = c.server.id;
-    });
+    this.loadConfiguration();
   }
 
   onConnectClick() {
@@ -59,11 +55,20 @@ export class SplashScreenComponent implements OnInit {
   }
 
   onServerSelectChange(e) {
-    console.log(e.value);
     this.serverId = e.value;
+    this.loadConfiguration();
   }
 
   filterCallback(server) {
     return !server.hidden;
+  }
+
+  loadConfiguration() {
+    this.ircClientService.loadConfiguration(this.serverId, (cfg, err) => {
+      cfg = cfg || this.ircClientService.config;
+      this.nick = cfg.nick;
+      this.password = cfg.password;
+      this.serverId = cfg.server.id;
+    });
   }
 }

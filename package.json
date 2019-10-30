@@ -27,8 +27,12 @@
     "@ctrl/ngx-emoji-mart": "^1.0.1",
     "@types/crypto-js": "^3.1.43",
     "buffer": "^5.4.3",
+    "classlist.js": "^1.1.20150312",
+    "core-js": "^3.3.5",
     "crypto-js": "^3.1.9-1",
+    "fetch-polyfill": "^0.8.2",
     "hammerjs": "^2.0.8",
+    "intl": "^1.2.5",
     "loadash": "^1.0.0",
     "moment": "^2.24.0",
     "ngx-device-detector": "^1.3.11",
@@ -40,6 +44,7 @@
     "smoothscroll-polyfill": "^0.4.4",
     "tributejs": "^4.0.0",
     "tslib": "^1.10.0",
+    "web-animations-js": "^2.3.2",
     "zone.js": "~0.9.1"
   },
   "devDependencies": {
