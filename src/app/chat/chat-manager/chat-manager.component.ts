@@ -849,14 +849,18 @@ export class ChatManagerComponent implements OnInit {
         const u = c.getUser(user.name);
         if (u) {
           c.users.splice(c.users.indexOf(u), 1);
-          callback(c.info.name);
+          if (callback) {
+            callback(c.info.name);
+          }
         }
       });
     } else {
       const c = (this.chatList.find(target) as PublicChat);
       const u = c.getUser(user.name);
       c.users.splice(c.users.indexOf(u), 1);
-      callback(c.info.name);
+      if (callback) {
+        callback(c.info.name);
+      }
     }
   }
   private insertionSortUser(usersList: ChatUser[], user: ChatUser) {
