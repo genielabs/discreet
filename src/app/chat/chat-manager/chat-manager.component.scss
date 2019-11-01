@@ -1,5 +1,3 @@
-@import '../../../_variables.scss';
-
 :host {
   display: flex;
   font-size: 110%;
@@ -8,6 +6,10 @@
   justify-content: stretch;
   width: 100%;
   height: calc(100% - 96px); /* 160px = top bar height 64 + bottom bar height 96 */
+}
+
+.mat-drawer {
+  transform: none !important;
 }
 
 .hidden {
@@ -46,6 +48,7 @@ cdk-virtual-scroll-viewport button span {
 app-messages-window {
   width: 100%;
   margin-right: 240px;
+  transition: margin-right .3s ease-in-out;
 }
 .message-input {
   resize: none !important;
@@ -54,11 +57,11 @@ app-messages-window {
 .input-bar {
   position: relative;
   z-index: 1;
-  background-color: $backgroundColor;
   max-width: 100vw;
   padding: 16px 16px 24px;
   height: 96px;
   margin-right: 240px;
+  transition: margin-right .3s ease-in-out;
 }
 .input-bar.full-width {
   margin-right: 0;
@@ -76,16 +79,8 @@ app-messages-window {
   max-width: 200px;
 }
 
-.close-panel {
-  position: absolute;
-  right: 200px;
-  top: 1px;
-  background: white;
-  z-index: 101;
-}
-
 .user-menu-title {
-  color: $accent;
+/*  color: $accent;*/
   font-weight: 700;
   font-size: 14px;
   padding: 8px;
@@ -94,13 +89,14 @@ app-messages-window {
 }
 
 .users-list {
+  border: 0;
+  border-left: solid 1px;
   font-size: 100%;
   z-index: 100;
   position: absolute;
-  transition: all .3s ease-in-out;
+  transition: margin-right .3s ease-in-out;
   right: 0;
   opacity: 0.95;
-  background: $backgroundColor;
   width: 240px;
   height: calc(100% + 96px);
   min-width: 240px;
@@ -117,12 +113,13 @@ app-messages-window {
 }
 
 .conversations-list {
+  border: 0;
+  border-left: solid 1px;
   z-index: 100;
   position: absolute;
-  transition: all .3s ease-in-out;
+  transition: margin-right .3s ease-in-out;
   right: 0;
   opacity: 0.95;
-  background: $backgroundColor;
   width: 240px;
   height: calc(100% + 96px);
   min-width: 240px;
@@ -150,7 +147,7 @@ app-messages-window {
 }
 
 .users-list .title, .conversations-list .title {
-  color: $primary;
+/*  color: $primary;*/
   text-align: center;
   width: 100%;
   white-space: nowrap;
@@ -164,7 +161,7 @@ app-messages-window {
   .chat-type {
     margin-top: 16px;
     margin-left: 10px;
-    color: $accent;
+/*    color: $accent;*/
     font-weight: 600;
     font-size: 90%;
     text-transform: uppercase;
@@ -196,7 +193,7 @@ app-messages-window {
   height: 46px;
   line-height: 46px;
   width: 100%;
-  border-bottom: 1px solid $primary;
+  border-bottom: 1px solid;
   input[type="text"] {
     border: 0;
     font-size: 100%;

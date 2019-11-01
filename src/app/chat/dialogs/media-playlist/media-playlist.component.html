@@ -1,10 +1,10 @@
-<h2 mat-dialog-title class="title">
+<h2 mat-dialog-title class="title theme-color-primary">
   <mat-icon>music_video</mat-icon>
   Video condivisi
 </h2>
 <mat-dialog-content class="content">
   <div *ngFor="let user of users | callback: filterCallback">
-    <h3 class="playlist-name">
+    <h3 class=" theme-color-accent">
       {{user.name}}
     </h3>
     <div *ngFor="let media of user.playlist" fxLayout="row" fxLayoutAlign="start stretch">

@@ -1,0 +1,89 @@
+// Import material theming functions
+@import '../../node_modules/@angular/material/theming';
+
+// Typography
+$custom-typography: mat-typography-config(
+  $font-family: 'Hind Madurai'
+);
+@include mat-core($custom-typography);
+
+/* ======== Angular material custom themes ======== */
+
+// Default Theme
+$default-theme-primary: mat-palette($mat-deep-purple);
+$default-theme-accent: mat-palette($mat-pink, A200, A100, A400);
+$default-theme-warn: mat-palette($mat-red);
+$default-theme: mat-light-theme($default-theme-primary, $default-theme-accent, $default-theme-warn);
+@include angular-material-theme($default-theme);
+
+// color variables (will be available in the whole project)
+// TODO: remove these 3 use mat-color instead
+$primary: mat-color($default-theme-primary);
+$accent: mat-color($default-theme-accent);
+$warn: mat-color($default-theme-warn);
+
+$positive: mat-palette($mat-green);
+$negative: mat-palette($mat-red);
+$notice: mat-palette($mat-orange);
+
+.theme-color-primary {
+  color: mat-color($default-theme-primary);
+}
+
+.theme-color-positive {
+  color: mat-color($positive);
+}
+.theme-color-negative {
+  color: mat-color($negative);
+}
+.theme-color-notice {
+  color: mat-color($notice);
+}
+.theme-background-accent {
+  background-color: mat-color($default-theme-accent);
+}
+.theme-border-primary {
+  border-color: mat-color($default-theme-primary, 300, 0.5) !important;
+}
+
+/*
+$primary: mat-palette($mat-indigo);
+$accent: mat-palette($mat-pink, A200, A100, A400);
+$warn: mat-palette($mat-red);
+$theme: mat-light-theme($primary, $accent, $warn);
+@include angular-material-theme($theme);
+*/
+
+// Dark Theme
+.dark-theme {
+  color: #bbb;
+  $dark-primary: mat-palette($mat-green);
+  $dark-accent: mat-palette($mat-amber, A400, A100, A700);
+  $dark-warn: mat-palette($mat-red);
+  $dark-theme: mat-dark-theme($dark-primary, $dark-accent, $dark-warn);
+  @include angular-material-theme($dark-theme);
+
+  $dark-positive: mat-palette($mat-lime);
+  $dark-negative: mat-palette($mat-pink);
+  $dark-notice: mat-palette($mat-yellow);
+
+  .theme-color-primary {
+    color: mat-color($dark-primary) !important;
+  }
+  .theme-color-positive {
+    color: mat-color($dark-positive);
+  }
+  .theme-color-negative {
+    color: mat-color($dark-negative);
+  }
+  .theme-color-notice {
+    color: mat-color($dark-notice);
+  }
+  .theme-background-accent {
+    color: #000 !important;
+    background-color: mat-color($dark-accent);
+  }
+  .theme-border-primary {
+    border-color: mat-color($dark-primary, 300, 0.5) !important;
+  }
+}

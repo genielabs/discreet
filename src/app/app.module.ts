@@ -54,6 +54,7 @@ import 'moment/locale/it';
 import {NgxTributeModule} from 'ngx-tribute';
 import {PouchDBService} from './services/pouchdb.service';
 import {EncrDecrService} from './services/encr-decr.service';
+import {ThemeService} from './core/services/theme.service';
 
 @NgModule({
   declarations: [
@@ -129,7 +130,8 @@ import {EncrDecrService} from './services/encr-decr.service';
     {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: true}},
     {provide: LOCALE_ID, useValue: 'it-IT'},
     PouchDBService,
-    EncrDecrService
+    EncrDecrService,
+    ThemeService
   ],
   bootstrap: [ AppComponent ]
 })

@@ -5,7 +5,7 @@
         autoplay="1" controls="0" enablejsapi="1"
         frameborder="0" allowfullscreen></iframe>
 -->
-<div class="video-frame mat-elevation-z6" [ngClass]="{hidden: videoId == null, maximized: !isMinimized, 'no-margin': !hasMargin}">
+<div class="video-frame theme-border-primary mat-elevation-z6" [ngClass]="{hidden: videoId == null, maximized: !isMinimized, 'no-margin': !hasMargin}">
   <div id="youtube-player"></div>
   <div class="overlay" *ngIf="!isFullScreen && isMinimized"
        matRipple matRippleColor="rgba(255,255,255,0.3)"

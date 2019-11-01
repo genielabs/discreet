@@ -1,4 +1,4 @@
-<h2 mat-dialog-title class="title">
+<h2 mat-dialog-title class="title theme-color-primary">
   Descrivi azione o stato d'animo
 </h2>
 <mat-dialog-content class="content" fxLayout="column">
@@ -8,7 +8,7 @@
            #textInput="ngModel"
            [(ngModel)]="actionText"></textarea>
   </mat-form-field>
-  <strong>{{username}}… {{actionText}}</strong>
+  <strong class="theme-color-notice">{{username}}… {{actionText}}</strong>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button [mat-dialog-close]="actionText" [disabled]="textInput.invalid">Conferma</button>

@@ -20,7 +20,7 @@
                [ngClass]="{ 'margin-bottom': i === 0 || i === boundChat.messages.length - 1 || boundChat.messages[i + 1].type !== MessageType.MESSAGE }"
                fxLayout="row" fxLayoutAlign="center center">
 
-            <mat-icon class="icon">announcement</mat-icon>
+            <mat-icon class="icon theme-color-notice">announcement</mat-icon>
 
             <span [innerHTML]="msg.sender" [ngClass]="{'local-user': msg.isLocal}"
                   [matMenuTriggerFor]="boundChat.manager().userMenu"
@@ -41,10 +41,10 @@
                [ngClass]="{ 'margin-top': i === 0 || boundChat.messages[i - 1].type === MessageType.MESSAGE }"
                fxLayout="row" fxLayoutAlign="start center">
 
-            <mat-icon *ngIf="msg.type === MessageType.JOIN" class="icon enter">arrow_forward</mat-icon>
-            <mat-icon *ngIf="msg.type === MessageType.PART" class="icon exit">arrow_back</mat-icon>
-            <mat-icon *ngIf="msg.type === MessageType.KICK" class="icon exit">close</mat-icon>
-            <mat-icon *ngIf="msg.type === MessageType.QUIT" class="icon exit">arrow_back</mat-icon>
+            <mat-icon *ngIf="msg.type === MessageType.JOIN" class="icon theme-color-positive">arrow_forward</mat-icon>
+            <mat-icon *ngIf="msg.type === MessageType.PART" class="icon theme-color-negative">arrow_back</mat-icon>
+            <mat-icon *ngIf="msg.type === MessageType.KICK" class="icon theme-color-negative">close</mat-icon>
+            <mat-icon *ngIf="msg.type === MessageType.QUIT" class="icon theme-color-negative">arrow_back</mat-icon>
 
             <span [innerHTML]="msg.sender" [ngClass]="{'local-user': msg.isLocal}"
                   [matMenuTriggerFor]="boundChat.manager().userMenu"
@@ -63,7 +63,7 @@
         <!-- PRIVMSG MESSAGE -->
         <ng-container *ngIf="msg.type === MessageType.MESSAGE">
           <!-- message sender -->
-          <div class="message-sender margin-top"
+          <div class="message-sender theme-color-primary margin-top"
                *ngIf="i === 0 || boundChat.messages[i - 1].sender !== msg.sender || boundChat.messages[i - 1].type !== msg.type"
                fxLayout="row" fxLayoutAlign="start center">
 
@@ -86,7 +86,7 @@
 
       <div *ngIf="!isLastMessageVisible && boundChat.stats.messages.new > 0"
            matRipple
-           class="message-notification mat-elevation-z5"
+           class="message-notification theme-background-accent mat-elevation-z5"
            (click)="scrollLast(true, true)"
            fxLayout="row" fxLayoutAling="center center">
         <mat-icon>arrow_downward</mat-icon>

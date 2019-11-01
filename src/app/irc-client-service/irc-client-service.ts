@@ -35,6 +35,7 @@ export class IrcClientService {
   channelsList = new EventEmitter<IrcChannel>();
 
   private userList: IrcUser[] = [];
+  private updateDbTimeout;
 
   serverList: IrcServer[] = [
     {
@@ -783,12 +784,26 @@ console.log('NICKNAME ALREADY IN USE', payload);
       console.log('Error loading config.', err);
     });
   }
-  public saveConfiguration(id?: string, config?: any) {
-    config = config || this.config;
-    id = id || this.config.server.id;
+  public saveConfiguration() {
+    if (this.updateDbTimeout) {
+      if (this.updateDbTimeout !== true) {
+        clearTimeout(this.updateDbTimeout);
+      }
+      this.updateDbTimeout = setTimeout(this.saveConfiguration.bind(this), 500);
+      return;
+    }
+    this.updateDbTimeout = true;
+    let config = this.config;
+    const id = this.config.server.id;
+    // encrypt sensible data
     config = Object.assign({}, config, {
       password: this.pouchDbService.encrypt(config.password)
     });
-    this.pouchDbService.put(id, config);
+    // update db
+    this.pouchDbService.put(id, config).then((res) => {
+      this.updateDbTimeout = false;
+    }).catch(err => {
+      this.updateDbTimeout = false;
+    });
   }
 }

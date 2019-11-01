@@ -66,6 +66,10 @@ export class SplashScreenComponent implements OnInit {
   loadConfiguration() {
     this.ircClientService.loadConfiguration(this.serverId, (cfg, err) => {
       cfg = cfg || this.ircClientService.config;
+      if (this.serverId) {
+        this.ircClientService.config.server = this.ircClientService.serverList
+          .find((s) => s.id === this.serverId);
+      }
       this.nick = cfg.nick;
       this.password = cfg.password;
       this.serverId = cfg.server.id;

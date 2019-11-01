@@ -16,6 +16,9 @@ import {ChannelsListComponent} from './chat/dialogs/channels-list/channels-list.
 import {PrivateChat} from './chat/private-chat';
 import {PouchDBService} from './services/pouchdb.service';
 
+import { ThemeService } from './core/services/theme.service';
+import {Observable} from 'rxjs';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -26,6 +29,10 @@ export class AppComponent implements OnInit, OnDestroy {
   public sidenav: MatSidenav;
   @ViewChild('chatManager', {read: ChatManagerComponent, static: false})
   private channelManager: ChatManagerComponent;
+
+  settings = {
+    isDarkTheme: false
+  };
 
   title = 'ng-web-irc';
   isUserLogged = false;
@@ -38,7 +45,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   mediaPlaylistCount = 0;
   mediaPlaylistNotify = false;
-  mediaCountInterval = setInterval(() => {
+
+  private mediaCountInterval = setInterval(() => {
     const channelManager = this.channelManager;
     if (channelManager && channelManager.currentChat) {
         if (channelManager.isPublicChat(channelManager.currentChat.info)) {
@@ -61,6 +69,8 @@ export class AppComponent implements OnInit, OnDestroy {
       }
   }, 2000);
 
+  private updateDbTimeout;
+
   constructor(
     public dialog: MatDialog,
     public deviceService: DeviceDetectorService,
@@ -68,7 +78,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private locationService: Location,
-    private pouchDbService: PouchDBService
+    private pouchDbService: PouchDBService,
+    private themeService: ThemeService
   ) { }
 
   @HostListener('window:resize', ['$event'])
@@ -78,8 +89,10 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.themeService.isDarkTheme.subscribe((isDark) => this.settings.isDarkTheme = isDark );
     this.screenHeight = window.innerHeight;
     this.screenWidth = window.innerWidth;
+    this.loadConfiguration();
   }
   ngOnDestroy() {
     if (this.mediaCountInterval) {
@@ -229,4 +242,36 @@ export class AppComponent implements OnInit, OnDestroy {
   onChatLoading(loading) {
     this.isLoadingChat = loading;
   }
+  onToggleDarkTheme(checked: boolean) {
+    if (this.deviceService.isMobile()) {
+      this.sidenav.close();
+    }
+    this.themeService.setDarkTheme(checked);
+    this.saveConfiguration();
+  }
+
+  public loadConfiguration() {
+    this.pouchDbService.get('settings').then(settings => {
+      this.settings = settings;
+    }).catch(err => {
+      console.log('Error loading settings.', err);
+    });
+  }
+  public saveConfiguration() {
+    if (this.updateDbTimeout) {
+      if (this.updateDbTimeout !== true) {
+        clearTimeout(this.updateDbTimeout);
+      }
+      this.updateDbTimeout = setTimeout(this.saveConfiguration.bind(this), 500);
+      return;
+    }
+    this.updateDbTimeout = true;
+    // update db
+    this.pouchDbService.put('settings', this.settings).then((res) => {
+      this.updateDbTimeout = false;
+    }).catch(err => {
+      this.updateDbTimeout = false;
+    });
+  }
+
 }

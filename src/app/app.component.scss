@@ -1,5 +1,3 @@
-@import '../_variables.scss';
-
 :host {
   display: block;
   position: absolute;
@@ -21,7 +19,8 @@
 }
 
 .left-panel {
-  /* background-color: azure; */
+  border: 0;
+  border-right: solid 1px;
   padding: 8px;
 
   & .mat-flat-button {

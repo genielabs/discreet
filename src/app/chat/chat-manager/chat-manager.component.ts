@@ -193,16 +193,21 @@ export class ChatManagerComponent implements OnInit {
       );
     });
     this.ircClient.userQuit.subscribe(({user, msg}) => {
-      this.delChatUser(null, user);
-      this.addServiceEvent(
-        null, user.name,
-        ChatMessageType.QUIT,
-        'si è disconnesso.',
-        {description: msg.message}
-      );
+      this.delChatUser(null, user, (channel) => {
+        this.addServiceEvent(
+          channel, user.name,
+          ChatMessageType.QUIT,
+          'si è disconnesso.',
+          {description: msg.message}
+        );
+      });
     });
     this.ircClient.userNick.subscribe(({oldNick, u, msg}) => {
       this.renChatUser((u as IrcUser).name);
+      const chat = this.chatList.find(oldNick);
+      if (chat instanceof PrivateChat) {
+        chat.info.name = (u as IrcUser).name;
+      }
     });
     this.ircClient.channelJoin.subscribe((channel) => {
       const chat = (this.show(channel) as PublicChat);
@@ -306,8 +311,8 @@ export class ChatManagerComponent implements OnInit {
   }
   onLeaveChannelClick(chat: PrivateChat | PublicChat) {
     // TODO: should ask for confirmation
-    this.ircClient.raw(`:1 PART ${chat.info.name}`);
-    this.currentChat.hidden = true;
+    this.ircClient.part(chat.info.name);
+    this.closeChat(chat);
     this.currentChat = null;
     this.showUserList = false;
   }
@@ -636,11 +641,13 @@ export class ChatManagerComponent implements OnInit {
         this.showUserList = false;
       }
       // restore text input of new open chat
-      const input: HTMLInputElement = this.messageInput.nativeElement;
-      input.value = chat.input.text;
-      if (!this.deviceService.isMobile()) {
-        // TODO: focus input text
-        input.focus();
+      if (this.messageInput) {
+        const input: HTMLInputElement = this.messageInput.nativeElement;
+        input.value = chat.input.text;
+        if (!this.deviceService.isMobile()) {
+          // TODO: focus input text
+          input.focus();
+        }
       }
       this.chatLoading.emit(false);
     });
@@ -836,16 +843,20 @@ export class ChatManagerComponent implements OnInit {
       }
     });
   }
-  private delChatUser(target: string, user: IrcUser) {
+  private delChatUser(target: string, user: IrcUser, callback?) {
     if (target == null) {
       this.chatList.public.forEach((c) => {
         const u = c.getUser(user.name);
-        c.users.splice(c.users.indexOf(u), 1);
+        if (u) {
+          c.users.splice(c.users.indexOf(u), 1);
+          callback(c.info.name);
+        }
       });
     } else {
       const c = (this.chatList.find(target) as PublicChat);
       const u = c.getUser(user.name);
       c.users.splice(c.users.indexOf(u), 1);
+      callback(c.info.name);
     }
   }
   private insertionSortUser(usersList: ChatUser[], user: ChatUser) {
@@ -887,10 +898,10 @@ export class ChatManagerComponent implements OnInit {
 export class BoundChatList {
   public: PublicChat[] = [];
   private: PrivateChat[] = [];
-  hasActivePublicChats(): boolean {
-    return this.public.reduce((a, b) => a + (!b.hidden ? 1 : 0), 0) > 0;
+  activePublicChats(): number {
+    return this.public.reduce((a, b) => a + (b.hidden ? 0 : 1), 0);
   }
-  hasActivePrivateChats(): boolean {
-    return this.private.reduce((a, b) => a + (!b.hidden ? 1 : 0), 0) > 0;
+  activePrivateChats(): number {
+    return this.private.reduce((a, b) => a + (b.hidden ? 0 : 1), 0);
   }
 }

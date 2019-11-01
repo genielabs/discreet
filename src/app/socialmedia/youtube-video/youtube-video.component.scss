@@ -1,7 +1,5 @@
-@import '../../../_variables.scss';
-
 .video-frame {
-  transition: all 0.3ms ease-in;
+  transition: all .3s ease-in-out;
   transform: translate(-240px, 0);
   display: block;
   position: absolute;
@@ -21,8 +19,8 @@
   height: 360px;
   width: 576px;
   border: 0;
-  border-left: 6px solid $primary;
-  border-bottom: 6px solid $primary;
+  border-left: 6px solid;
+  border-bottom: 6px solid;
   border-bottom-left-radius: 48px;
 }
 
@@ -42,6 +40,7 @@
 }
 
 .menu-button {
+  transition: all .3s ease-in-out;
   transform: translate(-240px, 0);
   display: block;
   position: absolute;

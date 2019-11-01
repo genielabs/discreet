@@ -30,8 +30,7 @@
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/pink-bluegrey.css",
-              "src/styles.scss",
-              "src/_variables.scss"
+              "src/styles.scss"
             ],
             "scripts": [
               "./node_modules/crypto-js/crypto-js.js"
