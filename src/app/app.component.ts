@@ -14,10 +14,8 @@ import {Location} from '@angular/common';
 import {IrcClientService} from './irc-client-service/irc-client-service';
 import {ChannelsListComponent} from './chat/dialogs/channels-list/channels-list.component';
 import {PrivateChat} from './chat/private-chat';
-import {PouchDBService} from './services/pouchdb.service';
 
-import { ThemeService } from './core/services/theme.service';
-import {Observable} from 'rxjs';
+import {SettingsService} from './core/services/settings.service';
 
 @Component({
   selector: 'app-root',
@@ -29,10 +27,6 @@ export class AppComponent implements OnInit, OnDestroy {
   public sidenav: MatSidenav;
   @ViewChild('chatManager', {read: ChatManagerComponent, static: false})
   private channelManager: ChatManagerComponent;
-
-  settings = {
-    isDarkTheme: false
-  };
 
   title = 'ng-web-irc';
   isUserLogged = false;
@@ -69,17 +63,14 @@ export class AppComponent implements OnInit, OnDestroy {
       }
   }, 2000);
 
-  private updateDbTimeout;
-
   constructor(
     public dialog: MatDialog,
     public deviceService: DeviceDetectorService,
     public ircClientService: IrcClientService,
+    public settingsService: SettingsService,
     private router: Router,
     private route: ActivatedRoute,
-    private locationService: Location,
-    private pouchDbService: PouchDBService,
-    private themeService: ThemeService
+    private locationService: Location
   ) { }
 
   @HostListener('window:resize', ['$event'])
@@ -89,10 +80,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.themeService.isDarkTheme.subscribe((isDark) => this.settings.isDarkTheme = isDark );
     this.screenHeight = window.innerHeight;
     this.screenWidth = window.innerWidth;
-    this.loadConfiguration();
+    this.settingsService.loadSettings();
   }
   ngOnDestroy() {
     if (this.mediaCountInterval) {
@@ -102,7 +92,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onConnectRequest(credentials: LoginInfo) {
     this.ircClientService.setCredentials(credentials);
-    this.pouchDbService.put('client.config', this.ircClientService.config);
+    this.ircClientService.saveConfiguration();
     this.isUserLogged = true;
   }
   onChannelUsersButtonClick(chatManager: ChatManagerComponent) {
@@ -119,9 +109,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.navigate(['.'], { fragment: 'playlist', relativeTo: this.route });
     const dialogRef = this.dialog.open(MediaPlaylistComponent, {
       width: '330px',
-      data: chatManager.isPublicChat(chatManager.currentChat.info)
+      data: chatManager.currentChat == null ? [] :
+        (chatManager.isPublicChat(chatManager.currentChat.info)
               ? chatManager.channel().users
-              : [(chatManager.currentChat as  PrivateChat).user],
+              : [(chatManager.currentChat as  PrivateChat).user]),
       closeOnNavigation: true
     });
     dialogRef.afterClosed().subscribe(media => {
@@ -188,7 +179,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.sidenav.close();
     }
     this.router.navigate(['.'], { fragment: 'action', relativeTo: this.route });
-    const dialogRef = this.dialog.open(NicknamePromptComponent,{
+    const dialogRef = this.dialog.open(NicknamePromptComponent, {
       data: {
         nick: chatManager.client().config.nick,
         password: chatManager.client().config.password
@@ -246,32 +237,14 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.deviceService.isMobile()) {
       this.sidenav.close();
     }
-    this.themeService.setDarkTheme(checked);
-    this.saveConfiguration();
+    this.settingsService.settings.isDarkTheme = checked;
+    this.settingsService.saveSettings();
   }
-
-  public loadConfiguration() {
-    this.pouchDbService.get('settings').then(settings => {
-      this.settings = settings;
-    }).catch(err => {
-      console.log('Error loading settings.', err);
-    });
-  }
-  public saveConfiguration() {
-    if (this.updateDbTimeout) {
-      if (this.updateDbTimeout !== true) {
-        clearTimeout(this.updateDbTimeout);
-      }
-      this.updateDbTimeout = setTimeout(this.saveConfiguration.bind(this), 500);
-      return;
+  onToggleShowColors(checked: boolean) {
+    if (this.deviceService.isMobile()) {
+      this.sidenav.close();
     }
-    this.updateDbTimeout = true;
-    // update db
-    this.pouchDbService.put('settings', this.settings).then((res) => {
-      this.updateDbTimeout = false;
-    }).catch(err => {
-      this.updateDbTimeout = false;
-    });
+    this.settingsService.settings.showColors = checked;
+    this.settingsService.saveSettings();
   }
-
 }

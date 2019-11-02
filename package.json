@@ -33,6 +33,7 @@
     "fetch-polyfill": "^0.8.2",
     "hammerjs": "^2.0.8",
     "intl": "^1.2.5",
+    "irc-formatting": "^1.0.0-rc3",
     "loadash": "^1.0.0",
     "moment": "^2.24.0",
     "ngx-device-detector": "^1.3.11",
@@ -45,6 +46,7 @@
     "tributejs": "^4.0.0",
     "tslib": "^1.10.0",
     "web-animations-js": "^2.3.2",
+    "youtube-search": "^1.1.4",
     "zone.js": "~0.9.1"
   },
   "devDependencies": {

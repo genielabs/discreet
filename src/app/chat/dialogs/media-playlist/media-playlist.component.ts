@@ -2,6 +2,7 @@ import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA} from '@angular/material';
 import {MediaInfo} from '../../text-formatting';
 import {ChatUser} from '../../chat-user';
+import {YoutubeSearchService} from '../../../core/services/youtube-search.service';
 
 @Component({
   selector: 'app-media-playlist',
@@ -12,8 +13,8 @@ export class MediaPlaylistComponent {
   selectedMedia: MediaInfo;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public users: any
-  ) {}
+    @Inject(MAT_DIALOG_DATA) public users: any,
+  ) { }
 
   filterCallback(user: ChatUser) {
     return (user.playlist.length > 0);

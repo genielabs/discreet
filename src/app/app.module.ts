@@ -54,7 +54,8 @@ import 'moment/locale/it';
 import {NgxTributeModule} from 'ngx-tribute';
 import {PouchDBService} from './services/pouchdb.service';
 import {EncrDecrService} from './services/encr-decr.service';
-import {ThemeService} from './core/services/theme.service';
+import {SettingsService} from './core/services/settings.service';
+import { YoutubeSearchComponent } from './chat/dialogs/youtube-search/youtube-search.component';
 
 @NgModule({
   declarations: [
@@ -73,7 +74,8 @@ import {ThemeService} from './core/services/theme.service';
     AwayPromptComponent,
     NicknamePromptComponent,
     ChannelsListComponent,
-    UserInfoDialogComponent
+    UserInfoDialogComponent,
+    YoutubeSearchComponent
   ],
   imports: [
     // angular
@@ -121,7 +123,8 @@ import {ThemeService} from './core/services/theme.service';
     AwayPromptComponent,
     NicknamePromptComponent,
     ChannelsListComponent,
-    UserInfoDialogComponent
+    UserInfoDialogComponent,
+    YoutubeSearchComponent
   ],
   providers: [
     HttpClientModule,
@@ -131,7 +134,7 @@ import {ThemeService} from './core/services/theme.service';
     {provide: LOCALE_ID, useValue: 'it-IT'},
     PouchDBService,
     EncrDecrService,
-    ThemeService
+    SettingsService
   ],
   bootstrap: [ AppComponent ]
 })

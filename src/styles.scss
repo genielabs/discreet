@@ -75,3 +75,124 @@ a {
     }
   }
 }
+
+
+
+
+/* IRC COLORS */
+/*
+0	White	(255,255,255)
+1	Black	(0,0,0)
+2	Blue	(0,0,127)
+3	Green	(0,147,0)
+4	Light Red	(255,0,0)
+5	Brown	(127,0,0)
+6	Purple	(156,0,156)
+7	Orange	(252,127,0)
+8	Yellow	(255,255,0)
+9	Light Green	(0,252,0)
+10	Cyan	(0,147,147)
+11	Light Cyan	(0,255,255)
+12	Light Blue	(0,0,252)
+13	Pink	(255,0,255)
+14	Grey	(127,127,127)
+15	Light Grey	(210,210,210)
+ */
+
+.ircf-fg-0 {
+  color: rgb(255,255,255) !important;
+}
+.ircf-fg-1 {
+  color: rgb(0,0,0) !important;
+}
+.ircf-fg-2 {
+  color: rgb(0,0,127) !important;
+}
+.ircf-fg-3 {
+  color: rgb(0,147,0) !important;
+}
+.ircf-fg-4 {
+  color: rgb(255,0,0) !important;
+}
+.ircf-fg-5 {
+  color: rgb(127,0,0) !important;
+}
+.ircf-fg-6 {
+  color: rgb(156,0,156) !important;
+}
+.ircf-fg-7 {
+  color: rgb(252,127,0) !important;
+}
+.ircf-fg-8 {
+  color: rgb(255,255,0) !important;
+}
+.ircf-fg-9 {
+  color: rgb(0,252,0) !important;
+}
+.ircf-fg-10 {
+  color: rgb(0,147,147) !important;
+}
+.ircf-fg-11 {
+  color: rgb(0,255,255) !important;
+}
+.ircf-fg-12 {
+  color: rgb(0,0,252) !important;
+}
+.ircf-fg-13 {
+  color: rgb(255,0,255) !important;
+}
+.ircf-fg-14 {
+  color: rgb(127,127,127) !important;
+}
+.ircf-fg-15 {
+  color: rgb(210,120,120) !important;
+}
+
+.ircf-bg-0 {
+  background-color: rgb(255,255,255) !important;
+}
+.ircf-bg-1 {
+  background-color: rgb(0,0,0) !important;
+}
+.ircf-bg-2 {
+  background-color: rgb(0,0,127) !important;
+}
+.ircf-bg-3 {
+  background-color: rgb(0,147,0) !important;
+}
+.ircf-bg-4 {
+  background-color: rgb(255,0,0) !important;
+}
+.ircf-bg-5 {
+  background-color: rgb(127,0,0) !important;
+}
+.ircf-bg-6 {
+  background-color: rgb(156,0,156) !important;
+}
+.ircf-bg-7 {
+  background-color: rgb(252,127,0) !important;
+}
+.ircf-bg-8 {
+  background-color: rgb(255,255,0) !important;
+}
+.ircf-bg-9 {
+  background-color: rgb(0,252,0) !important;
+}
+.ircf-bg-10 {
+  background-color: rgb(0,147,147) !important;
+}
+.ircf-bg-11 {
+  background-color: rgb(0,255,255) !important;
+}
+.ircf-bg-12 {
+  background-color: rgb(0,0,252) !important;
+}
+.ircf-bg-13 {
+  background-color: rgb(255,0,255) !important;
+}
+.ircf-bg-14 {
+  background-color: rgb(127,127,127) !important;
+}
+.ircf-bg-15 {
+  background-color: rgb(210,120,120) !important;
+}

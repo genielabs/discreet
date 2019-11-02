@@ -1,6 +1,7 @@
 import {ChatInfo} from './chat-info';
 import {ChatManagerComponent} from './chat-manager/chat-manager.component';
 import {ChatMessage, ChatMessageType} from './chat-message';
+import ircFormatter from 'irc-formatting';
 
 export class ChatData {
   hidden = false;
@@ -13,13 +14,14 @@ export class ChatData {
     selectionStart: 0,
     selectionEnd: 0
   };
+  showColors = false;
 
   readonly info: ChatInfo;
   private bufferMaxLines = 300;
 
   constructor(
     target: string | ChatInfo,
-    private chatManager: ChatManagerComponent
+    private chatManager: ChatManagerComponent,
   ) {
     if (target instanceof ChatInfo) {
       this.info = target;
@@ -57,10 +59,13 @@ export class ChatData {
       message.message = message.message.slice(8, -1);
     }
 
-    // strip color codes (sorry... not supported yet =/)
-    // TODO: add suport for IRC color codes
-    message.rendered.message = message.message
-      .replace(/(\u0002+)|(\u0003+)(\d{1,2})?(,(\d{1,2}))?/g, '');
+    if (this.manager().settingsService.settings.showColors) {
+      // render color codes
+      message.rendered.message = ircFormatter.renderHtml(message.message);
+    } else {
+      // strip color codes
+      message.rendered.message = ircFormatter.strip(message.message);
+    }
 
     // find chatUser nick in sentence and make it bold
     let nickMatched = false;

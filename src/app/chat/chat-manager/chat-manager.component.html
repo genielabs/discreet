@@ -217,6 +217,9 @@
           (focus)="onTextInputFocus($event)"
           (keydown)="onTextInputKeyDown($event)"
           #messageInput></textarea>
+    <button mat-icon-button>
+      <mat-icon color="primary" (click)="onYouTubeSearch($event)">music_note</mat-icon>
+    </button>
     <button mat-icon-button *ngIf="!deviceService.isMobile()">
       <mat-icon color="primary" (click)="onOpenEmojiClick($event)">sentiment_satisfied_alt</mat-icon>
     </button>

@@ -1,7 +1,7 @@
 <app-splash-screen *ngIf="!isUserLogged"
   (connectRequest)="onConnectRequest($event)"></app-splash-screen>
 
-<div *ngIf="isUserLogged" [ngClass]="{'dark-theme': settings.isDarkTheme}" class="mat-app-background container" fxLayout="column" fxLayoutAlign="start stretch" [ngStyle]="{'height.px': screenHeight}">
+<div *ngIf="isUserLogged" [ngClass]="{'dark-theme': settingsService.settings.isDarkTheme}" class="mat-app-background container" fxLayout="column" fxLayoutAlign="start stretch" [ngStyle]="{'height.px': screenHeight}">
 
   <mat-toolbar color="primary" fxLayout="row" fxLayoutAlign="start center">
     <button mat-flat-button color="primary" class="menu-button" (click)="sidenav.toggle()">
@@ -94,7 +94,8 @@
       <mat-checkbox [disabled]="chatManager.channel() == null"
                     [checked]="chatManager.channel() && chatManager.channel().preferences.showChannelActivity"
                     (change)="onShowJoinPartsChange($event, chatManager)">Mostra in/out</mat-checkbox>
-      <mat-checkbox (change)="onToggleDarkTheme($event.checked)" [checked]="settings.isDarkTheme">Tema scuro</mat-checkbox>
+      <mat-checkbox (change)="onToggleDarkTheme($event.checked)" [checked]="settingsService.settings.isDarkTheme">Tema scuro</mat-checkbox>
+      <mat-checkbox (change)="onToggleShowColors($event.checked)" [checked]="settingsService.settings.showColors">Abilita colori</mat-checkbox>
 
     </mat-sidenav>
 

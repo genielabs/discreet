@@ -215,12 +215,6 @@ console.log('>> ' + msg.data)
                     users: []
                   });*/
                   break;
-                case '474': // BANNED
-                  // payload.params[0]  NICK
-                  // payload.params[1]  Channel
-                  // payload.params[2]  Reason
-                  console.log('\\\\\\\\\\\\\\\\\\\\\\', 'CANNOT JOIN', payload.params[1], payload.params[2]);
-                  break;
                 case '301': // AUTOMATIC REPLY FROM AWAY USER
                   this.awayReply.emit({
                     type: payload.command, // 301
@@ -340,12 +334,42 @@ console.log('>> ' + msg.data)
                   this.config.joinChannels.forEach((jchan) => subject.next([ `:1 JOIN ${jchan}` ]));
                   this.loggedIn.emit(true);
                   break;
+                case '477': // You need to identify to a registered nick to speak in that channel.
+                  // TODO: ...
+                  //:choopa.nj.us.dal.net 477 Bumble`Bee #cafechat :You need to identify to a registered nick to speak in that channel. For help with registering your nickname, type \"/msg NickServ@services.dal.net help register\" or see http://docs.dal.net/docs/nsemail.html"]
+                case '474': // BANNED
+                  // payload.params[0]  NICK
+                  // payload.params[1]  Channel
+                  // payload.params[2]  Reason
+                  //console.log('\\\\\\\\\\\\\\\\\\\\\\', 'CANNOT JOIN', payload.params[1], payload.params[2]);
+                  this.messageReceive.emit({
+                    type: payload.command,
+                    sender: payload.params[1],
+                    target: payload.params[1],
+                    message: payload.params[2],
+                    timestamp: Date.now()
+                  });
+                  break;
+                case '001': // Welcome
+                  // nick: payload.params[0]
+                  // message: payload.params[1] (welcome message)
+                  //          eg: "Welcome to the DALnet IRC Network Wall`ez!~022d7be4@net-2-45-123-228.cust.vodafonedsl.it"
+                  this.config.nick = payload.params[0];
+                  break;
                 case '433': // Nickname already in use
                   message = payload.params[1] += ': ' + payload.params[2];
-                  // TODO: emit event nickAlreadyInUse (or nickTaken)
+                  // TODO: emit event nickAlreadyInUse (or nickTaken) and should popup the nick change dialog
+                  //this.loggedIn.emit(true);
 console.log('NICKNAME ALREADY IN USE', payload);
+                  //break;
                 case '465': // Automatically banned from server
                   // TODO: ...
+                  //this.loggedIn.emit(true);
+                  //break;
+                case '432': // The nick Wall`e is currently being held by a Services Enforcer
+                  // TODO: ... should popup the nick change dialog
+                  this.loggedIn.emit(true);
+                  // [":1 :bifrost.ca.us.dal.net 432 * Wall`e :The nick Wall`e is currently being held by a Services Enforcer. If you are the nicks owner, use \u0002/msg NickServ@services.dal.net RELEASE Wall`e password\u0002 to release the nickname. If the nickname recently expired, please wait patiently and try again later."]
                   //break;
                 case '372': // MOTD TEXT
                 case '305': // You are no longer marked as being away

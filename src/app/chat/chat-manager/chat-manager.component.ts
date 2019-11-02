@@ -30,6 +30,9 @@ import {PrivateChat} from '../private-chat';
 import {ChannelsListComponent} from '../dialogs/channels-list/channels-list.component';
 import {IrcUser} from '../../irc-client-service/irc-user';
 import {UserInfoDialogComponent} from '../dialogs/user-info-dialog/user-info-dialog.component';
+import {SettingsService} from '../../core/services/settings.service';
+import {YoutubeSearchService} from '../../core/services/youtube-search.service';
+import {YoutubeSearchComponent} from '../dialogs/youtube-search/youtube-search.component';
 
 @Injectable({
   providedIn: 'root',
@@ -132,6 +135,7 @@ export class ChatManagerComponent implements OnInit {
     public ircClient: IrcClientService,
     public dialog: MatDialog,
     public deviceService: DeviceDetectorService,
+    public settingsService: SettingsService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -365,54 +369,76 @@ export class ChatManagerComponent implements OnInit {
   onEnterKey(e) {
     e.preventDefault();
     // TODO: make a method 'sendMessage' out of this
-    // strip unwanted characters codes from string
-    let message = this.currentChat.input.text.replace(/[\x00-\x1F\x7F]/g, '');
-    if (message.trim() !== '') {
-      let spaceIndex = message.indexOf(' ');
-      if (message[0] === '/' && spaceIndex > 0) {
-        const command = message.substring(1, spaceIndex).toUpperCase();
-        let target = message = message.substring(spaceIndex + 1);
-        if (command === 'ME') {
-          this.userAction(message);
+    const textLines = this.currentChat.input.text.split('\n');
+    textLines.forEach((message) => {
+      // strip unwanted characters codes from string
+//      message = message.replace(/[\x00-\x1F\x7F]/g, '');
+      if (message.trim() !== '') {
+        let spaceIndex = message.indexOf(' ');
+        if (message[0] === '/' && spaceIndex > 0) {
+          const command = message.substring(1, spaceIndex).toUpperCase();
+          let target = message = message.substring(spaceIndex + 1);
+          if (command === 'ME') {
+            this.userAction(message);
+          } else {
+            spaceIndex = message.indexOf(' ');
+            if (spaceIndex > 0) {
+              target = message.substring(0, spaceIndex);
+              message = message.substring(spaceIndex + 1);
+            }
+            switch (command) {
+              case 'NICK':
+                this.ircClient.nick(target);
+                break;
+              case 'WHOIS':
+                this.ircClient.whois(target);
+                break;
+              case 'CTCP':
+                this.ircClient.ctcp(target, message);
+                break;
+              case 'JOIN':
+                this.ircClient.join(target);
+                break;
+              case 'PART':
+                this.ircClient.part(target);
+                break;
+              case 'LIST':
+                this.ircClient.list();
+                break;
+              case 'QUERY':
+              case 'MSG':
+                this.chat(target).send(message);
+                break;
+            }
+          }
         } else {
-          spaceIndex = message.indexOf(' ');
-          if (spaceIndex > 0) {
-            target = message.substring(0, spaceIndex);
-            message = message.substring(spaceIndex + 1);
-          }
-          switch (command) {
-            case 'NICK':
-              this.ircClient.nick(target);
-              break;
-            case 'WHOIS':
-              this.ircClient.whois(target);
-              break;
-            case 'CTCP':
-              this.ircClient.ctcp(target, message);
-              break;
-            case 'JOIN':
-              this.ircClient.join(target);
-              break;
-            case 'PART':
-              this.ircClient.part(target);
-              break;
-            case 'LIST':
-              this.ircClient.list();
-              break;
-            case 'QUERY':
-            case 'MSG':
-              this.chat(target).send(message);
-              break;
-          }
+          this.chat().send(message);
         }
-      } else {
-        this.chat().send(message);
       }
-    }
+    });
     this.currentChat.input.text = '';
     this.scrollToLast(true);
   }
 
+  onYouTubeSearch(e) {
+    this.router.navigate(['.'], { fragment: 'youtube', relativeTo: this.route });
+    const dialogRef = this.dialog.open(YoutubeSearchComponent, {
+      width: '330px',
+      closeOnNavigation: true
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result.action === 'share') {
+          this.insertTextInput(` https://youtu.be/${result.media.id} `);
+          this.messageInput.nativeElement.focus();
+        } else {
+          this.videoPlayer.loadVideo(result.media.id);
+        }
+      }
+    });
+    this.messageInput.nativeElement.blur();
+    e.preventDefault();
+  }
   onOpenEmojiClick(e) {
     const eventEmitter = new EventEmitter<string>();
     this.router.navigate(['.'], { fragment: 'emoji', relativeTo: this.route });
@@ -807,7 +833,7 @@ export class ChatManagerComponent implements OnInit {
   }
 
   removeUserNameFlags(name: string): string {
-    return name.replace(/[~&@%+]/g,'');
+    return name.replace(/[~&@%+]/g, '');
   }
 
   getUsersList(target: string) {
@@ -827,10 +853,14 @@ export class ChatManagerComponent implements OnInit {
     // if (existingUser == null) {
     //   usersList.push(chatUser);
     // }
-    this.insertionSortUser(usersList, user);
-    // TODO: if this is not for forcing chatUser list (virtual-scroll) refresh, remove it
-    const chat = this.chatList.find(target);
-    (chat as PublicChat).users = [...usersList];
+    if (usersList) {
+      this.insertionSortUser(usersList, user);
+      // TODO: if this is not for forcing chatUser list (virtual-scroll) refresh, remove it
+      const chat = this.chatList.find(target);
+      (chat as PublicChat).users = [...usersList];
+    } else {
+console.log('ERROR: while adding user, could not retrieve users list for channel', target, u);
+    }
   }
   private renChatUser(user: string) {
     this.chatList.public.forEach((c) => {

@@ -1,0 +1,33 @@
+.content {
+  margin-bottom: 8px;
+}
+.title {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  margin: 0;
+}
+.title .mat-icon {
+  margin-right: 8px;
+}
+.media-container {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+.media-image {
+  margin-right: 8px;
+}
+.media-title {
+  overflow: hidden;
+  height: 56px;
+  font-size: 87%;
+}
+.media-actions {
+  opacity: 0.5;
+}
+.close-button {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+}
