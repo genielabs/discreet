@@ -223,7 +223,7 @@ export class ChatManagerComponent implements OnInit {
       // set the topic
       chat.topic = topic;
       const msg = new ChatMessage();
-      msg.sender = '<strong>ARGOMENTO</strong>';
+      msg.sender = '<strong>TOPIC</strong>'; // TODO: add i18n support
       msg.target = chat.info.name;
       msg.type = ChatMessageType.MESSAGE;
       msg.message = `<strong>${topic}</strong>`;
@@ -576,7 +576,7 @@ export class ChatManagerComponent implements OnInit {
     snackBarRef.onAction().subscribe(() => {
       this.show(target);
     });
-    const audio = new Audio('https://raw.githubusercontent.com/genielabs/chat/master/docs/assets/audio/notifications.mp3');
+    const audio = new Audio('https://raw.githubusercontent.com/genielabs/chat/master/docs/en/assets/audio/notifications.mp3');
     audio.play();
   }
 

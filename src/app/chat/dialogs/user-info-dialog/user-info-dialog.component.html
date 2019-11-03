@@ -6,11 +6,13 @@
   <label *ngIf="u.whois.address">{{u.whois.address[3]}}</label>
   <div class="address" *ngIf="u.whois.address">{{u.whois.address[0]}}@{{u.whois.address[1]}}</div>
   <div class="date" *ngIf="u.whois.time">
-    Connesso {{ (u.whois.time[1] | amFromUnix) | amLocale:'it' | amCalendar }},
-    inattivo da {{ +u.whois.time[0] | amDuration:'seconds' }}
+    Connected
+    {{ (u.whois.time[1] | amFromUnix) | amLocale:'it' | amCalendar }},
+    inactive since
+    {{ +u.whois.time[0] | amDuration:'seconds' }}
     <span *ngIf="u.whois.identified">({{ u.whois.identified }})</span>.
   </div>
-  <label>Canali</label>
+  <label>Channels</label>
   <div>{{ u.whois.channels }}</div>
   <label>Server</label>
   <div *ngIf="u.whois.server">{{ u.whois.server[0] }} <span *ngIf="u.whois.secure">(SSL)</span></div>
@@ -18,9 +20,9 @@
   <mat-progress-bar *ngIf="isLoadingData" mode="buffer"></mat-progress-bar>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close cdkFocusInitial disabled>Versione</button>
+  <button mat-button mat-dialog-close cdkFocusInitial disabled>Version</button>
   <button mat-button mat-dialog-close cdkFocusInitial disabled>Chat</button>
-  <button mat-button mat-dialog-close cdkFocusInitial>Chiudi</button>
+  <button mat-button mat-dialog-close cdkFocusInitial>Close</button>
 </mat-dialog-actions>
 <!--
 {

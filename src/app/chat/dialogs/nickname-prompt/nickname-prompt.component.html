@@ -1,33 +1,27 @@
-<h2 mat-dialog-title class="title">
-  Nome utente
-</h2>
+<h2 mat-dialog-title class="title" i18n="@@userNickname">User nickname</h2>
 <mat-dialog-content fxLayout="column" fxLayoutAlign="center center">
   <div style="display: block">
     <mat-form-field>
-      <input matInput placeholder="Scegli un nome"
-             required
-             maxlength="30"
+      <input matInput
+             placeholder="Enter nickname" i18n-placeholder="@@enterNickname"
+             required maxlength="30"
              pattern="^[A-Za-z_\-\[\]\\^{}|`][A-Za-z0-9_\-\[\]\\^{}|`]{2,29}$"
              #nickname="ngModel"
              [(ngModel)]="loginInfo.nick">
-      <mat-error *ngIf="nickname.value && nickname.value.length >= 3 && nickname.invalid">
-        Caratteri non consentiti.
-      </mat-error>
-      <mat-error *ngIf="nickname.value && nickname.value.length < 3">
-        Inserire almeno 3 caratteri.
-      </mat-error>
+      <mat-error *ngIf="nickname.value && nickname.value.length >= 3 && nickname.invalid" i18n="@@charactersNotAllowed">Characters not allowed.</mat-error>
+      <mat-error *ngIf="nickname.value && nickname.value.length < 3" i18n="@@enterAtLeast3characters">Enter at least 3 characters.</mat-error>
     </mat-form-field>
     <div>
-      <mat-checkbox #registered>Utente registrato</mat-checkbox>
+      <mat-checkbox #registered i18n="@@registeredUser">Registered user</mat-checkbox>
     </div>
     <mat-form-field *ngIf="registered.checked">
-      <input matInput type="password" placeholder="Password"
+      <input matInput type="password" placeholder="Password" i18n-placeholder="@@password"
              #nickpass="ngModel"
              [(ngModel)]="loginInfo.password">
     </mat-form-field>
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button [mat-dialog-close]="loginInfo" [disabled]="nickname.invalid">Conferma</button>
-  <button mat-button mat-dialog-close cdkFocusInitial>Annulla</button>
+  <button mat-button [mat-dialog-close]="loginInfo" [disabled]="nickname.invalid" i18n="@@confirm">Confirm</button>
+  <button mat-button mat-dialog-close cdkFocusInitial i18n="@@cancel">Cancel</button>
 </mat-dialog-actions>

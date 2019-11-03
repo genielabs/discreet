@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="pause" datatype="html">
+        <source>Pause</source>
+        <target>Pausa</target>
+      </trans-unit>
+      <trans-unit id="play" datatype="html">
+        <source>Play</source>
+        <target>Riproduci</target>
+      </trans-unit>
+      <trans-unit id="enlarge" datatype="html">
+        <source>Enlarge</source>
+        <target>Ingrandisci</target>
+      </trans-unit>
+      <trans-unit id="shrink" datatype="html">
+        <source>Shrink</source>
+        <target>Riduci</target>
+      </trans-unit>
+      <trans-unit id="close" datatype="html">
+        <source>Close</source>
+        <target>Chiudi</target>
+      </trans-unit>
+      <trans-unit id="sharedVideos" datatype="html">
+        <source>Shared videos</source>
+        <target>Video condivisi</target>
+      </trans-unit>
+      <trans-unit id="channels" datatype="html">
+        <source>Channels</source>
+        <target>Canali</target>
+      </trans-unit>
+      <trans-unit id="enterChannelName" datatype="html">
+        <source>Enter channel name (e.g. #chat)</source>
+        <target>Inserire nome canale (es. #chat)</target>
+      </trans-unit>
+      <trans-unit id="channelList" datatype="html">
+        <source>List</source>
+        <target>Elenco</target>
+      </trans-unit>
+      <trans-unit id="join" datatype="html">
+        <source>Join</source>
+        <target>Entra</target>
+      </trans-unit>
+      <trans-unit id="searchVideo" datatype="html">
+        <source>Search video</source>
+        <target>Cerca video</target>
+      </trans-unit>
+      <trans-unit id="authorAndTitle" datatype="html">
+        <source>Author, title</source>
+        <target>Autore, titolo</target>
+      </trans-unit>
+      <trans-unit id="enterAtLeast3Characters" datatype="html">
+        <source>Enter at least 3 characters.</source>
+        <target>Inserire almeno 3 caratteri.</target>
+      </trans-unit>
+      <trans-unit id="joinChannel" datatype="html">
+        <source>Join channel</source>
+        <target>Entra in un canale</target>
+      </trans-unit>
+      <trans-unit id="yourChannels" datatype="html">
+        <source>Your channels</source>
+        <target>I tuoi canali</target>
+      </trans-unit>
+      <trans-unit id="privateChats" datatype="html">
+        <source>Private chats</source>
+        <target>Chat private</target>
+      </trans-unit>
+      <trans-unit id="findUserName" datatype="html">
+        <source>User name...</source>
+        <target>Nome utente...</target>
+      </trans-unit>
+      <trans-unit id="offline" datatype="html">
+        <source>Offline</source>
+        <target>Disconnesso</target>
+      </trans-unit>
+      <trans-unit id="mention" datatype="html">
+        <source>Mention</source>
+        <target>Menziona</target>
+      </trans-unit>
+      <trans-unit id="chat" datatype="html">
+        <source>Chat</source>
+        <target>Chat</target>
+      </trans-unit>
+      <trans-unit id="playlist" datatype="html">
+        <source>Playlist</source>
+        <target>Playlist</target>
+      </trans-unit>
+      <trans-unit id="info" datatype="html">
+        <source>Info</source>
+        <target>Info</target>
+      </trans-unit>
+      <trans-unit id="findUser" datatype="html">
+        <source>Find user</source>
+        <target>Trova utente</target>
+      </trans-unit>
+      <trans-unit id="disableNotifications" datatype="html">
+        <source>Disable notifications</source>
+        <target>Disabilita notifiche</target>
+      </trans-unit>
+      <trans-unit id="enableNotifications" datatype="html">
+        <source>Enable notifications</source>
+        <target>Abilita notifiche</target>
+      </trans-unit>
+      <trans-unit id="hidePanel" datatype="html">
+        <source>Hide panel</source>
+        <target>Nascondi pannello</target>
+      </trans-unit>
+      <trans-unit id="leaveChannel" datatype="html">
+        <source>Leave channel</source>
+        <target>Esci dal canale</target>
+      </trans-unit>
+      <trans-unit id="describeActionOrStatus" datatype="html">
+        <source>Describe action or status</source>
+        <target>Descrivi azione o stato</target>
+      </trans-unit>
+      <trans-unit id="enterMessage" datatype="html">
+        <source>Enter message</source>
+        <target>Inserire messaggio</target>
+      </trans-unit>
+      <trans-unit id="confirm" datatype="html">
+        <source>Confirm</source>
+        <target>Conferma</target>
+      </trans-unit>
+      <trans-unit id="cancel" datatype="html">
+        <source>Cancel</source>
+        <target>Annulla</target>
+      </trans-unit>
+      <trans-unit id="setAway" datatype="html">
+        <source>Set away</source>
+        <target>Imposta assente</target>
+      </trans-unit>
+      <trans-unit id="setAwayInfo" datatype="html">
+        <source>When set away, users writing to you will receive an automatic message.</source>
+        <target>Quando assente, gli utenti che ti scrivono riceveranno un messaggio automatico.</target>
+      </trans-unit>
+      <trans-unit id="awayMessageText" datatype="html">
+        <source>Away message text</source>
+        <target>Testo del messaggio</target>
+      </trans-unit>
+      <trans-unit id="userNickname" datatype="html">
+        <source>User nickname</source>
+        <target>Nome utente</target>
+      </trans-unit>
+      <trans-unit id="enterNickname" datatype="html">
+        <source>Enter nickname</source>
+        <target>Inserire nome</target>
+      </trans-unit>
+      <trans-unit id="charactersNotAllowed" datatype="html">
+        <source>Characters not allowed.</source>
+        <target>Caratteri non consentiti.</target>
+      </trans-unit>
+      <trans-unit id="enterAtLeast3characters" datatype="html">
+        <source>Enter at least 3 characters.</source>
+        <target>Inserire almeno 3 caratteri.</target>
+      </trans-unit>
+      <trans-unit id="registeredUser" datatype="html">
+        <source>Registered user</source>
+        <target>Utente registrato</target>
+      </trans-unit>
+      <trans-unit id="password" datatype="html">
+        <source>Password</source>
+        <target>Password</target>
+      </trans-unit>
+      <trans-unit id="channelUsers" datatype="html">
+        <source>Channel users</source>
+        <target>Utenti canale</target>
+      </trans-unit>
+      <trans-unit id="messages" datatype="html">
+        <source>Messages</source>
+        <target>Messaggi</target>
+      </trans-unit>
+      <trans-unit id="changeNickname" datatype="html">
+        <source>Change nickname</source>
+        <target>Cambia nome</target>
+      </trans-unit>
+      <trans-unit id="describeAction" datatype="html">
+        <source>Action</source>
+        <target>Azione</target>
+      </trans-unit>
+      <trans-unit id="disconnect" datatype="html">
+        <source>Disconnect</source>
+        <target>Disconnetti</target>
+      </trans-unit>
+      <trans-unit id="connect" datatype="html">
+        <source>Connect</source>
+        <target>Connetti</target>
+      </trans-unit>
+      <trans-unit id="settings" datatype="html">
+        <source>Settings</source>
+        <target>Impostazioni</target>
+      </trans-unit>
+      <trans-unit id="showJoinParts" datatype="html">
+        <source>Show join/parts</source>
+        <target>Mostra entrate/uscite</target>
+      </trans-unit>
+      <trans-unit id="darkTheme" datatype="html">
+        <source>Dark theme</source>
+        <target>Tema scuro</target>
+      </trans-unit>
+      <trans-unit id="enableColors" datatype="html">
+        <source>Enable colors</source>
+        <target>Abilita colori</target>
+      </trans-unit>
+      <trans-unit id="server" datatype="html">
+        <source>Server</source>
+        <target>Server</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

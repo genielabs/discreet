@@ -4,7 +4,7 @@
     <h1>Discreet&nbsp;<mat-icon color="accent">chat_bubble</mat-icon></h1>
     <div style="display: block" [ngClass]="{ hidden: singleServerMode }">
       <mat-form-field>
-        <mat-label>Server</mat-label>
+        <mat-label i18n="@@server">Server</mat-label>
         <mat-select (selectionChange)="onServerSelectChange($event)"
                     required #server="ngModel"
                     [(ngModel)]="serverId">
@@ -16,24 +16,20 @@
     </div>
     <div style="display: block">
       <mat-form-field>
-        <input matInput placeholder="Scegli un nome"
+        <input matInput placeholder="Enter nickname" i18n-placeholder="@@enterNickname"
                required
                maxlength="30"
                pattern="^[A-Za-z_\-\[\]\\^{}|`][A-Za-z0-9_\-\[\]\\^{}|`]{2,29}$"
                #nickname="ngModel"
                [(ngModel)]="nick">
-        <mat-error *ngIf="nickname.value && nickname.value.length >= 3 && nickname.invalid">
-          Caratteri non consentiti.
-        </mat-error>
-        <mat-error *ngIf="nickname.value && nickname.value.length < 3">
-          Inserire almeno 3 caratteri.
-        </mat-error>
+        <mat-error *ngIf="nickname.value && nickname.value.length >= 3 && nickname.invalid" i18n="@@charactersNotAllowed">Characters not allowed.</mat-error>
+        <mat-error *ngIf="nickname.value && nickname.value.length < 3" i18n="@@enterAtLeast3characters">Enter at least 3 characters.</mat-error>
       </mat-form-field>
       <div>
-        <mat-checkbox #registered style="margin-top: 16px;">Utente registrato</mat-checkbox>
+        <mat-checkbox #registered style="margin-top: 16px;" i18n="@@registeredUser">Registered user</mat-checkbox>
       </div>
       <mat-form-field *ngIf="registered.checked">
-        <input matInput type="password" placeholder="Password"
+        <input matInput type="password" placeholder="Password" i18n-placeholder="@@password"
                #nickpass="ngModel"
                [(ngModel)]="password">
       </mat-form-field>
@@ -42,7 +38,7 @@
       <button mat-raised-button
               color="primary"
               (click)="onConnectClick()"
-              [disabled]="nickname.invalid || server.invalid">Entra in Chat</button>
+              [disabled]="nickname.invalid || server.invalid" i18n="@@connect">Connect</button>
     </div>
   </mat-card>
 </div>

@@ -7,7 +7,7 @@ import {MAT_DIALOG_DATA} from '@angular/material';
   styleUrls: ['./action-prompt.component.scss']
 })
 export class ActionPromptComponent {
-  actionText = 'saluta tutti!';
+  actionText = 'greets everyone!';
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public username: string

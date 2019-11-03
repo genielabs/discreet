@@ -1,5 +1,5 @@
 <h2 mat-dialog-title class="title" fxLayout="row" fxLayoutAlign="start center">
-  <span>Gruppi</span>
+  <span i18n="@@channels">Channels</span>
   <div fxFlex="1 0 0">
     <span *ngIf="channelsCount > 0" class="channels-count">&nbsp;({{ channelsCount }})</span>
   </div>
@@ -25,18 +25,21 @@
   <mat-icon>people</mat-icon>
   &nbsp;
   <mat-form-field fxFlex="1 0 0">
-    <input matInput type="text" placeholder="Nome gruppo (e.g. #chat)"
+    <input matInput type="text"
+           placeholder="Enter channel name (e.g. #chat)" i18n-placeholder="@@enterChannelName"
            [(ngModel)]="channelName" #channel="ngModel" pattern="([#&][^\x07\x2C\s]{0,200})" required minlength="2">
     <button mat-button *ngIf="channelName" matSuffix mat-icon-button aria-label="Clear" (click)="channelName=''">
       <mat-icon>close</mat-icon>
     </button>
   </mat-form-field>
   <div fxFlexFill fxLayout="row" fxLayoutAlign="space-between">
-    <button mat-button mat-dialog-close cdkFocusInitial mat-dialog-close>Chiudi</button>
+    <button mat-button mat-dialog-close cdkFocusInitial mat-dialog-close i18n="@@close">Close</button>
     <button mat-button [disabled]="elapsedFromListDownload() < 60" (click)="onListDownloadClick()">
-      Elenco
+      <span i18n="@@channelList">List</span>
       <span *ngIf="elapsedFromListDownload() < 60">({{ 60 - elapsedFromListDownload() }})</span>
     </button>
-    <button mat-button [disabled]="channel.invalid" [color]="channel.invalid ? '' : 'accent'" [mat-dialog-close]="channelName">Entra</button>
+    <button mat-button [disabled]="channel.invalid"
+            [color]="channel.invalid ? '' : 'accent'"
+            [mat-dialog-close]="channelName" i18n="@@join">Join</button>
   </div>
 </mat-dialog-actions>

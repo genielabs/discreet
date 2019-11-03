@@ -1,6 +1,6 @@
 <h2 mat-dialog-title class="title theme-color-primary">
   <mat-icon>music_video</mat-icon>
-  Condividi Video
+  <span i18n="@@searchVideo">Search video</span>
   <button mat-icon-button mat-dialog-close class="close-button">
     <mat-icon>close</mat-icon>
   </button>
@@ -25,14 +25,16 @@
   <div fxFlexFill fxLayout="row" fxLayoutAlign="space-between center">
     <mat-icon>search</mat-icon>&nbsp;
     <mat-form-field fxFlex="1 0 0">
-      <input matInput cdkFocusInitial type="text" placeholder="Cerca su YouTube" tabindex="0" autofocus
+      <input matInput cdkFocusInitial type="text"
+             placeholder="Author, title" i18n-placeholder="@@authorAndTitle"
+             tabindex="0" autofocus
              (keydown.enter)="onSearchClick($event)"
              [(ngModel)]="searchText" #searchInput="ngModel" #inputElement required [minlength]="minLength">
       <button mat-button *ngIf="searchText" matSuffix mat-icon-button aria-label="Clear" (click)="searchText=''; searchResults = [];">
         <mat-icon>close</mat-icon>
       </button>
-      <mat-error *ngIf="searchInput.invalid">
-        Inserisci almeno <strong>3</strong> caratteri.
+      <mat-error *ngIf="searchInput.invalid" i18n="@@enterAtLeast3Characters">
+        Enter at least 3 characters.
       </mat-error>
     </mat-form-field>
   </div>

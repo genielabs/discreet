@@ -12,26 +12,26 @@
     </div>
     <div class="right-toolbar">
       <button mat-icon-button class="icon-big" *ngIf="mediaPlaylistCount > 0"
-              matTooltip="Video condivisi"
+              matTooltip="Shared videos" i18n-matTooltip="@@sharedVideos"
               (click)="onChannelPlaylistButtonClick(chatManager)"
               [matBadge]="mediaPlaylistCount"
               matBadgePosition="after" matBadgeColor="primary">
         <mat-icon [color]="this.mediaPlaylistNotify ? 'accent' : ''">music_note</mat-icon>
       </button>
       <button mat-icon-button class="icon-big" *ngIf="chatManager.channel() && chatManager.currentChat"
-              matTooltip="Utenti"
+              matTooltip="Channel users" i18n-matTooltip="@@channelUsers"
               (click)="onChannelUsersButtonClick(chatManager)"
               [matBadge]="chatManager.channel().users.length"
               matBadgePosition="after" matBadgeColor="primary">
         <mat-icon>people_alt</mat-icon>
       </button>
       <button mat-icon-button class="icon-big" *ngIf="!chatManager.channel()"
-              matTooltip="Entra in un gruppo"
+              matTooltip="Join a channel" i18n-matTooltip="@@joinChannel"
               (click)="onChannelListClick(chatManager)">
         <mat-icon>group_add</mat-icon>
       </button>
       <button mat-icon-button class="icon-big"
-              matTooltip="Messaggi"
+              matTooltip="Messages" i18n-matTooltip="@@messages"
               (click)="onChatMessagesButtonClick(chatManager)"
               [matBadge]="chatManager.newMessageCount()"
               [matBadgeHidden]="chatManager.newMessageCount() === 0 || (!chatManager.showUserList && chatManager.showRightPanel)"
@@ -62,40 +62,41 @@
 
       <button mat-flat-button [disabled]="!chatManager.isLoggedIn" (click)="onNickChangeClick(chatManager)">
         <mat-icon color="primary">autorenew</mat-icon>
-        <span>Cambia nome</span>
+        <span i18n="@@changeNickname">Change nickname</span>
       </button>
 
       <button mat-flat-button [disabled]="!chatManager.isLoggedIn" (click)="onUserActionClick(chatManager)">
         <mat-icon color="primary">announcement</mat-icon>
-        <span>Azione</span>
+        <span i18n="@@describeAction">Action</span>
       </button>
 
       <mat-checkbox [checked]="isUserAway" [disabled]="!chatManager.isLoggedIn"
-                    (change)="onSetAwayClick($event, chatManager)">Assente</mat-checkbox>
+                    (change)="onSetAwayClick($event, chatManager)"
+                    i18n="@@setAway">Away</mat-checkbox>
 
       <br />
 
       <button [disabled]="!chatManager.isLoggedIn" mat-flat-button (click)="onChannelListClick(chatManager)">
         <mat-icon color="primary">group_add</mat-icon>
-        <span>Entra in un gruppo</span>
+        <span i18n="@@joinChannel">Join a channel</span>
       </button>
 
       <button *ngIf="chatManager.client().isConnected()" mat-flat-button (click)="onDisconnectClick(chatManager)">
         <mat-icon color="warn">exit_to_app</mat-icon>
-        <span>Disconnetti</span>
+        <span i18n="@@disconnect">Disconnect</span>
       </button>
       <button *ngIf="!chatManager.client().isConnected()" mat-flat-button (click)="onConnectClick(chatManager)">
         <mat-icon color="accent">offline_bolt</mat-icon>
-        <span>Connetti</span>
+        <span i18n="@@connect">Connect</span>
       </button>
 
-      <label>Preferenze interfaccia</label>
+      <label i18n="@@settings">Settings</label>
 
       <mat-checkbox [disabled]="chatManager.channel() == null"
                     [checked]="chatManager.channel() && chatManager.channel().preferences.showChannelActivity"
-                    (change)="onShowJoinPartsChange($event, chatManager)">Mostra in/out</mat-checkbox>
-      <mat-checkbox (change)="onToggleDarkTheme($event.checked)" [checked]="settingsService.settings.isDarkTheme">Tema scuro</mat-checkbox>
-      <mat-checkbox (change)="onToggleShowColors($event.checked)" [checked]="settingsService.settings.showColors">Abilita colori</mat-checkbox>
+                    (change)="onShowJoinPartsChange($event, chatManager)" i18n="@@showJoinParts">Show join/parts</mat-checkbox>
+      <mat-checkbox (change)="onToggleDarkTheme($event.checked)" [checked]="settingsService.settings.isDarkTheme" i18n="@@darkTheme">Dark theme</mat-checkbox>
+      <mat-checkbox (change)="onToggleShowColors($event.checked)" [checked]="settingsService.settings.showColors" i18n="@@enableColors">Enable colors</mat-checkbox>
 
     </mat-sidenav>
 

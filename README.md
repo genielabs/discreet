@@ -1,4 +1,4 @@
-# NgWebIrc
+# Discreet (codename: NgWebIrc)
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.5.
 
@@ -6,13 +6,22 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
+### Serving files in for a specific locale
+
+Run `ng serve --configuration=<lang_id>` (eg. `ng serve --configuration=it` for italian).
+
 ## Code scaffolding
 
 Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/en` directory. Use the `--prod` flag for a production build.
+
+### Building with locale support
+
+Run `npm run build-i18n`. The build artifacts will be stored in the `dist/<lang_id>` directory. The `dist/index.html` file will redirect the browser to the current locale folder if supported (eg. `dist/it` for italian), otherwise will fallback to the default language (english).
+A copy of the `dist/index.html` file is located in the project root `index-language-detect.html`.
 
 ## Running unit tests
 

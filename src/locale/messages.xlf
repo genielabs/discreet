@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="pause" datatype="html">
+        <source>Pause</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/socialmedia/youtube-video/youtube-video.component.html</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="play" datatype="html">
+        <source>Play</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/socialmedia/youtube-video/youtube-video.component.html</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enlarge" datatype="html">
+        <source>Enlarge</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/socialmedia/youtube-video/youtube-video.component.html</context>
+          <context context-type="linenumber">30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shrink" datatype="html">
+        <source>Shrink</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/socialmedia/youtube-video/youtube-video.component.html</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="close" datatype="html">
+        <source>Close</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/socialmedia/youtube-video/youtube-video.component.html</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/media-playlist/media-playlist.component.html</context>
+          <context context-type="linenumber">27</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/channels-list/channels-list.component.html</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">200</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/away-prompt/away-prompt.component.html</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="sharedVideos" datatype="html">
+        <source>Shared videos</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/media-playlist/media-playlist.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="channels" datatype="html">
+        <source>Channels</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/channels-list/channels-list.component.html</context>
+          <context context-type="linenumber">2</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enterChannelName" datatype="html">
+        <source>Enter channel name (e.g. #chat)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/channels-list/channels-list.component.html</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="channelList" datatype="html">
+        <source>List</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/channels-list/channels-list.component.html</context>
+          <context context-type="linenumber">38</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="join" datatype="html">
+        <source>Join</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/channels-list/channels-list.component.html</context>
+          <context context-type="linenumber">43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="searchVideo" datatype="html">
+        <source>Search video</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/youtube-search/youtube-search.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="authorAndTitle" datatype="html">
+        <source>Author, title</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/youtube-search/youtube-search.component.html</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enterAtLeast3Characters" datatype="html">
+        <source>
+        Enter at least 3 characters.
+      </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/youtube-search/youtube-search.component.html</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="joinChannel" datatype="html">
+        <source>Join channel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">20</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">81</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="yourChannels" datatype="html">
+        <source>Your channels</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">40</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="privateChats" datatype="html">
+        <source>Private chats</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">57</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="findUserName" datatype="html">
+        <source>User name...</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="offline" datatype="html">
+        <source>Offline</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">120</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="mention" datatype="html">
+        <source>Mention</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">126</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="chat" datatype="html">
+        <source>Chat</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">132</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="playlist" datatype="html">
+        <source>Playlist</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">140</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">182</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="info" datatype="html">
+        <source>Info</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">146</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">195</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="findUser" datatype="html">
+        <source>Find user</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">155</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="disableNotifications" datatype="html">
+        <source>Disable notifications</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">160</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">188</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enableNotifications" datatype="html">
+        <source>Enable notifications</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">162</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">190</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="hidePanel" datatype="html">
+        <source>Hide panel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">167</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="leaveChannel" datatype="html">
+        <source>Leave channel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/chat-manager/chat-manager.component.html</context>
+          <context context-type="linenumber">172</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="describeActionOrStatus" datatype="html">
+        <source>Describe action or status</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/action-prompt/action-prompt.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enterMessage" datatype="html">
+        <source>Enter message</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/action-prompt/action-prompt.component.html</context>
+          <context context-type="linenumber">4</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="confirm" datatype="html">
+        <source>Confirm</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/action-prompt/action-prompt.component.html</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/away-prompt/away-prompt.component.html</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/nickname-prompt/nickname-prompt.component.html</context>
+          <context context-type="linenumber">25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="cancel" datatype="html">
+        <source>Cancel</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/action-prompt/action-prompt.component.html</context>
+          <context context-type="linenumber">13</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/nickname-prompt/nickname-prompt.component.html</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="setAway" datatype="html">
+        <source>Set away</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/away-prompt/away-prompt.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">75</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="setAwayInfo" datatype="html">
+        <source>When set away, users writing to you will receive an automatic message.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/away-prompt/away-prompt.component.html</context>
+          <context context-type="linenumber">3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="awayMessageText" datatype="html">
+        <source>Away message text</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/away-prompt/away-prompt.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="userNickname" datatype="html">
+        <source>User nickname</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/nickname-prompt/nickname-prompt.component.html</context>
+          <context context-type="linenumber">1</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enterNickname" datatype="html">
+        <source>Enter nickname</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/nickname-prompt/nickname-prompt.component.html</context>
+          <context context-type="linenumber">6</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/splash-screen/splash-screen.component.html</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="charactersNotAllowed" datatype="html">
+        <source>Characters not allowed.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/nickname-prompt/nickname-prompt.component.html</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/splash-screen/splash-screen.component.html</context>
+          <context context-type="linenumber">25</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enterAtLeast3characters" datatype="html">
+        <source>Enter at least 3 characters.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/nickname-prompt/nickname-prompt.component.html</context>
+          <context context-type="linenumber">12</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/splash-screen/splash-screen.component.html</context>
+          <context context-type="linenumber">26</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="registeredUser" datatype="html">
+        <source>Registered user</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/nickname-prompt/nickname-prompt.component.html</context>
+          <context context-type="linenumber">15</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/splash-screen/splash-screen.component.html</context>
+          <context context-type="linenumber">29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="password" datatype="html">
+        <source>Password</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/chat/dialogs/nickname-prompt/nickname-prompt.component.html</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/splash-screen/splash-screen.component.html</context>
+          <context context-type="linenumber">32</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="channelUsers" datatype="html">
+        <source>Channel users</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="messages" datatype="html">
+        <source>Messages</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="changeNickname" datatype="html">
+        <source>Change nickname</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">65</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="describeAction" datatype="html">
+        <source>Action</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">70</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="disconnect" datatype="html">
+        <source>Disconnect</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">86</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="connect" datatype="html">
+        <source>Connect</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">90</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/splash-screen/splash-screen.component.html</context>
+          <context context-type="linenumber">41</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="settings" datatype="html">
+        <source>Settings</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">93</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="showJoinParts" datatype="html">
+        <source>Show join/parts</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">97</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="darkTheme" datatype="html">
+        <source>Dark theme</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">98</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enableColors" datatype="html">
+        <source>Enable colors</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.component.html</context>
+          <context context-type="linenumber">99</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="server" datatype="html">
+        <source>Server</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/splash-screen/splash-screen.component.html</context>
+          <context context-type="linenumber">7</context>
+        </context-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

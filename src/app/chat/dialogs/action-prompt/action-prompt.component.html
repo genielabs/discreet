@@ -1,9 +1,7 @@
-<h2 mat-dialog-title class="title theme-color-primary">
-  Descrivi azione o stato d'animo
-</h2>
+<h2 mat-dialog-title class="title theme-color-primary" i18n="@@describeActionOrStatus">Describe action or status</h2>
 <mat-dialog-content class="content" fxLayout="column">
   <mat-form-field>
-    <textarea matInput placeholder="Frase in terza persona"
+    <textarea matInput placeholder="Enter message" i18n-placeholder="@@enterMessage"
            required
            #textInput="ngModel"
            [(ngModel)]="actionText"></textarea>
@@ -11,6 +9,6 @@
   <strong class="theme-color-notice">{{username}}… {{actionText}}</strong>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button [mat-dialog-close]="actionText" [disabled]="textInput.invalid">Conferma</button>
-  <button mat-button mat-dialog-close cdkFocusInitial>Annulla</button>
+  <button mat-button [mat-dialog-close]="actionText" [disabled]="textInput.invalid" i18n="@@confirm">Confirm</button>
+  <button mat-button mat-dialog-close cdkFocusInitial i18n="@@cancel">Cancel</button>
 </mat-dialog-actions>
