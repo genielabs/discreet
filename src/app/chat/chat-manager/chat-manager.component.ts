@@ -82,7 +82,7 @@ export class ChatManagerComponent implements OnInit {
       }
     },
     add(target: string | ChatInfo, chatManager: ChatManagerComponent): PublicChat | PrivateChat {
-      let chat = null;
+      let chat: PublicChat | PrivateChat = null;
       if (this.isPublic(target)) {
         chat = new PublicChat(target, chatManager);
         this.public.push(chat);
@@ -90,6 +90,11 @@ export class ChatManagerComponent implements OnInit {
         chat = new PrivateChat(target, chatManager);
         this.private.push(chat);
       }
+      chat.chatEvent.subscribe((e) => {
+        if (e.event === 'playlist:add' && chat.manager().followingUserPlaylist === e.user) {
+          chat.manager().videoPlayer.loadVideo(e.media.url);
+        }
+      });
       return chat;
     }
   };
@@ -128,6 +133,8 @@ export class ChatManagerComponent implements OnInit {
     this.screenHeight = window.innerHeight;
     this.screenWidth = window.innerWidth;
   }
+
+  followingUserPlaylist: ChatUser;
 
   constructor(
     private snackBar: MatSnackBar,
@@ -330,19 +337,13 @@ export class ChatManagerComponent implements OnInit {
       data: [ user ],
       closeOnNavigation: true
     });
+    dialogRef.componentInstance.followingUser = this.followingUserPlaylist;
+    dialogRef.componentInstance.following.subscribe((u) => {
+      this.followingUserPlaylist = u;
+    });
     dialogRef.afterClosed().subscribe(media => {
       if (media) {
-        let videoId = '';
-        if (media.url.indexOf('v=') === -1) {
-          videoId = media.url.substring(media.url.lastIndexOf('/') + 1);
-        } else {
-          videoId = media.url.split('v=')[1];
-          const ampersandPosition = videoId.indexOf('&');
-          if (ampersandPosition !== -1) {
-            videoId = videoId.substring(0, ampersandPosition);
-          }
-        }
-        this.videoPlayer.loadVideo(videoId);
+        this.videoPlayer.loadVideo(media.url);
       }
     });
   }
@@ -429,7 +430,7 @@ export class ChatManagerComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.action === 'share') {
-          this.insertTextInput(` https://youtu.be/${result.media.id} `);
+          this.insertTextInput(`https://youtu.be/${result.media.id} `);
           this.messageInput.nativeElement.focus();
         } else {
           this.videoPlayer.loadVideo(result.media.id);
@@ -569,7 +570,7 @@ export class ChatManagerComponent implements OnInit {
   }
 
   notify(from, message, target) {
-    const snackBarRef: MatSnackBarRef<SimpleSnackBar> = this.snackBar.open(`${from}: ${message}`, 'Mostra', {
+    const snackBarRef: MatSnackBarRef<SimpleSnackBar> = this.snackBar.open(`${from}: ${message}`, 'Show', {
       duration: 5000,
       verticalPosition: 'top'
     });

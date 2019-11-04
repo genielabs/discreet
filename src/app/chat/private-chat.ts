@@ -26,6 +26,11 @@ export class PrivateChat extends ChatData{
             .find((item) => item.url === result.mediaInfo.url);
           if (existingItem == null) {
             this.user.playlist.push(result.mediaInfo);
+            this.chatEvent.emit({
+              event: 'playlist:add',
+              user: this.user,
+              media: result.mediaInfo
+            });
           }
         }
         message.rendered.message = result.enriched;

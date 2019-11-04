@@ -2,6 +2,7 @@ import {ChatInfo} from './chat-info';
 import {ChatManagerComponent} from './chat-manager/chat-manager.component';
 import {ChatMessage, ChatMessageType} from './chat-message';
 import ircFormatter from 'irc-formatting';
+import {EventEmitter} from '@angular/core';
 
 export class ChatData {
   hidden = false;
@@ -15,6 +16,7 @@ export class ChatData {
     selectionEnd: 0
   };
   showColors = false;
+  chatEvent = new EventEmitter<any>();
 
   readonly info: ChatInfo;
   private bufferMaxLines = 300;

@@ -26,6 +26,14 @@
         <source>Shared videos</source>
         <target>Shared videos</target>
       </trans-unit>
+      <trans-unit id="following" datatype="html">
+        <source>&#x2714; Follow</source>
+        <target>&#x2714; Follow</target>
+      </trans-unit>
+      <trans-unit id="follow" datatype="html">
+        <source>Follow</source>
+        <target>Follow</target>
+      </trans-unit>
       <trans-unit id="channels" datatype="html">
         <source>Channels</source>
         <target>Channels</target>

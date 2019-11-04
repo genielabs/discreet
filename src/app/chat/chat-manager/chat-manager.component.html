@@ -208,7 +208,7 @@
      [ngClass]="{ 'full-width': screenWidth < 640 || !showRightPanel, hidden: !currentChat }"
      fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="8px">
 
-  <div #mentionContainer class="mention-container"></div>
+  <div #mentionContainer class="mention-container theme-background"></div>
 
   <mat-form-field style="width: 100%">
     <textarea matInput placeholder="{{ircClient.config.nick}}  &rarr;  {{chat().info.name}}" class="message-input"
@@ -226,9 +226,6 @@
     </button>
     <button mat-icon-button *ngIf="!deviceService.isMobile()">
       <mat-icon color="primary" (click)="onOpenEmojiClick($event)">sentiment_satisfied_alt</mat-icon>
-    </button>
-    <button mat-icon-button fxAlign="end" (click)="onEnterKey($event)">
-      <mat-icon color="primary">send</mat-icon>
     </button>
   </mat-form-field>
 

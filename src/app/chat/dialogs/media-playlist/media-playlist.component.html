@@ -4,9 +4,17 @@
 </h2>
 <mat-dialog-content class="content">
   <div *ngFor="let user of users | callback: filterCallback">
-    <h3 class=" theme-color-accent">
-      {{user.name}}
-    </h3>
+    <div fxLayout="row" fxLayoutAlign="start center">
+      <h3 fxFlex="1 0 0" class=" theme-color-accent">
+        {{user.name}}
+      </h3>
+      <button mat-flat-button
+              [color]="followingUser === user ? 'accent' : ''"
+              (click)="onFollowUserClick(user)">
+        <span *ngIf="followingUser === user" i18n="@@following">&#x2714; Follow</span>
+        <span *ngIf="followingUser !== user" i18n="@@follow">Follow</span>
+      </button>
+    </div>
     <div *ngFor="let media of user.playlist" fxLayout="row" fxLayoutAlign="start stretch">
       <img class="media-image" [src]="media.thumbnail_url" height="56"/>
       <span class="media-title" fxFlex="1 1 0">{{media.title}}</span>

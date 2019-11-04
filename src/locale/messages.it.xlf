@@ -26,6 +26,14 @@
         <source>Shared videos</source>
         <target>Video condivisi</target>
       </trans-unit>
+      <trans-unit id="following" datatype="html">
+        <source>&#x2714; Follow</source>
+        <target>&#x2714; Segui</target>
+      </trans-unit>
+      <trans-unit id="follow" datatype="html">
+        <source>Follow</source>
+        <target>Segui</target>
+      </trans-unit>
       <trans-unit id="channels" datatype="html">
         <source>Channels</source>
         <target>Canali</target>

@@ -27,6 +27,11 @@ export class PublicChat extends ChatData {
               .find((item) => item.url === result.mediaInfo.url);
             if (existingItem == null) {
               senderUser.playlist.push(result.mediaInfo);
+              this.chatEvent.emit({
+                event: 'playlist:add',
+                user: senderUser,
+                media: result.mediaInfo
+              });
             }
           }
         }

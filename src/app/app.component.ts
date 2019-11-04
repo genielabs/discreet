@@ -115,6 +115,10 @@ export class AppComponent implements OnInit, OnDestroy {
               : [(chatManager.currentChat as  PrivateChat).user]),
       closeOnNavigation: true
     });
+    dialogRef.componentInstance.followingUser = this.channelManager.followingUserPlaylist;
+    dialogRef.componentInstance.following.subscribe((u) => {
+      this.channelManager.followingUserPlaylist = u;
+    });
     dialogRef.afterClosed().subscribe(media => {
       if (this.router.url.indexOf('#playlist') > 0) {
         this.locationService.back();

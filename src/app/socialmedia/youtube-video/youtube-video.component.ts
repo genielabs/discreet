@@ -59,7 +59,7 @@ export class YoutubeVideoComponent implements OnInit {
           wmode: 'transparent',
           autoplay: 1,
           controls: 1,
-          fs: 0, // no full screen
+          fs: 1, // no full screen
           rel: 0, // no similar video list at the end
           showinfo: 1, // no video info at start
           playsinline: 1, // prevent auto-fullscreen when rotating to landscape mode (fix only iOS)
@@ -152,6 +152,15 @@ export class YoutubeVideoComponent implements OnInit {
     this.hasMargin = hasMargin;
   }
   loadVideo(id: string) {
+    if (id.indexOf('v=') === -1) {
+      id = id.substring(id.lastIndexOf('/') + 1);
+    } else {
+      id = id.split('v=')[1];
+      const ampersandPosition = id.indexOf('&');
+      if (ampersandPosition !== -1) {
+        id = id.substring(0, ampersandPosition);
+      }
+    }
     this.videoId = id;
     this.player.loadVideoById(id);
     this.play();
