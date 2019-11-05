@@ -26,6 +26,7 @@
   &nbsp;
   <mat-form-field fxFlex="1 0 0">
     <input matInput type="text"
+
            placeholder="Enter channel name (e.g. #chat)" i18n-placeholder="@@enterChannelName"
            [(ngModel)]="channelName" #channel="ngModel" pattern="([#&][^\x07\x2C\s]{0,200})" required minlength="2">
     <button mat-button *ngIf="channelName" matSuffix mat-icon-button aria-label="Clear" (click)="channelName=''">

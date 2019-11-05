@@ -30,8 +30,8 @@ import {PrivateChat} from '../private-chat';
 import {ChannelsListComponent} from '../dialogs/channels-list/channels-list.component';
 import {IrcUser} from '../../irc-client-service/irc-user';
 import {UserInfoDialogComponent} from '../dialogs/user-info-dialog/user-info-dialog.component';
-import {SettingsService} from '../../core/services/settings.service';
-import {YoutubeSearchService} from '../../core/services/youtube-search.service';
+import {SettingsService} from '../../services/settings.service';
+import {YoutubeSearchService} from '../../services/youtube-search.service';
 import {YoutubeSearchComponent} from '../dialogs/youtube-search/youtube-search.component';
 
 @Injectable({
@@ -113,6 +113,7 @@ export class ChatManagerComponent implements OnInit {
   showRightPanel = true;
   showUserList = false;
   isLoggedIn = false;
+  followingUserPlaylist: ChatUser;
 
   screenHeight = window.innerHeight;
   screenWidth = window.innerWidth;
@@ -133,8 +134,6 @@ export class ChatManagerComponent implements OnInit {
     this.screenHeight = window.innerHeight;
     this.screenWidth = window.innerWidth;
   }
-
-  followingUserPlaylist: ChatUser;
 
   constructor(
     private snackBar: MatSnackBar,
@@ -180,7 +179,7 @@ export class ChatManagerComponent implements OnInit {
         this.addServiceEvent(
           channel, user.name,
           ChatMessageType.JOIN,
-          'è entrato.',
+          'joined',
           {description: msg.message}
         );
       }
@@ -190,7 +189,7 @@ export class ChatManagerComponent implements OnInit {
       this.addServiceEvent(
         channel, user.name,
         ChatMessageType.KICK,
-        'è stato espulso.',
+        'has been kicked',
         {description: msg.message}
       );
     });
@@ -199,7 +198,7 @@ export class ChatManagerComponent implements OnInit {
       this.addServiceEvent(
         channel, user.name,
         ChatMessageType.PART,
-        'è uscito.',
+        'left',
         {description: msg.message}
       );
     });
@@ -208,7 +207,7 @@ export class ChatManagerComponent implements OnInit {
         this.addServiceEvent(
           channel, user.name,
           ChatMessageType.QUIT,
-          'si è disconnesso.',
+          'disconnected',
           {description: msg.message}
         );
       });
@@ -219,11 +218,18 @@ export class ChatManagerComponent implements OnInit {
       if (chat instanceof PrivateChat) {
         chat.info.name = (u as IrcUser).name;
       }
+      // TODO: addServiceEvent!!!
     });
     this.ircClient.channelJoin.subscribe((channel) => {
       const chat = (this.show(channel) as PublicChat);
       // reset channel users list
       chat.users.length = 0;
+      this.addServiceEvent(
+        channel, this.ircClient.config.nick,
+        ChatMessageType.JOIN,
+        'joined',
+        {description: ''}
+      );
     });
     this.ircClient.channelTopic.subscribe(({channel, topic}) => {
       const chat = (this.show(channel) as PublicChat);
@@ -251,6 +257,8 @@ export class ChatManagerComponent implements OnInit {
       user.color = this.getColor(user.flags);
       chat.users.splice(chat.users.indexOf(user), 1);
       this.insertionSortUser(chat.users, user);
+      chat.users = chat.users.slice();
+      // TODO: addServiceEvent!!!
     });
     this.ircClient.awayReply.subscribe((msg) => {
       msg.type = ChatMessageType.MESSAGE;
@@ -266,16 +274,14 @@ export class ChatManagerComponent implements OnInit {
   }
 
   private addServiceEvent(channel: string, sender: string, eventType: ChatMessageType, eventDescription: string, data: any) {
-    const chat = this.channel(channel);
-    if (chat) {
+    if (channel === this.currentChat.info.name) {
       const eventMessage = new ChatMessage();
       eventMessage.type = eventType;
       eventMessage.message = eventDescription;
       eventMessage.data = data;
-      //eventMessage.data = { description: msg.message };
       eventMessage.sender = sender;
       eventMessage.target = channel;
-      chat.receive(eventMessage);
+      this.currentChat.serviceMessage = eventMessage;
     }
   }
 
@@ -849,16 +855,11 @@ export class ChatManagerComponent implements OnInit {
     user.color = this.getColor(u.prefix);
     user.icon = this.getIcon(u.prefix);
     user.user.online = true;
-    // TODO: this duplicate check could be removed
-    // const existingUser = usersList.find((eu) => eu.name === chatUser.name);
-    // if (existingUser == null) {
-    //   usersList.push(chatUser);
-    // }
     if (usersList) {
       this.insertionSortUser(usersList, user);
-      // TODO: if this is not for forcing chatUser list (virtual-scroll) refresh, remove it
+      // force chatUser list (virtual-scroll) refresh
       const chat = this.chatList.find(target);
-      (chat as PublicChat).users = [...usersList];
+      (chat as PublicChat).users = usersList.slice();
     } else {
 console.log('ERROR: while adding user, could not retrieve users list for channel', target, u);
     }
@@ -871,6 +872,8 @@ console.log('ERROR: while adding user, could not retrieve users list for channel
         // remove and re-insert user in order to keep list sorted
         usersList.splice(usersList.indexOf(channelUser), 1);
         this.insertionSortUser(usersList, channelUser);
+        // force chatUser list (virtual-scroll) refresh
+        c.users = usersList.slice();
       }
     });
   }
@@ -880,6 +883,8 @@ console.log('ERROR: while adding user, could not retrieve users list for channel
         const u = c.getUser(user.name);
         if (u) {
           c.users.splice(c.users.indexOf(u), 1);
+          // force chatUser list (virtual-scroll) refresh
+          c.users = c.users.slice();
           if (callback) {
             callback(c.info.name);
           }
@@ -889,6 +894,8 @@ console.log('ERROR: while adding user, could not retrieve users list for channel
       const c = (this.chatList.find(target) as PublicChat);
       const u = c.getUser(user.name);
       c.users.splice(c.users.indexOf(u), 1);
+      // force chatUser list (virtual-scroll) refresh
+      c.users = c.users.slice();
       if (callback) {
         callback(c.info.name);
       }

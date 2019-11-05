@@ -2,7 +2,7 @@
 <mat-dialog-content class="content" fxLayout="column">
   <strong i18n="@@setAwayInfo">When set away, users writing to you will receive an automatic message.</strong>
   <mat-form-field>
-    <textarea matInput
+    <textarea matInput maxlength="300"
           placeholder="Away message text" i18n-placeholder="@@awayMessageText"
           required #textInput="ngModel" [(ngModel)]="awayText"></textarea>
   </mat-form-field>

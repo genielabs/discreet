@@ -15,6 +15,7 @@ export class ChatData {
     selectionStart: 0,
     selectionEnd: 0
   };
+  serviceMessage: ChatMessage;
   showColors = false;
   chatEvent = new EventEmitter<any>();
 

@@ -54,7 +54,7 @@ import 'moment/locale/it';
 import {NgxTributeModule} from 'ngx-tribute';
 import {PouchDBService} from './services/pouchdb.service';
 import {EncrDecrService} from './services/encr-decr.service';
-import {SettingsService} from './core/services/settings.service';
+import {SettingsService} from './services/settings.service';
 import { YoutubeSearchComponent } from './chat/dialogs/youtube-search/youtube-search.component';
 
 @NgModule({

@@ -70,7 +70,7 @@ export class SplashScreenComponent implements OnInit {
         this.ircClientService.config.server = this.ircClientService.serverList
           .find((s) => s.id === this.serverId);
       }
-      this.nick = cfg.nick;
+      this.nick = cfg.nick || this.nick;
       this.password = cfg.password;
       this.serverId = cfg.server.id;
     });

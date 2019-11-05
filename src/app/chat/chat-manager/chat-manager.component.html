@@ -31,7 +31,7 @@
 
   <app-youtube-video #videoPlayer></app-youtube-video>
 
-  <div class="conversations-list theme-border-primary mat-drawer mat-drawer-side mat-elevation-z4"
+  <div class="conversations-list theme-border-primary elevation-background mat-drawer mat-drawer-side mat-elevation-z4"
        *ngIf="!showUserList || !showRightPanel"
        [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
@@ -73,11 +73,11 @@
     </div>
   </div>
 
-  <div class="users-list theme-border-primary mat-drawer mat-drawer-side mat-elevation-z4"
+  <div class="users-list theme-border-primary elevation-background mat-drawer mat-drawer-side mat-elevation-z4"
        *ngIf="showUserList || !showRightPanel"
        [ngClass]="{'right-panel-show': showRightPanel, 'right-panel-hide': !showRightPanel}"
        fxLayout="column" fxLayoutAlign="stretch stretch">
-    <div class="search-field theme-border-primary" fxLayout="row" fxLayoutAlign="start stretch">
+    <div class="search-field" fxLayout="row" fxLayoutAlign="start stretch">
       <button class="chat-button-menu"
               mat-icon-button [matMenuTriggerFor]="channelMenu">
         <mat-icon>menu</mat-icon>
@@ -204,7 +204,7 @@
 
 </div>
 
-<div class="input-bar mat-app-background mat-elevation-z6" *ngIf="currentChat"
+<div class="input-bar elevation-background mat-elevation-z6" *ngIf="currentChat"
      [ngClass]="{ 'full-width': screenWidth < 640 || !showRightPanel, hidden: !currentChat }"
      fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="8px">
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {PouchDBService} from '../../services/pouchdb.service';
+import {PouchDBService} from './pouchdb.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +7,7 @@ import {PouchDBService} from '../../services/pouchdb.service';
 export class SettingsService {
   settings = {
     isDarkTheme: false,
-    showColors: false
+    showColors: true
   };
 
   private updateDbTimeout;

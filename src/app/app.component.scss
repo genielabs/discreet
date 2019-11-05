@@ -81,7 +81,7 @@ mat-toolbar {
 }
 
 mat-sidenav {
-  width: 200px;
+  width: 240px;
 }
 /*
 mat-sidenav {
@@ -90,7 +90,7 @@ mat-sidenav {
 }
 */
 mat-sidenav-container {
-  height: calc(100vh - 68px);
+  height: calc(100vh - 64px);
 }
 mat-sidenav-content {
   height: 100%;
@@ -103,10 +103,8 @@ mat-drawer-content {
 .mat-drawer-side.mat-drawer-end {
   border: 0;
 }
-.drawer-title {
-  background: #3f51b5;
-  height: 64px;
-  margin-bottom: 16px;
+.mat-drawer-inner-container {
+  overflow-x: hidden !important;
 }
 
 .menu-button {

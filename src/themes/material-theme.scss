@@ -1,5 +1,13 @@
+/* You can add global styles to this file, and also import other style files */
+//@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+//@import "~@angular/material/prebuilt-themes/pink-bluegrey.css";
+
+/*@import url('https://fonts.googleapis.com/css?family=Nova+Mono&display=swap');*/
+/*@import url('https://fonts.googleapis.com/css?family=Fira+Mono:400,700&display=swap&subset=latin-ext');*/
+/*@import url('https://fonts.googleapis.com/css?family=Space+Mono:400,700&display=swap&subset=latin-ext');*/
+
 // Import material theming functions
-@import '../../node_modules/@angular/material/theming';
+@import '~@angular/material/theming';
 
 // Typography
 $custom-typography: mat-typography-config(
@@ -14,18 +22,21 @@ $default-theme-primary: mat-palette($mat-deep-purple);
 $default-theme-accent: mat-palette($mat-pink, A200, A100, A400);
 $default-theme-warn: mat-palette($mat-red);
 $default-theme: mat-light-theme($default-theme-primary, $default-theme-accent, $default-theme-warn);
+
 @include angular-material-theme($default-theme);
 
 // color variables (will be available in the whole project)
 // TODO: remove these 3 use mat-color instead
-$primary: mat-color($default-theme-primary);
+//$primary: mat-color($default-theme-primary);
 $accent: mat-color($default-theme-accent);
-$warn: mat-color($default-theme-warn);
+//$warn: mat-color($default-theme-warn);
 
 $positive: mat-palette($mat-green);
 $negative: mat-palette($mat-red);
 $notice: mat-palette($mat-orange);
 
+.elevation-background {
+}
 .theme-color-primary {
   color: mat-color($default-theme-primary);
 }
@@ -57,16 +68,26 @@ $theme: mat-light-theme($primary, $accent, $warn);
 // Dark Theme
 .dark-theme {
   color: #bbb;
-  $dark-primary: mat-palette($mat-green);
+  $dark-background-color: #444; //map_get($mat-dark-theme-background, 50);
+  $dark-primary: mat-palette($mat-green, 400);
   $dark-accent: mat-palette($mat-amber, A400, A100, A700);
   $dark-warn: mat-palette($mat-red);
   $dark-theme: mat-dark-theme($dark-primary, $dark-accent, $dark-warn);
+
+  // Insert custom background color
+  $background: map-get($dark-theme, background);
+  $background: map_merge($background, (background: $dark-background-color));
+  $dark-theme: map_merge($dark-theme, (background: $background));
+
   @include angular-material-theme($dark-theme);
 
   $dark-positive: mat-palette($mat-lime);
   $dark-negative: mat-palette($mat-pink);
   $dark-notice: mat-palette($mat-yellow);
 
+  .elevation-background {
+    background-color: #333 !important;
+  }
   .theme-color-primary {
     color: mat-color($dark-primary) !important;
   }

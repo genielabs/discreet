@@ -63,15 +63,6 @@ export class MessagesWindowComponent implements OnInit {
     this.scrollLast(true);
   }
 
-  getTimeStamp(messages: ChatMessage[], i: number) {
-    const startMessage = messages[i++];
-    let timestamp = startMessage.timestamp;
-    while (i < messages.length && messages[i].sender === startMessage.sender) {
-      timestamp = messages[i++].timestamp;
-    }
-    return timestamp;
-  }
-
   isServiceMessage(msg) {
     return msg.type === ChatMessageType.JOIN
       || msg.type === ChatMessageType.PART

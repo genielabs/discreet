@@ -15,7 +15,7 @@ import {IrcClientService} from './irc-client-service/irc-client-service';
 import {ChannelsListComponent} from './chat/dialogs/channels-list/channels-list.component';
 import {PrivateChat} from './chat/private-chat';
 
-import {SettingsService} from './core/services/settings.service';
+import {SettingsService} from './services/settings.service';
 
 @Component({
   selector: 'app-root',

@@ -1,5 +1,5 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {YoutubeSearchService} from '../../../core/services/youtube-search.service';
+import {YoutubeSearchService} from '../../../services/youtube-search.service';
 
 @Component({
   selector: 'app-youtube-search',

@@ -91,7 +91,7 @@ export class IrcClientService {
 
   config = {
     server: this.serverList[1],
-    nick: 'Wall`e',
+    nick: '',
     password: '',
     host: 'localhost',
     user: 'discreet',
@@ -148,7 +148,7 @@ console.log('>> ' + msg.data)
             break;
           default:
 
-            if (msg.data.toString().startsWith('a[:1 control closed')) {
+            if (msg.data.toString().startsWith('a[":1 control closed')) {
               this.disconnect();
               break;
             }
@@ -734,7 +734,7 @@ console.log('NICKNAME ALREADY IN USE', payload);
     const user = this.getUser(u);
     user.online = false;
     (channel == null) ? this.userQuit.emit({user, msg})
-      : msg.command === 'KICK'  ? this.userKick.emit({channel, user, msg})
+      : msg.action === 'KICK'  ? this.userKick.emit({channel, user, msg})
                                 : this.userPart.emit({channel, user, msg});
   }
 

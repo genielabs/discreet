@@ -3,7 +3,6 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  padding-left: 8px;
 }
 
 .top-shadow {
@@ -66,13 +65,16 @@
 }
 
 /* ACTION MESSAGE */
+.message-sender.action {
+  text-align: center;
+}
 .message-sender.action .message {
   font-weight: 400 !important;
 }
 .message-sender.action .icon {
   margin-left: 0 !important;
-  margin-right: 8px !important;
-  margin-bottom: 4px;
+  margin-right: 4px !important;
+  margin-bottom: 0;
   font-size: 120% !important;
   line-height: 120% !important;
   opacity: 1 !important;
@@ -85,8 +87,8 @@
   margin-top: 0;
   margin-bottom: 0;
   font-weight: 400;
-  opacity: 0.25;
-  font-size: 80%;
+  opacity: 0.5;
+  font-size: 85%;
 }
 .message-sender.service .message {
   font-weight: 400 !important;
@@ -122,9 +124,9 @@
 }
 
 .local-user {
-  text-decoration: underline;
   font-weight: bolder;
-  opacity: 0.75;
+  opacity: 1 !important;
+  filter: invert(0.7);
 }
 
 .message-date {
@@ -162,9 +164,6 @@
 
 @media only screen and (max-device-width: 1023px) {
   /* Styles */
-  .container {
-    padding-left: 0;
-  }
   .margin-top {
     margin-top: 16px !important;
   }

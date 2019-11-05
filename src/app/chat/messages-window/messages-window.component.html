@@ -17,45 +17,15 @@
         <ng-container *ngIf="msg.type === MessageType.ACTION">
           <!-- message sender and action -->
           <div class="message-sender margin-top action"
-               [ngClass]="{ 'margin-bottom': i === 0 || i === boundChat.messages.length - 1 || boundChat.messages[i + 1].type !== MessageType.MESSAGE }"
-               fxLayout="row" fxLayoutAlign="center center">
+               [ngClass]="{ 'margin-bottom': i === 0 || i === boundChat.messages.length - 1 || boundChat.messages[i + 1].type !== MessageType.MESSAGE }">
 
-            <mat-icon class="icon theme-color-notice">announcement</mat-icon>
-
-            <span [innerHTML]="msg.sender" [ngClass]="{'local-user': msg.isLocal}"
+            <span [innerHTML]="msg.sender"
                   [matMenuTriggerFor]="boundChat.manager().userMenu"
                   (click)="boundChat.manager().onUserClick(boundChat.manager().userMenu, boundChat.getUser(msg.sender))"></span>
 
-            <span class="message" [innerHTML]="msg.rendered.message"></span>
+            <mat-icon class="icon theme-color-notice" title="{{msg.timestamp | date: 'mediumTime' : '' : 'en-US'}}">announcement</mat-icon>
 
-            <!-- message timestamp -->
-            <div class="message-date">{{getTimeStamp(boundChat.messages, i) | date: 'mediumTime' : '' : 'en-US'}}</div>
-
-          </div>
-        </ng-container>
-
-        <!-- JOIN/PART/KICK MESSAGE -->
-        <ng-container *ngIf="isServiceMessage(msg) && boundChat.preferences.showChannelActivity">
-          <!-- message sender and action -->
-          <div class="message-sender service"
-               [ngClass]="{ 'margin-top': i === 0 || boundChat.messages[i - 1].type === MessageType.MESSAGE }"
-               fxLayout="row" fxLayoutAlign="start center">
-
-            <mat-icon *ngIf="msg.type === MessageType.JOIN" class="icon theme-color-positive">arrow_forward</mat-icon>
-            <mat-icon *ngIf="msg.type === MessageType.PART" class="icon theme-color-negative">arrow_back</mat-icon>
-            <mat-icon *ngIf="msg.type === MessageType.KICK" class="icon theme-color-negative">close</mat-icon>
-            <mat-icon *ngIf="msg.type === MessageType.QUIT" class="icon theme-color-negative">arrow_back</mat-icon>
-
-            <span [innerHTML]="msg.sender" [ngClass]="{'local-user': msg.isLocal}"
-                  [matMenuTriggerFor]="boundChat.manager().userMenu"
-                  (click)="boundChat.manager().onUserClick(boundChat.manager().userMenu, boundChat.getUser(msg.sender))"></span>
-
-            <span class="message info" title="{{ msg.data.description }}">
-            {{ msg.rendered.message }}
-            </span>
-
-            <!-- message timestamp -->
-            <div class="message-date">{{getTimeStamp(boundChat.messages, i) | date: 'mediumTime' : '' : 'en-US'}}</div>
+            <span [innerHTML]="msg.rendered.message" style="font-weight: 400; white-space: normal; font-family: 'Fira Code', monospace;"></span>
 
           </div>
         </ng-container>
@@ -75,7 +45,7 @@
             <mat-icon *ngIf="msg.rendered.musicIcon" class="icon">{{msg.rendered.musicIcon}}</mat-icon>
 
             <!-- message timestamp -->
-            <div class="message-date">{{getTimeStamp(boundChat.messages, i) | date: 'mediumTime' : '' : 'en-US'}}</div>
+            <div class="message-date">{{msg.timestamp | date: 'mediumTime' : '' : 'en-US'}}</div>
           </div>
 
           <!-- message body -->
@@ -94,6 +64,35 @@
         <mat-icon>arrow_downward</mat-icon>
       </div>
 
+    </ng-container>
+
+  </div>
+
+  <!-- join/part/kick/ban and other service messages will be displayed as a single line below -->
+  <!-- clicking this line will expand it to half of the screen height -->
+  <div style="padding-left: 8px; padding-right: 8px;">
+
+    <!-- JOIN/PART/KICK MESSAGE -->
+    <ng-container *ngIf="boundChat && boundChat.preferences.showChannelActivity && boundChat.serviceMessage">
+      <!-- message sender and action -->
+      <div class="message-sender service" fxLayout="row" fxLayoutAlign="start center">
+
+        <mat-icon *ngIf="boundChat.serviceMessage.type === MessageType.JOIN" class="icon theme-color-positive">arrow_forward</mat-icon>
+        <mat-icon *ngIf="boundChat.serviceMessage.type === MessageType.PART" class="icon theme-color-negative">arrow_back</mat-icon>
+        <mat-icon *ngIf="boundChat.serviceMessage.type === MessageType.KICK" class="icon theme-color-negative">close</mat-icon>
+        <mat-icon *ngIf="boundChat.serviceMessage.type === MessageType.QUIT" class="icon theme-color-negative">arrow_back</mat-icon>
+
+        <span [innerHTML]="boundChat.serviceMessage.sender"
+              [matMenuTriggerFor]="boundChat.manager().userMenu"
+              (click)="boundChat.manager().onUserClick(boundChat.manager().userMenu, boundChat.getUser(boundChat.serviceMessage.sender))"></span>
+
+        <span class="message info" title="{{ boundChat.serviceMessage.data.description }}">
+            {{ boundChat.serviceMessage.message }}
+        </span>
+
+        <!-- message timestamp -->
+        <div class="message-date">{{boundChat.serviceMessage.timestamp | date: 'mediumTime' : '' : 'en-US'}}</div>
+      </div>
     </ng-container>
 
   </div>
