@@ -306,6 +306,7 @@ console.log('>> ' + msg.data)
                       u++;
                     }
                     this.handleUserChannelMode({
+                      sender: this.parseUserAddress(payload.prefix).nick,
                       channel: modeChannel,
                       mode,
                       users
@@ -749,8 +750,9 @@ console.log('NICKNAME ALREADY IN USE', payload);
   }
 
   private handleUserChannelMode(m) {
+    const mode = m.mode;
     m.mode = m.mode.split('');
-    const mode = m.mode.shift();
+    const modeSign = m.mode.shift();
     let flag = '';
     m.mode.forEach((userMode, i) => {
       switch (userMode) {
@@ -775,10 +777,10 @@ console.log('NICKNAME ALREADY IN USE', payload);
         const userChannel = user.channels[m.channel] || { flags: '' };
         const oldFlags = userChannel.flags;
         userChannel.flags = userChannel.flags.replace(flag, '');
-        if (mode === '+') {
+        if (modeSign === '+') {
           userChannel.flags += flag;
         }
-        this.userChannelMode.emit({channel: m.channel, user, oldFlags});
+        this.userChannelMode.emit({sender: m.sender, channel: m.channel, mode, user, oldFlags});
       } else {
         // TODO: handle other channel modes like +b ...
       }

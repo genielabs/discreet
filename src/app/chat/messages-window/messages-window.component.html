@@ -81,6 +81,7 @@
         <mat-icon *ngIf="boundChat.serviceMessage.type === MessageType.PART" class="icon theme-color-negative">arrow_back</mat-icon>
         <mat-icon *ngIf="boundChat.serviceMessage.type === MessageType.KICK" class="icon theme-color-negative">close</mat-icon>
         <mat-icon *ngIf="boundChat.serviceMessage.type === MessageType.QUIT" class="icon theme-color-negative">arrow_back</mat-icon>
+        <mat-icon *ngIf="boundChat.serviceMessage.type === MessageType.MODE" class="icon theme-color-notice">info_outline</mat-icon>
 
         <span [innerHTML]="boundChat.serviceMessage.sender"
               [matMenuTriggerFor]="boundChat.manager().userMenu"

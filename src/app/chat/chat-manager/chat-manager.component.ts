@@ -258,7 +258,13 @@ export class ChatManagerComponent implements OnInit {
       chat.users.splice(chat.users.indexOf(user), 1);
       this.insertionSortUser(chat.users, user);
       chat.users = chat.users.slice();
-      // TODO: addServiceEvent!!!
+      this.addServiceEvent(
+        m.channel,
+        m.sender,
+        ChatMessageType.MODE,
+        `set MODE ${m.mode} ${m.user.name}`,
+        {description: ''}
+      );
     });
     this.ircClient.awayReply.subscribe((msg) => {
       msg.type = ChatMessageType.MESSAGE;
@@ -274,7 +280,7 @@ export class ChatManagerComponent implements OnInit {
   }
 
   private addServiceEvent(channel: string, sender: string, eventType: ChatMessageType, eventDescription: string, data: any) {
-    if (channel === this.currentChat.info.name) {
+    if (this.currentChat && channel === this.currentChat.info.name) {
       const eventMessage = new ChatMessage();
       eventMessage.type = eventType;
       eventMessage.message = eventDescription;

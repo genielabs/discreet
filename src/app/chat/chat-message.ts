@@ -22,5 +22,6 @@ export enum ChatMessageType {
   JOIN,
   PART,
   KICK,
-  QUIT
+  QUIT,
+  MODE
 }
