@@ -76,7 +76,7 @@ export class TextFormatting {
   createTextLinks(text: string) {
     const urls: string[] = [];
     const replaced = (text || '').replace(
-      /([^\S]|^)(((https?\:\/\/)|(www\.))(\S+))/gi,
+      /([^\S]|^)(((https?:\/\/)|(www\.*\.*))([-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)))/gi,
       (match, space, url) => {
         let hyperlink = url;
         if (!hyperlink.match('^https?:\/\/')) {
