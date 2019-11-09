@@ -1,3 +1,5 @@
+$input-bar-height: 64px;
+
 :host {
   display: flex;
   font-size: 110%;
@@ -5,7 +7,7 @@
   align-content: stretch;
   justify-content: stretch;
   width: 100%;
-  height: calc(100% - 88px); /* 160px = top bar height 64 + bottom bar height 96 */
+  height: calc(100% - #{$input-bar-height});
 }
 
 .mat-drawer {
@@ -51,29 +53,29 @@ app-messages-window {
   transition: margin-right .3s ease-in-out;
 }
 .message-input {
-  resize: none !important;
-  font-size: 90%;
   font-family: 'Fira Code', monospace !important;
 }
 
 .input-bar {
   position: relative;
+  display: block;
   z-index: 1;
   max-width: 100vw;
-  padding: 8px 16px 24px;
-  height: 88px;
+  padding-left: 8px;
+  padding-right: 8px;
+  height: $input-bar-height;
   margin-right: 240px;
   transition: margin-right .3s ease-in-out;
+  mat-form-field {
+    margin-top: 8px;
+  }
+  button {
+    margin-bottom: 10px;
+  }
 }
 .input-bar.full-width {
   margin-right: 0;
 }
-/*
-.input-bar mat-form-field {
-  width: 100%;
-  padding-right: 24px;
-}
-*/
 
 .action-buttons {
   width: 200px;
@@ -100,7 +102,7 @@ app-messages-window {
   right: 0;
   opacity: 0.95;
   width: 240px;
-  height: calc(100% + 88px);
+  height: calc(100% + #{$input-bar-height});
   min-width: 240px;
   overflow: hidden;
   overflow-y: auto;
@@ -123,7 +125,7 @@ app-messages-window {
   right: 0;
   opacity: 0.95;
   width: 240px;
-  height: calc(100% + 88px);
+  height: calc(100% + #{$input-bar-height});
   min-width: 240px;
   overflow: hidden;
   overflow-y: auto;
@@ -203,7 +205,7 @@ app-messages-window {
   }
 }
 
-.full-message-window {
+.full-width {
   margin-right: 0 !important;
 }
 .right-panel-show {
@@ -217,6 +219,25 @@ app-messages-window {
   display: none;
 }
 
+.statusOverlay {
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background-color: black;
+  padding: 12px;
+  opacity: 0.5;
+  margin-right: 240px;
+  margin-bottom: calc(#{$input-bar-height} + 30px); // make the status bar visible (+30px)
+  transition: margin-right .3s ease-in-out;
+  .tool-bar {
+    width: 100%;
+    max-width: 420px;
+    margin-top: 32px;
+    button {
+      width: 80px;
+    }
+  }
+}
+
 @media only screen and (max-device-width: 640px) {
   /* Styles */
   app-messages-window {
@@ -228,11 +249,14 @@ app-messages-window {
   .conversations-list {
     margin-right: -240px;
   }
+  .statusOverlay {
+    margin-right: 0;
+  }
 }
 /* break point for material toolbar (from 64px height to 56px) */
 @media only screen and (max-device-width: 599px) { // small screen
   :host {
-    height: calc(100% - 88px); /* 160px = top bar height 56 + bottom bar height 96 */
+    height: calc(100% - #{$input-bar-height});
     font-size: 85%;
   }
   .input-bar {

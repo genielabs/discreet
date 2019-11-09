@@ -11,7 +11,7 @@ import {ActivatedRoute} from '@angular/router';
 export class SplashScreenComponent implements OnInit {
   @Output() connectRequest = new EventEmitter<LoginInfo>();
   serverId: string;
-  nick = 'Guest-' + Math.ceil(Math.random() * 1000);
+  nick = 'Discreet-' + Math.ceil(Math.random() * 1000);
   password = '';
 
   singleServerMode = false;

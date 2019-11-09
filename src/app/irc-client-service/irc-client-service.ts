@@ -33,6 +33,8 @@ export class IrcClientService {
   versionReply = new EventEmitter<any>();
   whoisReply = new EventEmitter<any>();
   channelsList = new EventEmitter<IrcChannel>();
+  inviteOnly = new EventEmitter<any>();
+  userBanned = new EventEmitter<any>();
 
   private userList: IrcUser[] = [];
   private updateDbTimeout;
@@ -335,14 +337,29 @@ console.log('>> ' + msg.data)
                   this.config.joinChannels.forEach((jchan) => subject.next([ `:1 JOIN ${jchan}` ]));
                   this.loggedIn.emit(true);
                   break;
-                case '477': // You need to identify to a registered nick to speak in that channel.
-                  // TODO: ...
-                  //:choopa.nj.us.dal.net 477 Bumble`Bee #cafechat :You need to identify to a registered nick to speak in that channel. For help with registering your nickname, type \"/msg NickServ@services.dal.net help register\" or see http://docs.dal.net/docs/nsemail.html"]
+                case '473': // INVITE ONLY CHANNEL
+                  this.inviteOnly.emit({
+                    channel: payload.params[1],
+                    message: payload.params[2]
+                  });
+                  break;
                 case '474': // BANNED
+                  this.userBanned.emit({
+                    channel: payload.params[1],
+                    message: payload.params[2]
+                  });
+                  break;
+                case '404': // Cannot send to channel.
+                  // TODO: ...
+                  //a[":1 :halcyon.il.us.dal.net 404 bill1 #prova :Cannot send to channel"]
+                  //break;
+                case '477': // You need to identify to a registered nick to speak in that channel.
+                  // TODO: should popup nick change prompt
+                  //a[":1 :choopa.nj.us.dal.net 477 Bumble`Bee #cafechat :You need to identify to a registered nick to speak in that channel. For help with registering your nickname, type \"/msg NickServ@services.dal.net help register\" or see http://docs.dal.net/docs/nsemail.html"]
+                  //break;
                   // payload.params[0]  NICK
                   // payload.params[1]  Channel
                   // payload.params[2]  Reason
-                  //console.log('\\\\\\\\\\\\\\\\\\\\\\', 'CANNOT JOIN', payload.params[1], payload.params[2]);
                   this.messageReceive.emit({
                     type: payload.command,
                     sender: payload.params[1],
@@ -507,6 +524,18 @@ console.log('NICKNAME ALREADY IN USE', payload);
 
   whois(nick: string) {
     this.raw(`:1 WHOIS ${nick}`);
+  }
+
+  mode(target: string, params: string) {
+    this.raw(`:1 MODE ${target} ${params}`);
+  }
+
+  kick(target: string, params: string) {
+    this.raw(`:1 KICK ${target} ${params}`);
+  }
+
+  invite(target: string, params: string) {
+    this.raw(`:1 INVITE ${target} ${params}`);
   }
 
   ctcp(nick: string, command: string) {

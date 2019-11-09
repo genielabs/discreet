@@ -1,11 +1,11 @@
 <div class="container" fxFlexFill fxLayout="row" fxLayoutAlign="stretch stretch">
 
   <app-messages-window
-    #messageWindow [ngClass]="{'full-message-window': !showRightPanel, hidden: !currentChat}"></app-messages-window>
+    #messageWindow [ngClass]="{'full-width': !showRightPanel, hidden: !currentChat}"></app-messages-window>
 
   <div *ngIf="!currentChat" class="cover"
        fxLayout="column" fxLayoutAlign="center center"
-       [ngClass]="{'full-message-window': !showRightPanel || deviceService.isMobile()}">
+       [ngClass]="{'full-width': !showRightPanel || deviceService.isMobile()}">
     <mat-icon class="face">sentiment_satisfied_alt</mat-icon>
 
     <div fxLayout="rows" fxLayoutAlign="center center"
@@ -204,29 +204,64 @@
 
 </div>
 
+<div *ngIf="currentChat && currentChat.userStatus && (currentChat.userStatus.kicked || currentChat.userStatus.banned || currentChat.userStatus.invite)"
+     [ngClass]="{'full-width': !showRightPanel, hidden: !currentChat}"
+     class="statusOverlay" fxLayout="column" fxLayoutAlign="center center">
+
+  <h1 class="theme-color-primary">{{currentChat.info.name}}</h1>
+
+  <div *ngIf="currentChat.userStatus.invite" class="theme-color-notice">
+    This channel is invite only.
+  </div>
+  <div *ngIf="currentChat.userStatus.kicked" class="theme-color-notice">
+    You've been kicked from this channel.
+  </div>
+  <div *ngIf="currentChat.userStatus.banned" class="theme-color-notice">
+    You are banned from this channel.
+  </div>
+
+  <div class="tool-bar" fxLayout="row" fxLayoutAlign="space-around center">
+    <button mat-raised-button (click)="onLeaveChannelClick(currentChat)">
+      <mat-icon color="warn">close</mat-icon>
+      <span>Close</span>
+    </button>
+    <button mat-raised-button (click)="onJoinChannelClick(currentChat)">
+      <mat-icon>double_arrow</mat-icon>
+      <span>Join</span>
+    </button>
+  </div>
+
+</div>
+
 <div class="input-bar elevation-background mat-elevation-z6" *ngIf="currentChat"
-     [ngClass]="{ 'full-width': screenWidth < 640 || !showRightPanel, hidden: !currentChat }"
-     fxLayout="row" fxLayoutAlign="start stretch" fxLayoutGap="8px">
+     [ngClass]="{ 'full-width': screenWidth < 640 || !showRightPanel, hidden: !currentChat }">
+
+  <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="8px">
+
+    <mat-form-field fxFlex="1 1 100%">
+      <input matInput placeholder="{{ircClient.config.nick}}  &rarr;  {{chat().info.name}}" class="message-input"
+             fxFlex="1 1 100%"
+             maxlength="300"
+             [ngxTribute]="tributeOptions" [menuContainer]="mentionContainer"
+             [(ngModel)]="currentChat.input.text"
+             (keydown.enter)="onEnterKey($event)"
+             (blur)="onTextInputBlur($event)"
+             (focus)="onTextInputFocus($event)"
+             (keydown)="onTextInputKeyDown($event)"
+             #messageInput>
+    </mat-form-field>
+    <button mat-icon-button matSuffix (click)="onYouTubeSearch($event)">
+      <mat-icon>music_note</mat-icon>
+    </button>
+    <button mat-icon-button matSuffix (click)="onOpenEmojiClick($event)" *ngIf="!deviceService.isMobile()">
+      <mat-icon>sentiment_satisfied_alt</mat-icon>
+    </button>
+    <button mat-icon-button matSuffix fxAlign="end" (click)="onEnterKey($event)">
+      <mat-icon>send</mat-icon>
+    </button>
+
+  </div>
 
   <div #mentionContainer class="mention-container theme-background"></div>
-
-  <mat-form-field style="width: 100%">
-    <textarea matInput placeholder="{{ircClient.config.nick}}  &rarr;  {{chat().info.name}}" class="message-input"
-          maxlength="300"
-          fxFlex="1 1 100%"
-          [ngxTribute]="tributeOptions" [menuContainer]="mentionContainer"
-          [(ngModel)]="currentChat.input.text"
-          (keydown.enter)="onEnterKey($event)"
-          (blur)="onTextInputBlur($event)"
-          (focus)="onTextInputFocus($event)"
-          (keydown)="onTextInputKeyDown($event)"
-          #messageInput></textarea>
-    <button mat-icon-button>
-      <mat-icon color="primary" (click)="onYouTubeSearch($event)">music_note</mat-icon>
-    </button>
-    <button mat-icon-button *ngIf="!deviceService.isMobile()">
-      <mat-icon color="primary" (click)="onOpenEmojiClick($event)">sentiment_satisfied_alt</mat-icon>
-    </button>
-  </mat-form-field>
 
 </div>

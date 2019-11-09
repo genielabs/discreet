@@ -9,6 +9,11 @@ export class PublicChat extends ChatData {
   topic = '';
   mode: string;
   users: ChatUser[] = [] as ChatUser[];
+  userStatus = {
+    kicked: false,
+    banned: false,
+    invite: false
+  };
   preferences: any = {
     showChannelActivity: true,
     showChannelActivityToggle() {
@@ -60,5 +65,13 @@ export class PublicChat extends ChatData {
   getUserColor(name: string) {
     const u = this.getUser(name);
     return u != null && this.manager().getColor(u.flags);
+  }
+  reset() {
+    this.users.length = 0;
+    this.userStatus = {
+      kicked: false,
+      banned: false,
+      invite: false
+    };
   }
 }

@@ -146,7 +146,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.navigate(['.'], { fragment: 'action', relativeTo: this.route });
     const dialogRef = this.dialog.open(ActionPromptComponent, {
       width: '330px',
-      data: chatManager.client().config.nick,
+      data: chatManager.client().nick(),
       closeOnNavigation: true
     });
     dialogRef.afterClosed().subscribe(res => {
@@ -185,7 +185,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.navigate(['.'], { fragment: 'action', relativeTo: this.route });
     const dialogRef = this.dialog.open(NicknamePromptComponent, {
       data: {
-        nick: chatManager.client().config.nick,
+        nick: chatManager.client().nick(),
         password: chatManager.client().config.password
       },
       closeOnNavigation: true

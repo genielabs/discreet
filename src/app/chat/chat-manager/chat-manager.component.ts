@@ -161,7 +161,7 @@ export class ChatManagerComponent implements OnInit {
         msg.sender = msg.sender.substring(0, ni);
       }
       // the message is for the local chatUser
-      if (this.ircClient.config.nick === msg.target) {
+      if (this.ircClient.nick() === msg.target) {
         msg.target = msg.sender;
       }
       // set type to MESSAGE (TODO: add support for NOTICE and MOTD TEXT '372')
@@ -185,6 +185,9 @@ export class ChatManagerComponent implements OnInit {
       }
     });
     this.ircClient.userKick.subscribe(({channel, user, msg}) => {
+      if (this.ircClient.nick() === user.name) {
+        (this.chat(channel) as PublicChat).userStatus.kicked = true;
+      }
       this.delChatUser(channel, user);
       this.addServiceEvent(
         channel, user.name,
@@ -192,6 +195,14 @@ export class ChatManagerComponent implements OnInit {
         'has been kicked',
         {description: msg.message}
       );
+    });
+    this.ircClient.inviteOnly.subscribe((msg) => {
+      const chat = (this.show(msg.channel) as PublicChat);
+      chat.userStatus.invite = true;
+    });
+    this.ircClient.userBanned.subscribe((msg) => {
+      const chat = (this.show(msg.channel) as PublicChat);
+      chat.userStatus.banned = true;
     });
     this.ircClient.userPart.subscribe(({channel, user, msg}) => {
       this.delChatUser(channel, user);
@@ -222,10 +233,11 @@ export class ChatManagerComponent implements OnInit {
     });
     this.ircClient.channelJoin.subscribe((channel) => {
       const chat = (this.show(channel) as PublicChat);
-      // reset channel users list
-      chat.users.length = 0;
+      // reset channel users list and other flags
+      chat.reset();
+      // local user join event
       this.addServiceEvent(
-        channel, this.ircClient.config.nick,
+        channel, this.ircClient.nick(),
         ChatMessageType.JOIN,
         'joined',
         {description: ''}
@@ -332,6 +344,10 @@ export class ChatManagerComponent implements OnInit {
     // reset message count when toggling notifications
     chat.stats.messages.new = 0;
   }
+  onJoinChannelClick(chat: any) {
+    chat.reset();
+    this.ircClient.join(chat.info.name);
+  }
   onLeaveChannelClick(chat: PrivateChat | PublicChat) {
     // TODO: should ask for confirmation
     this.ircClient.part(chat.info.name);
@@ -383,21 +399,21 @@ export class ChatManagerComponent implements OnInit {
     e.preventDefault();
     // TODO: make a method 'sendMessage' out of this
     const textLines = this.currentChat.input.text.split('\n');
-    textLines.forEach((message) => {
+    textLines.forEach((params) => {
       // strip unwanted characters codes from string
 //      message = message.replace(/[\x00-\x1F\x7F]/g, '');
-      if (message.trim() !== '') {
-        let spaceIndex = message.indexOf(' ');
-        if (message[0] === '/' && spaceIndex > 0) {
-          const command = message.substring(1, spaceIndex).toUpperCase();
-          let target = message = message.substring(spaceIndex + 1);
+      if (params.trim() !== '') {
+        let spaceIndex = params.indexOf(' ');
+        if (params[0] === '/' && spaceIndex > 0) {
+          const command = params.substring(1, spaceIndex).toUpperCase();
+          let target = params = params.substring(spaceIndex + 1);
           if (command === 'ME') {
-            this.userAction(message);
+            this.userAction(params);
           } else {
-            spaceIndex = message.indexOf(' ');
+            spaceIndex = params.indexOf(' ');
             if (spaceIndex > 0) {
-              target = message.substring(0, spaceIndex);
-              message = message.substring(spaceIndex + 1);
+              target = params.substring(0, spaceIndex);
+              params = params.substring(spaceIndex + 1);
             }
             switch (command) {
               case 'NICK':
@@ -407,7 +423,7 @@ export class ChatManagerComponent implements OnInit {
                 this.ircClient.whois(target);
                 break;
               case 'CTCP':
-                this.ircClient.ctcp(target, message);
+                this.ircClient.ctcp(target, params);
                 break;
               case 'JOIN':
                 this.ircClient.join(target);
@@ -420,12 +436,21 @@ export class ChatManagerComponent implements OnInit {
                 break;
               case 'QUERY':
               case 'MSG':
-                this.chat(target).send(message);
+                this.chat(target).send(params);
+                break;
+              case 'MODE':
+                this.ircClient.mode(target, params);
+                break;
+              case 'KICK':
+                this.ircClient.kick(target, params);
+                break;
+              case 'INVITE':
+                this.ircClient.invite(target, params);
                 break;
             }
           }
         } else {
-          this.chat().send(message);
+          this.chat().send(params);
         }
       }
     });

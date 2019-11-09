@@ -15,6 +15,7 @@ export class ChatData {
     selectionStart: 0,
     selectionEnd: 0
   };
+  userStatus: any;
   serviceMessage: ChatMessage;
   showColors = false;
   chatEvent = new EventEmitter<any>();
@@ -47,7 +48,7 @@ export class ChatData {
     // Add the outgoing message to the buffer as well
     this.receive({
       type: ChatMessageType.MESSAGE,
-      sender: this.chatManager.client().config.nick,
+      sender: this.chatManager.client().nick(),
       target: name,
       message,
       rendered: {},
@@ -72,7 +73,7 @@ export class ChatData {
 
     // find chatUser nick in sentence and make it bold
     let nickMatched = false;
-    const nick = this.chatManager.client().config.nick; // <--- TODO: create an @Injectable IrcClientService
+    const nick = this.chatManager.client().nick();
     const replacer = new RegExp(`(^|\\b)${nick}(?=\\W|\\w+|$)`, 'ig');
     message.rendered.message = message.rendered.message.replace(replacer, (match) => {
       nickMatched = true;
@@ -100,7 +101,7 @@ export class ChatData {
     }
     this.timestamp = Date.now();
 
-    // TODO: implment this via EventEmitter
+    // TODO: implement this via EventEmitter
     // scroll down to last visible message
     if (this.info === this.manager().chat().info) {
       this.manager().scrollToLast();
