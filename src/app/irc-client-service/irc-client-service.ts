@@ -349,6 +349,15 @@ console.log('>> ' + msg.data)
                     message: payload.params[2]
                   });
                   break;
+                case '401': // NO SUCH NICK OR CHANNEL
+                  this.messageReceive.emit({
+                    type: payload.command,
+                    sender: payload.prefix,
+                    target: payload.params[0],
+                    message: payload.params[1] + ': ' + payload.params[2],
+                    timestamp: Date.now()
+                  });
+                  break;
                 case '404': // Cannot send to channel.
                   // TODO: ...
                   //a[":1 :halcyon.il.us.dal.net 404 bill1 #prova :Cannot send to channel"]
