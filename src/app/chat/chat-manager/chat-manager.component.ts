@@ -200,6 +200,10 @@ export class ChatManagerComponent implements OnInit {
       const chat = (this.show(msg.channel) as PublicChat);
       chat.userStatus.invite = true;
     });
+    this.ircClient.registeredOnly.subscribe((msg) => {
+      const chat = (this.show(msg.channel) as PublicChat);
+      chat.userStatus.registered = true;
+    });
     this.ircClient.userBanned.subscribe((msg) => {
       const chat = (this.show(msg.channel) as PublicChat);
       chat.userStatus.banned = true;
@@ -422,6 +426,9 @@ export class ChatManagerComponent implements OnInit {
               case 'WHOIS':
                 this.ircClient.whois(target);
                 break;
+              case 'WHOWAS':
+                this.ircClient.whowas(target);
+                break;
               case 'CTCP':
                 this.ircClient.ctcp(target, params);
                 break;
@@ -434,9 +441,8 @@ export class ChatManagerComponent implements OnInit {
               case 'LIST':
                 this.ircClient.list();
                 break;
-              case 'QUERY':
-              case 'MSG':
-                this.chat(target).send(params);
+              case 'TOPIC':
+                this.ircClient.topic(target, params);
                 break;
               case 'MODE':
                 this.ircClient.mode(target, params);
@@ -446,6 +452,10 @@ export class ChatManagerComponent implements OnInit {
                 break;
               case 'INVITE':
                 this.ircClient.invite(target, params);
+                break;
+              case 'QUERY':
+              case 'MSG':
+                this.chat(target).send(params);
                 break;
             }
           }

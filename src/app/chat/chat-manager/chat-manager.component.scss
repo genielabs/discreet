@@ -225,7 +225,7 @@ app-messages-window {
   background-color: rgba(0,0,0,0.8);
   padding: 12px;
   margin-right: 240px;
-  margin-bottom: calc(#{$input-bar-height} + 30px); // make the status bar visible (+30px)
+  margin-bottom: $input-bar-height;
   transition: margin-right .3s ease-in-out;
   .tool-bar {
     width: 100%;

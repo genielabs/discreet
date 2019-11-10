@@ -204,7 +204,7 @@
 
 </div>
 
-<div *ngIf="currentChat && currentChat.userStatus && (currentChat.userStatus.kicked || currentChat.userStatus.banned || currentChat.userStatus.invite)"
+<div *ngIf="currentChat && currentChat.userStatus && (currentChat.userStatus.kicked || currentChat.userStatus.banned || currentChat.userStatus.invite || currentChat.userStatus.registered)"
      [ngClass]="{'full-width': !showRightPanel, hidden: !currentChat}"
      class="statusOverlay" fxLayout="column" fxLayoutAlign="center center">
 
@@ -212,6 +212,9 @@
 
   <div *ngIf="currentChat.userStatus.invite" class="theme-color-notice">
     This channel is invite only.
+  </div>
+  <div *ngIf="currentChat.userStatus.registered" class="theme-color-notice">
+    Only registered users can join this channel.
   </div>
   <div *ngIf="currentChat.userStatus.kicked" class="theme-color-notice">
     You've been kicked from this channel.

@@ -83,6 +83,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.screenHeight = window.innerHeight;
     this.screenWidth = window.innerWidth;
     this.settingsService.loadSettings();
+    // handle nick name errors
+    this.ircClientService.invalidNick.subscribe((msg) => {
+      this.onNickChangeClick(this.channelManager);
+    });
   }
   ngOnDestroy() {
     if (this.mediaCountInterval) {

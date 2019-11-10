@@ -15,6 +15,7 @@ export class IrcClientService {
   private ircClientSubject: Subject<any>;
 
   // events
+  invalidNick = new EventEmitter<any>();
   loggedIn = new EventEmitter<any>();
   messageReceive = new EventEmitter<any>();
   channelJoin = new EventEmitter<any>();
@@ -34,6 +35,7 @@ export class IrcClientService {
   whoisReply = new EventEmitter<any>();
   channelsList = new EventEmitter<IrcChannel>();
   inviteOnly = new EventEmitter<any>();
+  registeredOnly = new EventEmitter<any>();
   userBanned = new EventEmitter<any>();
 
   private userList: IrcUser[] = [];
@@ -179,6 +181,12 @@ console.log('>> ' + msg.data)
                 case 'PING':
                   subject.next([ `:1 PONG ${payload.params[0]}` ]);
                   break;
+                case '001': // Welcome
+                  // nick: payload.params[0]
+                  // message: payload.params[1] (welcome message)
+                  //          eg: "Welcome to the DALnet IRC Network Wall`ez!~022d7be4@net-2-45-123-228.cust.vodafonedsl.it"
+                  this.config.nick = payload.params[0];
+                  break;
                 case 'CAP':
                   if (payload.params[1] === 'LS') {
                     subject.next([ ':1 CAP REQ :account-notify away-notify extended-join multi-prefix message-tags' ]);
@@ -211,11 +219,6 @@ console.log('>> ' + msg.data)
                   });
                   break;
                 case '366': // END USERS LIST
-                  /*
-                  this.usersList.emit({
-                    target: payload.params[2],
-                    users: []
-                  });*/
                   break;
                 case '301': // AUTOMATIC REPLY FROM AWAY USER
                   this.awayReply.emit({
@@ -343,6 +346,22 @@ console.log('>> ' + msg.data)
                     message: payload.params[2]
                   });
                   break;
+                case '477': // ONLY REGISTERED USERS CAN JOIN CHANNEL
+                  this.registeredOnly.emit({
+                    channel: payload.params[1],
+                    message: payload.params[2]
+                  });
+                  // payload.params[0]  NICK
+                  // payload.params[1]  Channel
+                  // payload.params[2]  Reason
+                  this.messageReceive.emit({
+                    type: payload.command,
+                    sender: payload.params[1],
+                    target: payload.params[1],
+                    message: payload.params[2],
+                    timestamp: Date.now()
+                  });
+                  break;
                 case '474': // BANNED
                   this.userBanned.emit({
                     channel: payload.params[1],
@@ -362,41 +381,14 @@ console.log('>> ' + msg.data)
                   // TODO: ...
                   //a[":1 :halcyon.il.us.dal.net 404 bill1 #prova :Cannot send to channel"]
                   //break;
-                case '477': // You need to identify to a registered nick to speak in that channel.
-                  // TODO: should popup nick change prompt
-                  //a[":1 :choopa.nj.us.dal.net 477 Bumble`Bee #cafechat :You need to identify to a registered nick to speak in that channel. For help with registering your nickname, type \"/msg NickServ@services.dal.net help register\" or see http://docs.dal.net/docs/nsemail.html"]
-                  //break;
-                  // payload.params[0]  NICK
-                  // payload.params[1]  Channel
-                  // payload.params[2]  Reason
-                  this.messageReceive.emit({
-                    type: payload.command,
-                    sender: payload.params[1],
-                    target: payload.params[1],
-                    message: payload.params[2],
-                    timestamp: Date.now()
-                  });
-                  break;
-                case '001': // Welcome
-                  // nick: payload.params[0]
-                  // message: payload.params[1] (welcome message)
-                  //          eg: "Welcome to the DALnet IRC Network Wall`ez!~022d7be4@net-2-45-123-228.cust.vodafonedsl.it"
-                  this.config.nick = payload.params[0];
-                  break;
+                case '432': // The nick Wall`e is currently being held by a Services Enforcer
                 case '433': // Nickname already in use
                   message = payload.params[1] += ': ' + payload.params[2];
-                  // TODO: emit event nickAlreadyInUse (or nickTaken) and should popup the nick change dialog
-                  //this.loggedIn.emit(true);
-console.log('NICKNAME ALREADY IN USE', payload);
+                  this.invalidNick.emit(msg);
                   //break;
                 case '465': // Automatically banned from server
                   // TODO: ...
                   //this.loggedIn.emit(true);
-                  //break;
-                case '432': // The nick Wall`e is currently being held by a Services Enforcer
-                  // TODO: ... should popup the nick change dialog
-                  this.loggedIn.emit(true);
-                  // [":1 :bifrost.ca.us.dal.net 432 * Wall`e :The nick Wall`e is currently being held by a Services Enforcer. If you are the nicks owner, use \u0002/msg NickServ@services.dal.net RELEASE Wall`e password\u0002 to release the nickname. If the nickname recently expired, please wait patiently and try again later."]
                   //break;
                 case '372': // MOTD TEXT
                 case '305': // You are no longer marked as being away
@@ -531,8 +523,16 @@ console.log('NICKNAME ALREADY IN USE', payload);
     this.saveConfiguration();
   }
 
+  whowas(nick: string) {
+    this.raw(`:1 WHOWAS ${nick}`);
+  }
+
   whois(nick: string) {
     this.raw(`:1 WHOIS ${nick}`);
+  }
+
+  topic(target: string, params: string) {
+    this.raw(`:1 TOPIC ${target} :${params}`);
   }
 
   mode(target: string, params: string) {

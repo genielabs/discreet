@@ -10,9 +10,14 @@ export class PublicChat extends ChatData {
   mode: string;
   users: ChatUser[] = [] as ChatUser[];
   userStatus = {
+    // kicked from channel
     kicked: false,
+    // banned from channel
     banned: false,
-    invite: false
+    // only invited users can join
+    invite: false,
+    // only registered users can join
+    registered: false
   };
   preferences: any = {
     showChannelActivity: true,
@@ -71,7 +76,8 @@ export class PublicChat extends ChatData {
     this.userStatus = {
       kicked: false,
       banned: false,
-      invite: false
+      invite: false,
+      registered: false
     };
   }
 }
