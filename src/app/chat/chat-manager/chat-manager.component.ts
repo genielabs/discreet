@@ -31,7 +31,6 @@ import {ChannelsListComponent} from '../dialogs/channels-list/channels-list.comp
 import {IrcUser} from '../../irc-client-service/irc-user';
 import {UserInfoDialogComponent} from '../dialogs/user-info-dialog/user-info-dialog.component';
 import {SettingsService} from '../../services/settings.service';
-import {YoutubeSearchService} from '../../services/youtube-search.service';
 import {YoutubeSearchComponent} from '../dialogs/youtube-search/youtube-search.component';
 
 @Injectable({
@@ -389,7 +388,7 @@ export class ChatManagerComponent implements OnInit {
       // TODO: not implemented yet
       return;
     }
-    this.router.navigate(['.'], { fragment: 'emoji', relativeTo: this.route });
+    this.router.navigate(['.'], { fragment: 'info', relativeTo: this.route });
     const dialogRef = this.dialog.open(UserInfoDialogComponent, {
       closeOnNavigation: true,
       data: user
@@ -400,7 +399,9 @@ export class ChatManagerComponent implements OnInit {
   }
 
   onEnterKey(e) {
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
     // TODO: make a method 'sendMessage' out of this
     const textLines = this.currentChat.input.text.split('\n');
     textLines.forEach((params) => {
@@ -478,6 +479,7 @@ export class ChatManagerComponent implements OnInit {
       if (result) {
         if (result.action === 'share') {
           this.insertTextInput(`https://youtu.be/${result.media.id} `);
+          this.onEnterKey(e);
           this.messageInput.nativeElement.focus();
         } else {
           this.videoPlayer.loadVideo(result.media.id);
@@ -488,19 +490,19 @@ export class ChatManagerComponent implements OnInit {
     e.preventDefault();
   }
   onOpenEmojiClick(e) {
-    const eventEmitter = new EventEmitter<string>();
     this.router.navigate(['.'], { fragment: 'emoji', relativeTo: this.route });
     const dialogRef = this.dialog.open(EmojiDialogComponent, {
       panelClass: 'emoji-dialog-container',
-      closeOnNavigation: true,
-      data: eventEmitter
+      closeOnNavigation: true
     });
-    eventEmitter.subscribe((emoji) => {
+    dialogRef.componentInstance.emojiClicked.subscribe((emoji) => {
       this.insertTextInput(emoji.native);
     });
-    dialogRef.afterClosed().subscribe(emoji => {
-      eventEmitter.unsubscribe();
+    dialogRef.afterClosed().subscribe((sendMessage) => {
       this.messageInput.nativeElement.focus();
+      if (sendMessage) {
+        this.onEnterKey(null);
+      }
     });
     e.preventDefault();
   }
@@ -681,7 +683,7 @@ export class ChatManagerComponent implements OnInit {
     this.ircClient.connect().subscribe(null, (error) => {
       this.chatLoading.emit(false);
       this.isLoggedIn = false;
-      this.snackBar.open('Connessione interrotta.', 'Connetti', {
+      this.snackBar.open('Connection lost.', 'Connect', {
         verticalPosition: 'bottom'
       }).onAction().subscribe(() => {
         this.connect();
@@ -689,7 +691,7 @@ export class ChatManagerComponent implements OnInit {
     }, () => {
       this.chatLoading.emit(false);
       this.isLoggedIn = false;
-      this.snackBar.open('Connessione interrotta.', 'Connetti', {
+      this.snackBar.open('Connection lost.', 'Connect', {
         verticalPosition: 'bottom'
       }).onAction().subscribe(() => {
         this.connect();

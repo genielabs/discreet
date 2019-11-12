@@ -7,18 +7,13 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
   styleUrls: ['./emoji-dialog.component.scss']
 })
 export class EmojiDialogComponent implements OnInit {
+  public emojiClicked = new EventEmitter<string>();
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public eventEmitter: EventEmitter<string>,
     public dialogRef: MatDialogRef<EmojiDialogComponent>
   ) { }
 
   ngOnInit() {
-  }
-
-  onAddEmoji(emoji: string) {
-    this.eventEmitter.emit(emoji);
-    //this.dialogRef.close(emoji);
   }
 
 }

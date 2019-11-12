@@ -1,5 +1,15 @@
-<emoji-mart (emojiClick)="onAddEmoji($event.emoji)"
+<emoji-mart (emojiClick)="emojiClicked.emit($event.emoji)"
             title="Pick your emoji…" emoji="point_up"
             set="google"
             hideObsolete="true"
             skin="3"></emoji-mart>
+<div fxLayout="row" fxLayoutAlign="space-between">
+  <button mat-flat-button mat-dialog-close>
+    <mat-icon>close</mat-icon>
+    Close
+  </button>
+  <button mat-flat-button mat-dialog-close="true">
+    Send and close
+    <mat-icon>send</mat-icon>
+  </button>
+</div>

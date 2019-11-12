@@ -20,10 +20,10 @@
       </button>
     </div>
   </div>
+  <mat-progress-bar *ngIf="isLoading" mode="query"></mat-progress-bar>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <div fxFlexFill fxLayout="row" fxLayoutAlign="space-between center">
-    <mat-icon>search</mat-icon>&nbsp;
     <mat-form-field fxFlex="1 0 0">
       <input matInput cdkFocusInitial type="text"
              placeholder="Author, title" i18n-placeholder="@@authorAndTitle"
@@ -37,5 +37,8 @@
         Enter at least 3 characters.
       </mat-error>
     </mat-form-field>
+    <button mat-icon-button (click)="onSearchClick($event)">
+      <mat-icon>search</mat-icon>
+    </button>
   </div>
 </mat-dialog-actions>
