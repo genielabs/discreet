@@ -13,6 +13,7 @@ Features in brief:
 - public/private message notifications
 - automatic media urls parsing (e.g. gets and displays YouTube video info)
 - automatic video playlists with integrated video player
+- integrated YouTube video search
 - dark theme
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.5.
