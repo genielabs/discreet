@@ -8,10 +8,11 @@ Written using [Angular](https://angular.io/) and [Angular-Material](https://mate
 Features in brief:
 - responsive and adaptive layout that works both on desktop and mobile
 - supports different locales
-- IRC color codes decoding
+- emoji and IRC color codes decoding
+- nick auto-complete (by start typing `@` and a few initial letters) 
 - public/private message notifications
 - automatic media urls parsing (e.g. gets and displays YouTube video info)
-- video playlists with integrated video player
+- automatic video playlists with integrated video player
 - dark theme
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.5.
