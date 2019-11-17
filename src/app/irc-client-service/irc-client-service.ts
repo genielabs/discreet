@@ -67,6 +67,7 @@ export class IrcClientService {
       channels: [] as IrcChannel[],
       timestamp: 0
     },
+    /*
     {
       id: 'ircgate.it',
       address: 'irc.ircgate.it:6667',
@@ -75,6 +76,7 @@ export class IrcClientService {
       channels: [] as IrcChannel[],
       timestamp: 0
     },
+    */
     {
       id: 'rizon.net',
       address: 'irc.rizon.net:6667',
