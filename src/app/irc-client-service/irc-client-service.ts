@@ -54,7 +54,15 @@ export class IrcClientService {
     {
       id: 'dal.net',
       address: 'irc.dal.net:6667',
-      name: 'DALnet (International)',
+      name: 'DALnet',
+      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
+      channels: [] as IrcChannel[],
+      timestamp: 0
+    },
+    {
+      id: 'efnet.org',
+      address: 'irc.efnet.org:6667',
+      name: 'EFNet',
       webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
       channels: [] as IrcChannel[],
       timestamp: 0
@@ -62,37 +70,61 @@ export class IrcClientService {
     {
       id: 'freenode.net',
       address: 'irc.freenode.net:6667',
-      name: 'FreeNode (International)',
+      name: 'FreeNode',
       webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
       channels: [] as IrcChannel[],
       timestamp: 0
     },
     /*
     {
-      id: 'ircgate.it',
-      address: 'irc.ircgate.it:6667',
-      name: 'IRCGate (Italy)',
-      webSocketUrl: 'wss://webchat.chattaora.it:7779/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
+      id: 'de.ircnet.net',
+      address: 'irc.de.ircnet.net:6667',
+      name: 'IRCNet (EU)',
+      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
+      channels: [] as IrcChannel[],
+      timestamp: 0
+    },
+    {
+      id: 'us.ircnet.net',
+      address: 'irc.us.ircnet.net:6667',
+      name: 'IRCNet (USA)',
+      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
+      channels: [] as IrcChannel[],
+      timestamp: 0
+    },
+    {
+      id: 'oftc.net',
+      address: 'irc.oftc.net:6667',
+      name: 'OFTC',
+      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
       channels: [] as IrcChannel[],
       timestamp: 0
     },
     */
     {
-      id: 'rizon.net',
-      address: 'irc.rizon.net:6667',
-      name: 'Rizon (International)',
+      id: 'quakenet.org',
+      address: 'irc.quakenet.org:6667',
+      name: 'QuakeNet',
       webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
       channels: [] as IrcChannel[],
       timestamp: 0
     },
-/*    {
-      id: 'undernet.org',
-      address: 'irc.undernet.org:6667',
-      name: 'UnderNet (International)',
+    {
+      id: 'rizon.net',
+      address: 'irc.rizon.net:6667',
+      name: 'Rizon',
       webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
       channels: [] as IrcChannel[],
       timestamp: 0
-    }*/
+    },
+    {
+      id: 'undernet.org',
+      address: 'irc.undernet.org:6667',
+      name: 'UnderNet',
+      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
+      channels: [] as IrcChannel[],
+      timestamp: 0
+    }
   ];
 
   config = {
