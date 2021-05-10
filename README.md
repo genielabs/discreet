@@ -1,6 +1,6 @@
 # Discreet (codename: ng-web-irc)
 
-<img src="https://github.com/genielabs/discreet/raw/master/src/assets/discreet-irc.jpg" />
+<img src="https://raw.githubusercontent.com/genielabs/discreet/master/src/assets/discreet-irc.jpeg" />
 
 Discreet is a self-hosted anonymous chat client based on the IRC protocol implemented over a websocket connection (WebIRC).
 Written using [Angular](https://angular.io/) and [Angular-Material](https://material.angular.io/).
@@ -24,7 +24,10 @@ You can change server connection properties by editing the file `src/assets/serv
 The file `src/app/irc-client-service/irc-client-service.ts` only contains a basic and draft implementation of IRC client protocol.
 Full protocol specifications are available from [IRCv3 Specifications](https://ircv3.net/irc/). 
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli).
+Due to a bug in the CLI, you might encounter a "Javascript heat out of memory" while running `ng serve`. This can be fixed by using the following command instead:
+
+`node --max_old_space_size=8048 ./node_modules/@angular/cli/bin/ng serve`
+
 
 ## Development server
 
