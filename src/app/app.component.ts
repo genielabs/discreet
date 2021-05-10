@@ -2,7 +2,6 @@ import {Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/co
 
 import {ChatManagerComponent} from './chat/chat-manager/chat-manager.component';
 import {LoginInfo} from './irc-client-service/login-info';
-import {MatDialog, MatSidenav} from '@angular/material';
 import {ActionPromptComponent} from './chat/dialogs/action-prompt/action-prompt.component';
 import {AwayPromptComponent} from './chat/dialogs/away-prompt/away-prompt.component';
 import {DeviceDetectorService} from 'ngx-device-detector';
@@ -16,6 +15,8 @@ import {ChannelsListComponent} from './chat/dialogs/channels-list/channels-list.
 import {PrivateChat} from './chat/private-chat';
 
 import {SettingsService} from './services/settings.service';
+import {MatSidenav} from '@angular/material/sidenav';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-root',

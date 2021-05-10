@@ -1,9 +1,9 @@
 # Discreet (codename: ng-web-irc)
 
+<img src="https://github.com/genielabs/discreet/raw/master/src/assets/discreet-irc.jpg" />
+
 Discreet is a self-hosted anonymous chat client based on the IRC protocol implemented over a websocket connection (WebIRC).
 Written using [Angular](https://angular.io/) and [Angular-Material](https://material.angular.io/).
-
-#### [ONLINE DEMO](https://genielabs.github.io/chat)
 
 Features in brief:
 - responsive and adaptive layout that works both on desktop and mobile
@@ -16,7 +16,15 @@ Features in brief:
 - integrated YouTube video search
 - dark theme
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.5.
+Discreet has been tested with [InspIRCD](https://github.com/inspircd/inspircd) with *websocket* module enabled.
+You can change server connection properties by editing the file `src/assets/server-list.json`.
+
+**PLEASE NOTE**
+
+The file `src/app/irc-client-service/irc-client-service.ts` only contains a basic and draft implementation of IRC client protocol.
+Full protocol specifications are available from [IRCv3 Specifications](https://ircv3.net/irc/). 
+
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli).
 
 ## Development server
 

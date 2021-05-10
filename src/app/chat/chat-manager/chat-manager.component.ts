@@ -16,7 +16,6 @@ import {IrcClientService} from '../../irc-client-service/irc-client-service';
 import {MessagesWindowComponent} from '../messages-window/messages-window.component';
 import {ChatInfo} from '../chat-info';
 import {ChatData} from '../chat-data';
-import {MatDialog, MatMenu} from '@angular/material';
 import {ChatUser} from '../chat-user';
 import {YoutubeVideoComponent} from '../../socialmedia/youtube-video/youtube-video.component';
 import {EmojiDialogComponent} from '../dialogs/emoji-dialog/emoji-dialog.component';
@@ -32,6 +31,8 @@ import {IrcUser} from '../../irc-client-service/irc-user';
 import {UserInfoDialogComponent} from '../dialogs/user-info-dialog/user-info-dialog.component';
 import {SettingsService} from '../../services/settings.service';
 import {YoutubeSearchComponent} from '../dialogs/youtube-search/youtube-search.component';
+import {MatMenu} from '@angular/material/menu';
+import {MatDialog} from '@angular/material/dialog';
 
 @Injectable({
   providedIn: 'root',

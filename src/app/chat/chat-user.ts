@@ -1,5 +1,5 @@
-import {MediaInfo} from './text-formatting';
 import {IrcUser} from '../irc-client-service/irc-user';
+import {MediaInfo} from './pipes/enrich-message.pipe';
 
 export class ChatUser {
   // volatile data that will be lost if chatUser leaves the channel

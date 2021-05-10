@@ -1,8 +1,8 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {MAT_DIALOG_DATA} from '@angular/material';
 import {ChatUser} from '../../chat-user';
 import {IrcClientService} from '../../../irc-client-service/irc-client-service';
 import {IrcUser} from '../../../irc-client-service/irc-user';
+import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-user-info-dialog',

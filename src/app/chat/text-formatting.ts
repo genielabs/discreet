@@ -2,27 +2,6 @@ import {Observable, Observer} from 'rxjs';
 import {MediaInfo} from './pipes/enrich-message.pipe';
 import {HttpClient, HttpXhrBackend} from '@angular/common/http';
 
-export interface MediaInfo {
-  //
-  // SEE: https://noembed.com for further info
-  //
-  html: string; // HTML code for embedding the media (eg. '<iframe ...></iframe>')
-  version: string; // '1.0';
-  height: number; // 270;
-  thumbnail_url: string; // 'https://i.ytimg.com/vi/srkdnRhnHPM/hqdefault.jpg';
-  thumbnail_width: number; // 480;
-  url: string; // 'https://www.youtube.com/watch?v=srkdnRhnHPM';
-  author_name: string; // 'TheChudovische';
-  title: string; // 'Amy Winehouse - Live at Porchester Hall [2007]';
-  width: number; // 480;
-  provider_name: string; // 'YouTube';
-  provider_url: string; // 'https://www.youtube.com/';
-  thumbnail_height: number; // 360;
-  type: string; // 'video';
-  author_url: string; // 'https://www.youtube.com/user/TheChudovische';
-  originalUrl: string; // '[https://www.youtube.com/watch?v=srkdnRhnHPM]';
-}
-
 export class EnrichmentResult {
   enriched: string;
   mediaInfo?: MediaInfo;

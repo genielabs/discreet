@@ -1,8 +1,7 @@
 import {Component, EventEmitter, Inject} from '@angular/core';
-import {MAT_DIALOG_DATA} from '@angular/material';
-import {MediaInfo} from '../../text-formatting';
 import {ChatUser} from '../../chat-user';
-import {YoutubeSearchService} from '../../../services/youtube-search.service';
+import {MAT_DIALOG_DATA} from '@angular/material/dialog';
+import {MediaInfo} from '../../pipes/enrich-message.pipe';
 
 @Component({
   selector: 'app-media-playlist',

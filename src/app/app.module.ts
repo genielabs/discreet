@@ -6,23 +6,6 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import {
-  MatIconModule,
-  MatBadgeModule,
-  MatSidenavModule,
-  MatToolbarModule,
-  MatTabsModule,
-  MatMenuModule,
-  MatProgressSpinnerModule,
-  MatSnackBarModule,
-  MatDialogModule, MAT_DIALOG_DEFAULT_OPTIONS, MatCardModule, MatTooltipModule, MatProgressBarModule, MatSelectModule
-} from '@angular/material';
-import { ScrollingModule } from '@angular/cdk/scrolling';
-import { MatRippleModule } from '@angular/material/core';
 
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
 import { ScrollEventModule } from 'ngx-scroll-event';
@@ -37,7 +20,7 @@ import { YoutubeVideoComponent } from './socialmedia/youtube-video/youtube-video
 import { SafePipe } from './chat/pipes/safe.pipe';
 import { EmojiDialogComponent } from './chat/dialogs/emoji-dialog/emoji-dialog.component';
 import { SplashScreenComponent } from './splash-screen/splash-screen.component';
-import { ServiceWorkerModule } from '@angular/service-worker';
+
 import { environment } from '../environments/environment';
 import {DeviceDetectorModule} from 'ngx-device-detector';
 import { MediaPlaylistComponent } from './chat/dialogs/media-playlist/media-playlist.component';
@@ -56,6 +39,9 @@ import {PouchDBService} from './services/pouchdb.service';
 import {EncrDecrService} from './services/encr-decr.service';
 import {SettingsService} from './services/settings.service';
 import { YoutubeSearchComponent } from './chat/dialogs/youtube-search/youtube-search.component';
+import {MaterialModule} from './material.module';
+import {MAT_DIALOG_DEFAULT_OPTIONS} from '@angular/material/dialog';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 @NgModule({
   declarations: [
@@ -88,33 +74,20 @@ import { YoutubeSearchComponent } from './chat/dialogs/youtube-search/youtube-se
     ReactiveFormsModule,
     // moment.js
     MomentModule,
-    // material
-    MatFormFieldModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatInputModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    MatBadgeModule,
-    MatIconModule,
-    MatTabsModule,
-    MatSelectModule,
-    MatMenuModule,
-    MatProgressBarModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    ScrollingModule,
-    MatRippleModule,
-    MatDialogModule,
-    MatCardModule,
-    MatTooltipModule,
+    // Material UI
+    MaterialModule,
     // third party
     NgxTributeModule,
     ScrollEventModule,
     PickerModule,
     RouterModule.forRoot([], {useHash: true}),
     DeviceDetectorModule.forRoot(),
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      // Register the ServiceWorker as soon as the app is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ],
   entryComponents: [
     EmojiDialogComponent,

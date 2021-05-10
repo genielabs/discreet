@@ -1,5 +1,5 @@
 import {EventEmitter, Injectable} from '@angular/core';
-import { webSocket } from 'rxjs/webSocket';
+import {webSocket} from 'rxjs/webSocket';
 import {Subject} from 'rxjs';
 
 import {LoginInfo} from './login-info';
@@ -7,6 +7,7 @@ import {IrcChannel} from './irc-channel';
 import {IrcUser} from './irc-user';
 import {IrcServer} from './irc-server';
 import {PouchDBService} from '../services/pouchdb.service';
+import {HttpClient} from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -41,94 +42,18 @@ export class IrcClientService {
   private userList: IrcUser[] = [];
   private updateDbTimeout;
 
-  serverList: IrcServer[] = [
-    {
+  serverList: IrcServer[];
+
+  config = {
+    server: {
       id: 'dev',
       name: 'localhost',
       address: 'localhost:6667',
-      webSocketUrl: 'ws://localhost:8080/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
+      webSocketUrl: 'ws://localhost:7002',
       channels: [] as IrcChannel[],
       timestamp: 0,
-      hidden: true
-    },
-    {
-      id: 'dal.net',
-      address: 'irc.dal.net:6667',
-      name: 'DALnet',
-      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
-      channels: [] as IrcChannel[],
-      timestamp: 0
-    },
-    {
-      id: 'efnet.org',
-      address: 'irc.efnet.org:6667',
-      name: 'EFNet',
-      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
-      channels: [] as IrcChannel[],
-      timestamp: 0
-    },
-    {
-      id: 'freenode.net',
-      address: 'irc.freenode.net:6667',
-      name: 'FreeNode',
-      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
-      channels: [] as IrcChannel[],
-      timestamp: 0
-    },
-    /*
-    {
-      id: 'de.ircnet.net',
-      address: 'irc.de.ircnet.net:6667',
-      name: 'IRCNet (EU)',
-      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
-      channels: [] as IrcChannel[],
-      timestamp: 0
-    },
-    {
-      id: 'us.ircnet.net',
-      address: 'irc.us.ircnet.net:6667',
-      name: 'IRCNet (USA)',
-      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
-      channels: [] as IrcChannel[],
-      timestamp: 0
-    },
-    {
-      id: 'oftc.net',
-      address: 'irc.oftc.net:6667',
-      name: 'OFTC',
-      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
-      channels: [] as IrcChannel[],
-      timestamp: 0
-    },
-    */
-    {
-      id: 'quakenet.org',
-      address: 'irc.quakenet.org:6667',
-      name: 'QuakeNet',
-      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
-      channels: [] as IrcChannel[],
-      timestamp: 0
-    },
-    {
-      id: 'rizon.net',
-      address: 'irc.rizon.net:6667',
-      name: 'Rizon',
-      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
-      channels: [] as IrcChannel[],
-      timestamp: 0
-    },
-    {
-      id: 'undernet.org',
-      address: 'irc.undernet.org:6667',
-      name: 'UnderNet',
-      webSocketUrl: 'wss://do-a.clients.kiwiirc.com/webirc/kiwiirc/{apath}/{bpath}/websocket?sid={sid}',
-      channels: [] as IrcChannel[],
-      timestamp: 0
-    }
-  ];
-
-  config = {
-    server: this.serverList[1],
+      hidden: false
+    } as IrcServer,
     nick: '',
     password: '',
     host: 'localhost',
@@ -140,17 +65,21 @@ export class IrcClientService {
 
   private whoisData: any = {};
 
-  constructor(private pouchDbService: PouchDBService) {}
+  constructor(private pouchDbService: PouchDBService, httpClient: HttpClient) {
+    httpClient.get('assets/server-list.json').subscribe((res) => {
+      console.log(res);
+      this.serverList = res as any;
+    });
+  }
 
   connect(): Subject<any> {
+    let userRegistered = false;
     const subject = this.ircClientSubject = webSocket<any>({
-      url: this.config.server.webSocketUrl
-        .replace('{apath}', this.generateId(3, true))
-        .replace('{bpath}', this.generateId(8))
-        .replace('{sid}', this.generateId(13)),
+      url: this.config.server.webSocketUrl,
       binaryType: 'arraybuffer',
       // just let the message raw, unparsed
       deserializer: (msg) => msg,
+      serializer: (msg) => msg,
       closeObserver: {
         next: (e: CloseEvent) => {
           this.connectionStatus.next(false);
@@ -165,351 +94,326 @@ export class IrcClientService {
     });
     subject.subscribe(
       msg => {
-console.log('>> ' + msg.data)
-        // control command codes
-        switch (msg.data) {
-          // Just connected
-          case 'o':
-            subject.next([ ':0 CONTROL START' ]);
-            subject.next([ ':1' ]);
-            break;
-          // PING ACK
-          case 'h':
-            subject.next([ ':1 PING *' ]);
-            break;
-          case 'a[":1"]':
-            subject.next([ `:1 HOST ${this.config.server.address}` ]);
-            subject.next([ ':1 ENCODING utf8' ]);
-            subject.next([ ':1 CAP LS 302' ]);
-            subject.next([ `:1 NICK ${this.config.nick}` ]);
-            subject.next([ `:1 USER ${this.config.user} 0 * ${this.config.info}` ]);
-            break;
-          default:
+        console.log('>> ' + msg.data)
 
-            if (msg.data.toString().startsWith('a[":1 control closed')) {
+        if (!userRegistered) {
+          subject.next(`NICK ${this.config.nick}`);
+          subject.next(`USER ${this.config.user} * 0 :${this.config.info}`);
+          userRegistered = true;
+        }
+
+        let payload;
+        if (msg.data.startsWith(':')) {
+          payload = this.parse(msg.data);
+        }
+
+        if (payload) {
+          let target = payload.params[0];
+          let message = payload.params[1];
+          let user: IrcUser;
+          // irc message payload
+          switch (payload.command) {
+            case 'ERROR':
+              // TODO: verify 'Closing Link' argument
               this.disconnect();
               break;
-            }
-// TODO: things to implement and handle:
-//       - a[":1 control closed err_unknown_host"]
-
-            let payload;
-            if (msg.data.toString().startsWith('a[')) {
-              payload = JSON.parse(msg.data.toString().substring(1).trim())[0];
-              if (payload.startsWith(':1 ')) {
-                payload = payload.substring(3);
-                payload = this.parse(payload);
+            case 'PING':
+              subject.next([`:1 PONG ${payload.params[0]}`]);
+              break;
+            case '001': // Welcome
+              // nick: payload.params[0]
+              // message: payload.params[1] (welcome message)
+              //          eg: "Welcome to the DALnet IRC Network Wall`ez!~022d7be4@net-2-45-123-228.cust.vodafonedsl.it"
+              this.config.nick = payload.params[0];
+              break;
+            case 'CAP':
+              if (payload.params[1] === 'LS') {
+                subject.next([':1 CAP REQ :account-notify away-notify extended-join multi-prefix message-tags']);
+                subject.next([':1 CAP END']);
+              } else if (payload.params[1] === 'NACK') {
+                // CAP REPLY (NACK)
+                // TODO: ..
+              } else if (payload.params[1] === 'ACK') {
+                // CAP REPLY (ACK)
+                // TODO: ..
               }
-            }
-
-            if (payload) {
-              let target = payload.params[0];
-              let message = payload.params[1];
-              let user: IrcUser;
-              // irc message payload
-              switch (payload.command) {
-                case 'ERROR':
-                  // TODO: verify 'Closing Link' argument
-                  this.disconnect();
-                  break;
-                case 'PING':
-                  subject.next([ `:1 PONG ${payload.params[0]}` ]);
-                  break;
-                case '001': // Welcome
-                  // nick: payload.params[0]
-                  // message: payload.params[1] (welcome message)
-                  //          eg: "Welcome to the DALnet IRC Network Wall`ez!~022d7be4@net-2-45-123-228.cust.vodafonedsl.it"
-                  this.config.nick = payload.params[0];
-                  break;
-                case 'CAP':
-                  if (payload.params[1] === 'LS') {
-                    subject.next([ ':1 CAP REQ :account-notify away-notify extended-join multi-prefix message-tags' ]);
-                    subject.next([ ':1 CAP END' ]);
-                  } else if (payload.params[1] === 'NACK') {
-                    // CAP REPLY (NACK)
-                    // TODO: ..
-                  } else if (payload.params[1] === 'ACK') {
-                    // CAP REPLY (ACK)
-                    // TODO: ..
-                  }
-                  break;
-                case '396': // DISPLAYED USER NAME+ADDRESS
-                  this.config.nick = payload.params[0];
-                  this.config.host = payload.params[1];
-                  break;
-                case '332': // CHANNEL JOIN
-                  const channel = payload.params[1];
-                  const topic = payload.params[2];
-                  this.channelTopic.emit({channel, topic});
-                  break;
-                case 'TOPIC':
-                  this.channelTopic.emit({channel: target, topic: message});
-                  break;
-                case '353': // START USERS LIST
-                  this.handleChannelUsersList({
-                    action: 'LIST',
-                    target: payload.params[2],
-                    users: payload.params[3].split(' ')
+              break;
+            case '396': // DISPLAYED USER NAME+ADDRESS
+              this.config.nick = payload.params[0];
+              this.config.host = payload.params[1];
+              break;
+            case '332': // CHANNEL JOIN
+              const channel = payload.params[1];
+              const topic = payload.params[2];
+              this.channelTopic.emit({channel, topic});
+              break;
+            case 'TOPIC':
+              this.channelTopic.emit({channel: target, topic: message});
+              break;
+            case '353': // START USERS LIST
+              this.handleChannelUsersList({
+                action: 'LIST',
+                target: payload.params[2],
+                users: payload.params[3].split(' ')
+              });
+              break;
+            case '366': // END USERS LIST
+              break;
+            case '301': // AUTOMATIC REPLY FROM AWAY USER
+              this.awayReply.emit({
+                type: payload.command, // 301
+                sender: payload.params[1],
+                target: payload.params[0],
+                message: payload.params[2],
+                timestamp: Date.now()
+              });
+              break;
+            case '321': // START channel list (reply to LIST)
+              break;
+            case '322': // ITEM channel list item (reply to LIST)
+              const ch = new IrcChannel();
+              ch.name = payload.params[1];
+              ch.users = payload.params[2];
+              const modesIndex = payload.params[3].indexOf(' ');
+              ch.modes = payload.params[3].substring(0, modesIndex);
+              ch.topic = payload.params[3].substring(modesIndex + 1);
+              this.config.server.channels.push(ch);
+              this.config.server.timestamp = Date.now();
+              this.channelsList.emit(ch);
+              break;
+            case '323': // END channel list item (reply to LIST)
+              this.channelsList.emit(null);
+              break;
+            case 'KICK':
+              this.handleChannelUsersList({
+                action: payload.command,
+                target: payload.params[0],
+                user: payload.params[1],
+                message: payload.params[2] || payload.params[1]
+              });
+              break;
+            case 'JOIN':
+              // check if it's' the local chatUser
+              const userInfo = this.parseUserAddress(payload.prefix);
+              if (userInfo.nick === this.config.nick) {
+                const joinChannel = payload.params[0];
+                // add joined channel to the 'joinChannels' list
+                const ci = this.config.joinChannels.indexOf(joinChannel);
+                if (ci < 0) {
+                  this.config.joinChannels.push(joinChannel);
+                }
+                this.channelJoin.emit(joinChannel);
+                this.saveConfiguration();
+                break;
+              }
+            // otherwise threat this JOIN message as "userList" message
+            case 'PART':
+              this.handleChannelUsersList({
+                action: payload.command,
+                target: payload.params[0],
+                user: this.parseUserAddress(payload.prefix).nick,
+                message: payload.params[2] || payload.params[1]
+              });
+              break;
+            case 'NICK':
+              const nickData = {
+                action: payload.command,
+                user: this.parseUserAddress(payload.prefix).nick,
+                nick: payload.params[0]
+              };
+              // local chatUser changed the nick, so update config
+              if (nickData.user === this.config.nick) {
+                this.config.nick = nickData.nick;
+              }
+              this.handleChannelUsersList(nickData);
+              break;
+            case 'AWAY':
+            case 'QUIT':
+              // other users actions
+              if (message !== '*') {
+                this.handleChannelUsersList({
+                  action: payload.command,
+                  user: this.parseUserAddress(payload.prefix).nick,
+                  message: payload.params[1] || payload.params[0]
+                });
+              }
+              break;
+            case 'MODE':
+              if (payload.params.length >= 3) {
+                // chatUser modes on channel
+                const modeChannel = payload.params[0];
+                const mode = payload.params[1]; // eg. "+oao", "+b", "-bbv", +"ao"
+                const users = [];
+                let u = 2;
+                while (payload.params[u]) {
+                  users.push(payload.params[u]);
+                  u++;
+                }
+                this.handleUserChannelMode({
+                  sender: this.parseUserAddress(payload.prefix).nick,
+                  channel: modeChannel,
+                  mode,
+                  users
+                });
+              } else {
+                // channel or local chatUser modes
+                const modeTarget = payload.params[0];
+                const mode = payload.params[1]; // eg. "+iwxz" (channel)
+                if (modeTarget[0] === '#') {
+                  this.chanMode.emit({
+                    channel: modeTarget,
+                    mode
                   });
-                  break;
-                case '366': // END USERS LIST
-                  break;
-                case '301': // AUTOMATIC REPLY FROM AWAY USER
-                  this.awayReply.emit({
-                    type: payload.command, // 301
-                    sender: payload.params[1],
-                    target: payload.params[0],
-                    message: payload.params[2],
-                    timestamp: Date.now()
+                } else {
+                  this.userMode.emit({
+                    user: modeTarget,
+                    mode
                   });
-                  break;
-                case '321': // START channel list (reply to LIST)
-                  break;
-                case '322': // ITEM channel list item (reply to LIST)
-                  const ch = new IrcChannel();
-                  ch.name = payload.params[1];
-                  ch.users = payload.params[2];
-                  const modesIndex =  payload.params[3].indexOf(' ');
-                  ch.modes = payload.params[3].substring(0, modesIndex);
-                  ch.topic = payload.params[3].substring(modesIndex + 1);
-                  this.config.server.channels.push(ch);
-                  this.config.server.timestamp = Date.now();
-                  this.channelsList.emit(ch);
-                  break;
-                case '323': // END channel list item (reply to LIST)
-                  this.channelsList.emit(null);
-                  break;
-                case 'KICK':
-                  this.handleChannelUsersList({
-                    action: payload.command,
-                    target: payload.params[0],
-                    user: payload.params[1],
-                    message: payload.params[2] || payload.params[1]
-                  });
-                  break;
-                case 'JOIN':
-                  // check if it's' the local chatUser
-                  const userInfo = this.parseUserAddress(payload.prefix);
-                  if (userInfo.nick === this.config.nick) {
-                    const joinChannel = payload.params[0];
-                    // add joined channel to the 'joinChannels' list
-                    const ci = this.config.joinChannels.indexOf(joinChannel);
-                    if (ci < 0) {
-                      this.config.joinChannels.push(joinChannel);
-                    }
-                    this.channelJoin.emit(joinChannel);
-                    this.saveConfiguration();
-                    break;
-                  }
-                  // otherwise threat this JOIN message as "userList" message
-                case 'PART':
-                  this.handleChannelUsersList({
-                    action: payload.command,
-                    target: payload.params[0],
-                    user: this.parseUserAddress(payload.prefix).nick,
-                    message: payload.params[2] || payload.params[1]
-                  });
-                  break;
-                case 'NICK':
-                  const nickData = {
-                    action: payload.command,
-                    user: this.parseUserAddress(payload.prefix).nick,
-                    nick: payload.params[0]
-                  };
-                  // local chatUser changed the nick, so update config
-                  if (nickData.user === this.config.nick) {
-                    this.config.nick = nickData.nick;
-                  }
-                  this.handleChannelUsersList(nickData);
-                  break;
-                case 'AWAY':
-                case 'QUIT':
-                  // other users actions
-                  if (message !== '*') {
-                    this.handleChannelUsersList({
-                      action: payload.command,
-                      user: this.parseUserAddress(payload.prefix).nick,
-                      message: payload.params[1] || payload.params[0]
-                    });
-                  }
-                  break;
-                case 'MODE':
-                  if (payload.params.length >= 3) {
-                    // chatUser modes on channel
-                    const modeChannel = payload.params[0];
-                    const mode = payload.params[1]; // eg. "+oao", "+b", "-bbv", +"ao"
-                    const users = [];
-                    let u = 2;
-                    while (payload.params[u]) {
-                      users.push(payload.params[u]);
-                      u++;
-                    }
-                    this.handleUserChannelMode({
-                      sender: this.parseUserAddress(payload.prefix).nick,
-                      channel: modeChannel,
-                      mode,
-                      users
-                    });
-                  } else {
-                    // channel or local chatUser modes
-                    const modeTarget = payload.params[0];
-                    const mode = payload.params[1]; // eg. "+iwxz" (channel)
-                    if (modeTarget[0] === '#') {
-                      this.chanMode.emit({
-                        channel: modeTarget,
-                        mode
-                      });
-                    } else {
-                      this.userMode.emit({
-                        user: modeTarget,
-                        mode
-                      });
-                      // send password for identifying the registered nick with NickServ
-                      this.identify();
-                    }
-                  }
-                  break;
-                case '376': // MOTD END
-                case '422': // MOTD MISSING
-                  this.config.joinChannels.forEach((jchan) => subject.next([ `:1 JOIN ${jchan}` ]));
-                  this.loggedIn.emit(true);
-                  break;
-                case '473': // INVITE ONLY CHANNEL
-                  this.inviteOnly.emit({
-                    channel: payload.params[1],
-                    message: payload.params[2]
-                  });
-                  break;
-                case '477': // ONLY REGISTERED USERS CAN JOIN CHANNEL
-                  this.registeredOnly.emit({
-                    channel: payload.params[1],
-                    message: payload.params[2]
-                  });
-                  // payload.params[0]  NICK
-                  // payload.params[1]  Channel
-                  // payload.params[2]  Reason
-                  this.messageReceive.emit({
-                    type: payload.command,
-                    sender: payload.params[1],
-                    target: payload.params[1],
-                    message: payload.params[2],
-                    timestamp: Date.now()
-                  });
-                  break;
-                case '474': // BANNED
-                  this.userBanned.emit({
-                    channel: payload.params[1],
-                    message: payload.params[2]
-                  });
-                  break;
-                case '401': // NO SUCH NICK OR CHANNEL
-                  this.messageReceive.emit({
-                    type: payload.command,
-                    sender: payload.prefix,
-                    target: payload.params[0],
-                    message: payload.params[1] + ': ' + payload.params[2],
-                    timestamp: Date.now()
-                  });
-                  break;
-                case '404': // Cannot send to channel.
-                  // TODO: ...
-                  //a[":1 :halcyon.il.us.dal.net 404 bill1 #prova :Cannot send to channel"]
-                  //break;
-                case '432': // The nick Wall`e is currently being held by a Services Enforcer
-                case '433': // Nickname already in use
-                  message = payload.params[1] += ': ' + payload.params[2];
-                  this.invalidNick.emit(msg);
-                  //break;
-                case '465': // Automatically banned from server
-                  // TODO: ...
-                  //this.loggedIn.emit(true);
-                  //break;
-                case '372': // MOTD TEXT
-                case '305': // You are no longer marked as being away
-                case '306': // You have been marked as being away
-                case 'NOTICE':
-                  if (message.startsWith('\x01VERSION ')) {
-                    let version = message.slice(message.indexOf(' ') + 1, -1);
-                    if (version.endsWith('\x01')) {
-                      version = version.slice(0, -1);
-                    }
-                    this.versionReply.emit({
-                      sender: payload.prefix,
-                      version,
-                      timestamp: Date.now()
-                    });
-                    break;
-                  }
-                case 'PRIVMSG':
-                  const c = this.config;
-                  if (payload.command === 'PRIVMSG' && message === '\x01VERSION\x01') {
-                    const replyTo = this.parseUserAddress(payload.prefix).nick;
-                    const versionReply = `:1 :${c.nick}!${c.user}@localhost NOTICE ${replyTo} :\x01VERSION ${c.version}\x01`;
-                    subject.next([ versionReply ]);
-                    break;
-                  } else if (payload.command === 'PRIVMSG' && message.match(/\x01PING(.*?)\x01/) != null) {
-                    const replyTo = this.parseUserAddress(payload.prefix).nick;
-                    const pingReply = `:1 :${c.nick}!${c.user}@localhost NOTICE ${replyTo} :${message}`;
-                    subject.next([ pingReply ]);
-                    break;
-                  }
-                  if (target === '*') {
-                    target = this.config.nick;
-                  }
-                  this.messageReceive.emit({
-                    type: payload.command,
-                    sender: payload.prefix ? payload.prefix : '*',
-                    target,
-                    message,
-                    timestamp: Date.now()
-                  });
-                  break;
-                case '311': // WHOIS - chatUser address
-                  user = this.putUser(payload.params[1]);
-                  user.whois.address = payload.params.slice(2);
-                  break;
-                case '307': // WHOIS - is identified for this nick
-                  user = this.putUser(payload.params[1]);
-                  user.whois.identified = payload.params.slice(2);
-                  break;
-                case '319': // WHOIS - chatUser channels
-                  user = this.putUser(payload.params[1]);
-                  user.whois.channels = payload.params[2]
-                    .split(' ')
-                    .filter((cn) => cn.length > 0);
-                  break;
-                case '312': // WHOIS - irc server address
-                  user = this.putUser(payload.params[1]);
-                  user.whois.server = payload.params.slice(2);
-                  break;
+                  // send password for identifying the registered nick with NickServ
+                  this.identify();
+                }
+              }
+              break;
+            case '376': // MOTD END
+            case '422': // MOTD MISSING
+              this.config.joinChannels.forEach((jchan) => subject.next([`:1 JOIN ${jchan}`]));
+              this.loggedIn.emit(true);
+              break;
+            case '473': // INVITE ONLY CHANNEL
+              this.inviteOnly.emit({
+                channel: payload.params[1],
+                message: payload.params[2]
+              });
+              break;
+            case '477': // ONLY REGISTERED USERS CAN JOIN CHANNEL
+              this.registeredOnly.emit({
+                channel: payload.params[1],
+                message: payload.params[2]
+              });
+              // payload.params[0]  NICK
+              // payload.params[1]  Channel
+              // payload.params[2]  Reason
+              this.messageReceive.emit({
+                type: payload.command,
+                sender: payload.params[1],
+                target: payload.params[1],
+                message: payload.params[2],
+                timestamp: Date.now()
+              });
+              break;
+            case '474': // BANNED
+              this.userBanned.emit({
+                channel: payload.params[1],
+                message: payload.params[2]
+              });
+              break;
+            case '401': // NO SUCH NICK OR CHANNEL
+              this.messageReceive.emit({
+                type: payload.command,
+                sender: payload.prefix,
+                target: payload.params[0],
+                message: payload.params[1] + ': ' + payload.params[2],
+                timestamp: Date.now()
+              });
+              break;
+            case '404': // Cannot send to channel.
+            // TODO: ...
+            //a[":1 :halcyon.il.us.dal.net 404 bill1 #prova :Cannot send to channel"]
+            //break;
+            case '432': // The nick Wall`e is currently being held by a Services Enforcer
+            case '433': // Nickname already in use
+              message = payload.params[1] += ': ' + payload.params[2];
+              this.invalidNick.emit(msg);
+            //break;
+            case '465': // Automatically banned from server
+            // TODO: ...
+            //this.loggedIn.emit(true);
+            //break;
+            case '372': // MOTD TEXT
+            case '305': // You are no longer marked as being away
+            case '306': // You have been marked as being away
+            case 'NOTICE':
+              if (message.startsWith('\x01VERSION ')) {
+                let version = message.slice(message.indexOf(' ') + 1, -1);
+                if (version.endsWith('\x01')) {
+                  version = version.slice(0, -1);
+                }
+                this.versionReply.emit({
+                  sender: payload.prefix,
+                  version,
+                  timestamp: Date.now()
+                });
+                break;
+              }
+            case 'PRIVMSG':
+              const c = this.config;
+              if (payload.command === 'PRIVMSG' && message === '\x01VERSION\x01') {
+                const replyTo = this.parseUserAddress(payload.prefix).nick;
+                const versionReply = `:1 :${c.nick}!${c.user}@localhost NOTICE ${replyTo} :\x01VERSION ${c.version}\x01`;
+                subject.next([versionReply]);
+                break;
+              } else if (payload.command === 'PRIVMSG' && message.match(/\x01PING(.*?)\x01/) != null) {
+                const replyTo = this.parseUserAddress(payload.prefix).nick;
+                const pingReply = `:1 :${c.nick}!${c.user}@localhost NOTICE ${replyTo} :${message}`;
+                subject.next([pingReply]);
+                break;
+              }
+              if (target === '*') {
+                target = this.config.nick;
+              }
+              this.messageReceive.emit({
+                type: payload.command,
+                sender: payload.prefix ? payload.prefix : '*',
+                target,
+                message,
+                timestamp: Date.now()
+              });
+              break;
+            case '311': // WHOIS - chatUser address
+              user = this.putUser(payload.params[1]);
+              user.whois.address = payload.params.slice(2);
+              break;
+            case '307': // WHOIS - is identified for this nick
+              user = this.putUser(payload.params[1]);
+              user.whois.identified = payload.params.slice(2);
+              break;
+            case '319': // WHOIS - chatUser channels
+              user = this.putUser(payload.params[1]);
+              user.whois.channels = payload.params[2]
+                .split(' ')
+                .filter((cn) => cn.length > 0);
+              break;
+            case '312': // WHOIS - irc server address
+              user = this.putUser(payload.params[1]);
+              user.whois.server = payload.params.slice(2);
+              break;
 //                case '301': // WHOIS - chatUser is away
 //                  break;
-                case '671': // WHOIS - chatUser is using a secure connection
-                  user = this.putUser(payload.params[1]);
-                  user.whois.secure = payload.params.slice(2);
-                  break;
-                case '276': // WHOIS - SSL certificate fingerprint
-                  user = this.putUser(payload.params[1]);
-                  user.whois.certificate = payload.params.slice(2);
-                  break;
-                case '330': // WHOIS - chatUser is logged in as
-                  user = this.putUser(payload.params[1]);
-                  user.whois.logged = payload.params.slice(2);
-                  break;
-                case '317': // WHOIS - signon and idle time
-                  user = this.putUser(payload.params[1]);
-                  user.whois.time = payload.params.slice(2);
-                  break;
-                case '318': // WHOIS - end of WHOIS list
-                  this.whoisReply.emit(user);
-                  this.whoisData = {};
-                  break;
-              }
-            } else {
-              console.log('UNABLE TO PARSE MESSAGE: ', msg.data);
-            }
-
+            case '671': // WHOIS - chatUser is using a secure connection
+              user = this.putUser(payload.params[1]);
+              user.whois.secure = payload.params.slice(2);
+              break;
+            case '276': // WHOIS - SSL certificate fingerprint
+              user = this.putUser(payload.params[1]);
+              user.whois.certificate = payload.params.slice(2);
+              break;
+            case '330': // WHOIS - chatUser is logged in as
+              user = this.putUser(payload.params[1]);
+              user.whois.logged = payload.params.slice(2);
+              break;
+            case '317': // WHOIS - signon and idle time
+              user = this.putUser(payload.params[1]);
+              user.whois.time = payload.params.slice(2);
+              break;
+            case '318': // WHOIS - end of WHOIS list
+              this.whoisReply.emit(user);
+              this.whoisData = {};
+              break;
+          }
+        } else {
+          console.log('UNABLE TO PARSE MESSAGE: ', msg.data);
         }
+
       },
       err => {
         console.log(err);
@@ -544,9 +448,11 @@ console.log('>> ' + msg.data)
       this.raw(`:1 LIST`);
     }
   }
+
   join(channel: string) {
     this.raw(`:1 JOIN ${channel}`);
   }
+
   part(channel: string) {
     // delete channel from 'joinChannels' list
     const ci = this.config.joinChannels.indexOf(channel);
@@ -609,9 +515,10 @@ console.log('>> ' + msg.data)
 
   raw(message: string) {
     if (this.ircClientSubject) {
-      this.ircClientSubject.next([ message ]);
+      this.ircClientSubject.next([message]);
     }
   }
+
   send(target: string, message: string) {
     if (this.ircClientSubject) {
       this.ircClientSubject.next([`:1 PRIVMSG ${target} :${message}`]);
@@ -619,6 +526,7 @@ console.log('>> ' + msg.data)
   }
 
   private parseUserAddress(prefix) {
+    if (!prefix) return;
     const ni = prefix.split('!');
     return {
       nick: ni[0],
@@ -658,6 +566,7 @@ console.log('>> ' + msg.data)
     }
     // Skip any trailing whitespace.
     while (data.charCodeAt(position) === 32) {
+      console.log(data.charCodeAt(position), position)
       position++;
     }
     // Extract the message's prefix if present. Prefixes are prepended
@@ -769,12 +678,13 @@ console.log('>> ' + msg.data)
   }
 
   removeUserNameFlags(name: string): string {
-    return name.replace(/[~&@%+]/g,'');
+    return name.replace(/[~&@%+]/g, '');
   }
 
   getUser(nick: string): IrcUser {
     return this.userList.find((u) => u.name === nick);
   }
+
   private putUser(nick: string): IrcUser {
     const name = this.removeUserNameFlags(nick);
     let user = this.getUser(name);
@@ -787,14 +697,16 @@ console.log('>> ' + msg.data)
     user.online = true;
     return user;
   }
+
   private addChatUser(msg, channel: string, ...users: string[]) {
     users.map((u) => {
       const user = this.putUser(u);
-      user.channels[channel] = { flags: this.getUserNameFlags(u) };
+      user.channels[channel] = {flags: this.getUserNameFlags(u)};
       this.userJoin.emit({channel, user, msg});
       return user;
     });
   }
+
   private renChatUser(msg, user: string, nick: string) {
     const u = this.getUser(user);
     if (u != null) {
@@ -803,12 +715,13 @@ console.log('>> ' + msg.data)
       this.userNick.emit({oldNick, u, msg});
     }
   }
+
   private delChatUser(msg, channel: string, u: string) {
     const user = this.getUser(u);
     user.online = false;
     (channel == null) ? this.userQuit.emit({user, msg})
-      : msg.action === 'KICK'  ? this.userKick.emit({channel, user, msg})
-                                : this.userPart.emit({channel, user, msg});
+      : msg.action === 'KICK' ? this.userKick.emit({channel, user, msg})
+      : this.userPart.emit({channel, user, msg});
   }
 
   private getUserNameFlags(user: string): string {
@@ -846,7 +759,7 @@ console.log('>> ' + msg.data)
       }
       const user = this.getUser(m.users[i]);
       if (user) {
-        const userChannel = user.channels[m.channel] || { flags: '' };
+        const userChannel = user.channels[m.channel] || {flags: ''};
         const oldFlags = userChannel.flags;
         userChannel.flags = userChannel.flags.replace(flag, '');
         if (modeSign === '+') {
@@ -857,16 +770,6 @@ console.log('>> ' + msg.data)
         // TODO: handle other channel modes like +b ...
       }
     });
-  }
-
-  private generateId(length: number, numbersOnly?: boolean) {
-    let result = '';
-    const characters = numbersOnly ? '0123456789' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
   }
 
   public loadConfiguration(id?: string, callback?: any) {
@@ -882,6 +785,7 @@ console.log('>> ' + msg.data)
       console.log('Error loading config.', err);
     });
   }
+
   public saveConfiguration() {
     if (this.updateDbTimeout) {
       if (this.updateDbTimeout !== true) {

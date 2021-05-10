@@ -1,0 +1,11 @@
+[
+  {
+    "id": "dev",
+    "name": "localhost",
+    "address": "localhost:6667",
+    "webSocketUrl": "ws://localhost:7002",
+    "channels": [],
+    "timestamp": 0,
+    "hidden": false
+  }
+]
