@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="pause" datatype="html">
+        <source>Pause</source>
+        <target>Pause</target>
+      </trans-unit>
+      <trans-unit id="play" datatype="html">
+        <source>Lecture</source>
+        <target>Lecture</target>
+      </trans-unit>
+      <trans-unit id="enlarge" datatype="html">
+        <source>Maximiser</source>
+        <target>Maximiser</target>
+      </trans-unit>
+      <trans-unit id="shrink" datatype="html">
+        <source>Réduire</source>
+        <target>Réduire</target>
+      </trans-unit>
+      <trans-unit id="close" datatype="html">
+        <source>Fermer</source>
+        <target>Fermer</target>
+      </trans-unit>
+      <trans-unit id="sharedVideos" datatype="html">
+        <source>Videos partagées</source>
+        <target>Videos partagées</target>
+      </trans-unit>
+      <trans-unit id="following" datatype="html">
+        <source>&#x2714; Suivre</source>
+        <target>&#x2714; Suivre</target>
+      </trans-unit>
+      <trans-unit id="follow" datatype="html">
+        <source>Suivre</source>
+        <target>Suivre</target>
+      </trans-unit>
+      <trans-unit id="channels" datatype="html">
+        <source>Salons</source>
+        <target>Salons</target>
+      </trans-unit>
+      <trans-unit id="enterChannelName" datatype="html">
+        <source>Entrez un nom de salon (exx. #cafe)</source>
+        <target>Entrez un nom de salon (exx. #cafe)</target>
+      </trans-unit>
+      <trans-unit id="channelList" datatype="html">
+        <source>Liste</source>
+        <target>Liste</target>
+      </trans-unit>
+      <trans-unit id="join" datatype="html">
+        <source>Joindre</source>
+        <target>Joindre</target>
+      </trans-unit>
+      <trans-unit id="searchVideo" datatype="html">
+        <source>Rechercher une video</source>
+        <target>Rechercher une video</target>
+      </trans-unit>
+      <trans-unit id="authorAndTitle" datatype="html">
+        <source>Auteur, titre</source>
+        <target>Auteur, titre</target>
+      </trans-unit>
+      <trans-unit id="enterAtLeast3Characters" datatype="html">
+        <source>Entrez au moins 3 caractères.</source>
+        <target>Entrez au moins 3 caractères.</target>
+      </trans-unit>
+      <trans-unit id="joinChannel" datatype="html">
+        <source>Joindre un salon</source>
+        <target>Joindre un salon</target>
+      </trans-unit>
+      <trans-unit id="yourChannels" datatype="html">
+        <source>Vos salons</source>
+        <target>Vos salons</target>
+      </trans-unit>
+      <trans-unit id="privateChats" datatype="html">
+        <source>Tchats privés</source>
+        <target>Tchats privés</target>
+      </trans-unit>
+      <trans-unit id="findUserName" datatype="html">
+        <source>Nom d'utilisateur ...</source>
+        <target>Nom d'utilisateur ...</target>
+      </trans-unit>
+      <trans-unit id="offline" datatype="html">
+        <source>Hors ligne</source>
+        <target>Hors ligne</target>
+      </trans-unit>
+      <trans-unit id="mention" datatype="html">
+        <source>Mention</source>
+        <target>Mention</target>
+      </trans-unit>
+      <trans-unit id="chat" datatype="html">
+        <source>Chat</source>
+        <target>Chat</target>
+      </trans-unit>
+      <trans-unit id="playlist" datatype="html">
+        <source>Playlist</source>
+        <target>Playlist</target>
+      </trans-unit>
+      <trans-unit id="info" datatype="html">
+        <source>Info</source>
+        <target>Info</target>
+      </trans-unit>
+      <trans-unit id="findUser" datatype="html">
+        <source>Rechercher une utilisateur</source>
+        <target>Rechercher une utilisateur</target>
+      </trans-unit>
+      <trans-unit id="disableNotifications" datatype="html">
+        <source>Désactiver les notifications</source>
+        <target>Désactiver les notifications</target>
+      </trans-unit>
+      <trans-unit id="enableNotifications" datatype="html">
+        <source>Activer les notifications</source>
+        <target>Activer les notifications</target>
+      </trans-unit>
+      <trans-unit id="hidePanel" datatype="html">
+        <source>Cacher la fenêtre</source>
+        <target>Cacher la fenêtre</target>
+      </trans-unit>
+      <trans-unit id="leaveChannel" datatype="html">
+        <source>Quitter le salon</source>
+        <target>Quitter le salon</target>
+      </trans-unit>
+      <trans-unit id="describeActionOrStatus" datatype="html">
+        <source>Décrivez une action ou un statut</source>
+        <target>Décrivez une action ou un statut</target>
+      </trans-unit>
+      <trans-unit id="enterMessage" datatype="html">
+        <source>Entrer un message</source>
+        <target>Entrer un message</target>
+      </trans-unit>
+      <trans-unit id="confirm" datatype="html">
+        <source>Confirmez</source>
+        <target>Confirmez</target>
+      </trans-unit>
+      <trans-unit id="cancel" datatype="html">
+        <source>Annuler</source>
+        <target>Annuler</target>
+      </trans-unit>
+      <trans-unit id="setAway" datatype="html">
+        <source>Je suis away</source>
+        <target>Je suis away</target>
+      </trans-unit>
+      <trans-unit id="setAwayInfo" datatype="html">
+        <source>Quand vous êtes away les gens qui vous ecrivent recevront un message automatique.</source>
+        <target>Quand vous êtes away les gens qui vous ecrivent recevront un message automatique.</target>
+      </trans-unit>
+      <trans-unit id="awayMessageText" datatype="html">
+        <source>Message d'away</source>
+        <target>Message d'away</target>
+      </trans-unit>
+      <trans-unit id="userNickname" datatype="html">
+        <source>Nom d'utilisateur</source>
+        <target>Nom d'utilisateur</target>
+      </trans-unit>
+      <trans-unit id="enterNickname" datatype="html">
+        <source>Entrer un nom d'utilisateur</source>
+        <target>Entrer un nom d'utilisateur</target>
+      </trans-unit>
+      <trans-unit id="charactersNotAllowed" datatype="html">
+        <source>Caractère non permit.</source>
+        <target>Caractère non permit.</target>
+      </trans-unit>
+      <trans-unit id="enterAtLeast3characters" datatype="html">
+        <source>Entrer au moins 3 caractère.</source>
+        <target>Entrer au moins 3 caractère.</target>
+      </trans-unit>
+      <trans-unit id="registeredUser" datatype="html">
+        <source>Utilisateur enregistré</source>
+        <target>Utilisateur enregistré</target>
+      </trans-unit>
+      <trans-unit id="password" datatype="html">
+        <source>Mot de passe</source>
+        <target>Mot de passe</target>
+      </trans-unit>
+      <trans-unit id="channelUsers" datatype="html">
+        <source>Utilisateurs du salon</source>
+        <target>Utilisateurs du salon</target>
+      </trans-unit>
+      <trans-unit id="messages" datatype="html">
+        <source>Messages</source>
+        <target>Messages</target>
+      </trans-unit>
+      <trans-unit id="changeNickname" datatype="html">
+        <source>Changer de nom d'utilisateur</source>
+        <target>Changer de nom d'utilisateur</target>
+      </trans-unit>
+      <trans-unit id="describeAction" datatype="html">
+        <source>Action</source>
+        <target>Action</target>
+      </trans-unit>
+      <trans-unit id="disconnect" datatype="html">
+        <source>Déconnecter</source>
+        <target>Déconnecter</target>
+      </trans-unit>
+      <trans-unit id="connect" datatype="html">
+        <source>Connecter</source>
+        <target>Connecter</target>
+      </trans-unit>
+      <trans-unit id="settings" datatype="html">
+        <source>Paramètres</source>
+        <target>Paramètres</target>
+      </trans-unit>
+      <trans-unit id="showJoinParts" datatype="html">
+        <source>Afficher les join/parts</source>
+        <target>Afficher les join/parts</target>
+      </trans-unit>
+      <trans-unit id="darkTheme" datatype="html">
+        <source>Passer en mode sombre</source>
+        <target>Passer en mode sombre</target>
+      </trans-unit>
+      <trans-unit id="enableColors" datatype="html">
+        <source>Activer les couleurs</source>
+        <target>Activer les couleurs</target>
+      </trans-unit>
+      <trans-unit id="server" datatype="html">
+        <source>Serveur</source>
+        <target>Serveur</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
